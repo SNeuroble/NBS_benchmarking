@@ -23,7 +23,7 @@ function nbs=NBSrun_smn(varargin)
 %                       [optional if UI.method.ui=='Run FDR']
 %                       See also NBSstats
 %
-%   UI.statistic_type.ui:    'Size' | 'Constrained' | 'TFCE'
+%   UI.statistic_type.ui:    'Size' | 'TFCE' | 'Constrained' | 'SEA'
 %                       If 'Constrained', use pre-defined edge groups to define
 %                       network components
 %                       See also NBSstats
@@ -110,7 +110,7 @@ function nbs=NBSrun_smn(varargin)
 %
 %   UI.edge_groups.ui:  N x N integer array specifying edge groups, 
 %                       where N is the number of nodes 
-%                       [required if using Constrained NBS]
+%                       [required if using Constrained or SEA NBS]
 %                       Can be specified either as a:
 %                       1. Valid Matlab expression for an N x N array
 %                       2. Text file containing numeric data arranged into
@@ -300,7 +300,7 @@ try nbs.STATS.size=UI.size.ui; catch; UI.ok=0; end
 try nbs.STATS.statistic_type=UI.statistic_type.ui; catch; UI.statistic_type.ok=0; end 
 %Edge groups for constrained [required if constrained]
 if isfield(UI.statistic_type,'ui')
-    if strcmp(UI.statistic_type.ui,'Constrained')
+    if strcmp(UI.statistic_type.ui,'Constrained') | strcmp(UI.statistic_type.ui,'SEA')
         try [nbs.STATS.edge_groups,UI.edge_groups.ok]=read_edge_groups(UI.edge_groups.ui,DIMS);
         catch UI.edge_groups.ok=0;
         end
@@ -624,7 +624,7 @@ end
     end
     
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%Read edge groups for constrained NBS
+%Read edge groups for Constrained or SEA NBS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function [edge_groups,ok]=read_edge_groups(Name,DIMS)
     ok=1;

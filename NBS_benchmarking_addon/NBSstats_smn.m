@@ -90,6 +90,8 @@ switch STATS.statistic_type
         STATS.statistic_type_numeric=1;
     case 'Constrained' % cNBS
         STATS.statistic_type_numeric=2;
+    case 'SEA' % SEA
+        STATS.statistic_type_numeric=3;
     otherwise
         error(sprintf('Statistic type %s was provided, but only ''Size'', ''TFCE'', or ''Constrained'' allowed.',STATS.statistic_type))
 end
@@ -107,7 +109,7 @@ end
 
 do_FWER_for_2nd_level=NaN;
 do_parametric_for_2nd_level=NaN;
-if STATS.statistic_type_numeric==2
+if STATS.statistic_type_numeric==2 | STATS.statistic_type_numeric==3
     
     % special multidimensional null for cNBS
     n_nulls=length(STATS.edge_groups.unique);
@@ -160,7 +162,7 @@ end
 % This gets cluster-based statistics satisfying FWER threshold
 [pval]=perform_correction(null_dist,cluster_stats__target,max_stat__target,do_FWER_for_2nd_level,do_parametric_for_2nd_level,STATS,K);
 any_significant=any(pval(:)<STATS.alpha);
-con_mat=0;
+con_mat=0; % this is for original NBS visualization in GUI and needs to be in a specific format; instead, we'll use the stats directly
 
 end
 
@@ -249,23 +251,34 @@ switch STATS.statistic_type_numeric
        
     case 1 % do TFCE
         
-        ind=ind_upper;
         test_stat_mat=zeros(N,N);
         test_stat_mat(ind_upper)=test_stat;
         test_stat_mat=(test_stat_mat+test_stat_mat');
         
-        [cluster_stats]=matlab_tfce_transform(test_stat_mat,'matrix');
+        cluster_stats=matlab_tfce_transform(test_stat_mat,'matrix');
         
         null_stat=max(cluster_stats(:));
         
     case 2 % do cNBS - returns a group-length vector
         
-        ind=ind_upper;
+        % TODO: this should be done directly from the test_stat without making mat - just need network IDs 
         test_stat_mat=zeros(N,N);
         test_stat_mat(ind_upper)=test_stat;
         test_stat_mat=(test_stat_mat+test_stat_mat');
          
-        [cluster_stats]=get_constrained_stats(test_stat_mat,STATS.edge_groups);
+        cluster_stats=get_constrained_stats(test_stat_mat,STATS.edge_groups);
+        
+        null_stat=cluster_stats; % TODO - this is not a max value but instead 1 val for null per group - think of how to name
+        
+    case 3 % do Set Enrichment Analysis (SEA; GSEA minus the G bc not genetics)
+        
+        edge_groups_vec=STATS.edge_groups.groups(ind_upper); % TODO: do this during setup
+        cluster_stats=zeros(length(STATS.edge_groups.unique),1);
+        for i=STATS.edge_groups.unique
+            set1_ids=find(edge_groups_vec==i);
+            set2_ids=find(edge_groups_vec~=i);
+            [cluster_stats(i),~]=get_enrichment_score([1:length(edge_groups_vec)],test_stat,set1_ids,set2_ids,1,0); % TODO: pass w as param
+        end
         
         null_stat=cluster_stats; % TODO - this is not a max value but instead 1 val for null per group - think of how to name
         
@@ -293,7 +306,7 @@ switch STATS.statistic_type_numeric
         
         pval=arrayfun(@(this_stat) sum(+(this_stat<null_dist))/K, target_stat);
         
-    case 2 % cNBS
+    case {2, 3} % cNBS
         
         % estimate pvalue for each network
         pval_uncorr=zeros(size(STATS.edge_groups.unique));
@@ -319,8 +332,7 @@ switch STATS.statistic_type_numeric
                 J=length(pval_uncorr);
                 ind_srt=zeros(1,J); 
                 [pval_uncorr_sorted,ind_srt]=sort(pval_uncorr);
-                tmp=(pval_uncorr_sorted<=(1:J)/J*STATS.alpha);
-                ind_sig=find(tmp);
+                ind_sig=pval_uncorr_sorted<=(1:J)/J*STATS.alpha;
                 
                 pval=ones(1,J);
                 pval(ind_srt(ind_sig))=0; % here, binary: 0 means significant (<alpha), 1 is not significant (>alpha) 
