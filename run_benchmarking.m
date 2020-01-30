@@ -10,7 +10,7 @@
 %% User-defined
 
 config_file='/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/myscripts/NBS_benchmarking/config_files/cfg.m';
-% config_file='/mnt/store1/mridata2/mri_group/smn33_data/hcp/cNBS/config_files/cfg.m'; % MRRC
+% config_file='/mnt/store1/mridata2/mri_group/smn33_data/hcp/cNBS/config_files/cfg.m'; % if server
 
 %% Setup
 
@@ -20,7 +20,7 @@ addpath(genpath(current_path));
 
 % set up the rest from config file
 run(config_file);
-setup_nbs_benchmark;
+setup_benchmarking;
 
 %% Run repetitions
 
@@ -49,7 +49,7 @@ end
 % Do NBS
 % using parfor which requires Parallel Computing Toolbox, but if don't have set to 1 worker
 
-my_pool = parpool(n_workers); % set from here bc doesn't limit to the specified n streams on server
+if isempty(gcp('nocreate')); my_pool = parpool(n_workers); end % set from here bc doesn't limit to the specified n streams on server
 if rep_params.testing; fprintf('*** TESTING MODE ***\n'); end
 if rep_params.do_simulated_effect; fprintf('*** SYNTHETIC EFFECT ADDED ***\n'); end
 
@@ -87,13 +87,11 @@ parfor (this_repetition=(1+reps_completed_previously):rep_params.n_repetitions)
 
 end
 
+if strcmp(UI.statistic_type.ui,'Constrained') || strcmp(UI.statistic_type.ui,'SEA')
+   cluster_stats_all=squeeze(cluster_stats_all);
+end
 
 %% Save
-
-% TODO NOW: check whether this is necessary
-%if strcmp(UI.statistic_type.ui,'Constrained') || strcmp(UI.statistic_type.ui,'SEA')
-%    cluster_stats_all=squeeze(cluster_stats_all);
-%end
 
 mkdir(output_dir)
 
