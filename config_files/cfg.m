@@ -10,7 +10,6 @@ other_scripts_directory='/mridata2/home2/smn33/scripts/matlab/myscripts/general_
 %other_scripts_directory='/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/myscripts/general_mri';
 
 % input data - assumes square matrix (typically HCP toy data)
-% TBD: full dataset
 % data_path='/mnt/store1/mridata2/mri_group/smn33_data/hcp/data_01ffd_v7_3.mat';
 data_path='/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/ConstableLab/MRRC Neuroinformatics/resources/scripts/cpm_hackathon/test_data/HCP900_rest_n50.mat';
 
