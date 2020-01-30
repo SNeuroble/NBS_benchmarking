@@ -1,8 +1,8 @@
-e%% Benchmarking Definitions
+%% Benchmarking Definitions
 
 % script directories
 nbs_path='/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/fmri/NBS1.2';
-nbs_addon_path='/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/myscripts/cNBS';
+% nbs_addon_path='/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/myscripts/cNBS';
 % dir for other scripts used (structure_data, draw_atlas_boundaries, summarize_matrix_by_atlas)
 other_scripts_directory='/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/myscripts/general_mri';
 

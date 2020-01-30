@@ -109,7 +109,7 @@ end
 
 do_FWER_for_2nd_level=NaN;
 do_parametric_for_2nd_level=NaN;
-if STATS.statistic_type_numeric==2 | STATS.statistic_type_numeric==3
+if STATS.statistic_type_numeric==2 || STATS.statistic_type_numeric==3
     
     % special multidimensional null for cNBS
     n_nulls=length(STATS.edge_groups.unique);
@@ -332,7 +332,8 @@ switch STATS.statistic_type_numeric
                 J=length(pval_uncorr);
                 ind_srt=zeros(1,J); 
                 [pval_uncorr_sorted,ind_srt]=sort(pval_uncorr);
-                ind_sig=pval_uncorr_sorted<=(1:J)/J*STATS.alpha;
+                tmp=(1:J)/J*STATS.alpha;
+                ind_sig=pval_uncorr_sorted<=tmp;
                 
                 pval=ones(1,J);
                 pval(ind_srt(ind_sig))=0; % here, binary: 0 means significant (<alpha), 1 is not significant (>alpha) 

@@ -300,7 +300,7 @@ try nbs.STATS.size=UI.size.ui; catch; UI.ok=0; end
 try nbs.STATS.statistic_type=UI.statistic_type.ui; catch; UI.statistic_type.ok=0; end 
 %Edge groups for constrained [required if constrained]
 if isfield(UI.statistic_type,'ui')
-    if strcmp(UI.statistic_type.ui,'Constrained') | strcmp(UI.statistic_type.ui,'SEA')
+    if strcmp(UI.statistic_type.ui,'Constrained') || strcmp(UI.statistic_type.ui,'SEA')
         try [nbs.STATS.edge_groups,UI.edge_groups.ok]=read_edge_groups(UI.edge_groups.ui,DIMS);
         catch UI.edge_groups.ok=0;
         end
