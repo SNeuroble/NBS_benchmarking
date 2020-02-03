@@ -100,7 +100,7 @@ else; size_str='';
 end
 if testing; test_str='_testing'; else test_str=''; end
 
-output_filename=[output_dir,'nbs_benchmark_results__',UI.statistic_type.ui,size_str,test_str,'_',datestr(now,'mmddyyyy_HHMM')];
+output_filename=[output_dir,'nbs_benchmark_results__',UI.statistic_type.ui,size_str,test_str,'_',datestr(now,'mmddyyyy_HHMM'),'.mat'];
 save(output_filename,'edge_stats_all','cluster_stats_all','pvals_all','FWER','UI','rep_params');
 
 % show that results are available in the workspace
