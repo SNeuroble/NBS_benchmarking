@@ -14,16 +14,17 @@
 
 %% User-defined
 
+% results to work on
 %previous_results_filename='/mnt/store1/mridata2/mri_group/smn33_data/hcp/NBS_benchmarking_results/nbs_benchmark_results__SEA_02032020_1306.mat';
 %previous_results_filename='/mnt/store1/mridata2/mri_group/smn33_data/hcp/NBS_benchmarking_results/nbs_benchmark_results__Constrained_01072020_1423.mat';
-previous_results_filename='/mnt/store1/mridata2/mri_group/smn33_data/hcp/NBS_benchmarking_results/nbs_benchmark_results__Size_Extent_01072020_1800.mat';
+%previous_results_filename='/mnt/store1/mridata2/mri_group/smn33_data/hcp/NBS_benchmarking_results/nbs_benchmark_results__Size_Extent_01072020_1800.mat';
 %previous_results_filename='/mnt/store1/mridata2/mri_group/smn33_data/hcp/NBS_benchmarking_results/nbs_benchmark_results__Size_Intensity_01082020_1416.mat';
-%previous_results_filename='/mnt/store1/mridata2/mri_group/smn33_data/hcp/NBS_benchmarking_results/nbs_benchmark_results__TFCE_01082020_0824.mat';
+previous_results_filename='/mnt/store1/mridata2/mri_group/smn33_data/hcp/NBS_benchmarking_results/nbs_benchmark_results__TFCE_01082020_0824.mat';
 %previous_results_filename='/Users/steph/Steph-Lab/NBS_benchmarking/results_benchmarking/nbs_benchmark_results__Size_Intensity_01292020_1534.mat';
 
+% visualization stuff
 %other_scripts_directory='/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/myscripts/general_mri';
 other_scripts_directory='/mridata2/home2/smn33/scripts/matlab/myscripts/general_mri_new/general_mri/'; % if on server
-
 do_visualization=1;
 
 %% Load results
@@ -31,6 +32,7 @@ do_visualization=1;
 % check whether NBS results file previously loaded
 load_new_data=0;
 output_filename=previous_results_filename;
+sprintf('Data to load: %s\n',previous_results_filename);
 if exist('previous_results_filename__already_loaded')
     if ~strcmp(previous_results_filename__already_loaded,previous_results_filename)
         user_response=input(sprintf('Data already loaded into the workspace does not match the data specified in the config file. Keep already loaded data or replace with results specified in config file? (keep/replace)\nPreviously loaded: %s\nFrom config file:  %s\n>',previous_results_filename__already_loaded,previous_results_filename),'s');
@@ -51,7 +53,7 @@ else
 end
 
 if load_new_data
-    clearvars -except output_filename previous_results_filename do_visualization
+    clearvars -except output_filename previous_results_filename do_visualization other_scripts_directory
     load(previous_results_filename);
     previous_results_filename__already_loaded=previous_results_filename;
 end
