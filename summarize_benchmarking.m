@@ -15,11 +15,14 @@
 %% User-defined
 
 %previous_results_filename='/mnt/store1/mridata2/mri_group/smn33_data/hcp/NBS_benchmarking_results/nbs_benchmark_results__SEA_02032020_1306.mat';
-previous_results_filename='/mnt/store1/mridata2/mri_group/smn33_data/hcp/NBS_benchmarking_results/nbs_benchmark_results__Constrained_01072020_1423.mat';
-%previous_results_filename='/mnt/store1/mridata2/mri_group/smn33_data/hcp/NBS_benchmarking_results/nbs_benchmark_results__Size_Extent_01072020_1800.mat';
+%previous_results_filename='/mnt/store1/mridata2/mri_group/smn33_data/hcp/NBS_benchmarking_results/nbs_benchmark_results__Constrained_01072020_1423.mat';
+previous_results_filename='/mnt/store1/mridata2/mri_group/smn33_data/hcp/NBS_benchmarking_results/nbs_benchmark_results__Size_Extent_01072020_1800.mat';
 %previous_results_filename='/mnt/store1/mridata2/mri_group/smn33_data/hcp/NBS_benchmarking_results/nbs_benchmark_results__Size_Intensity_01082020_1416.mat';
 %previous_results_filename='/mnt/store1/mridata2/mri_group/smn33_data/hcp/NBS_benchmarking_results/nbs_benchmark_results__TFCE_01082020_0824.mat';
 %previous_results_filename='/Users/steph/Steph-Lab/NBS_benchmarking/results_benchmarking/nbs_benchmark_results__Size_Intensity_01292020_1534.mat';
+
+%other_scripts_directory='/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/myscripts/general_mri';
+other_scripts_directory='/mridata2/home2/smn33/scripts/matlab/myscripts/general_mri_new/general_mri/'; % if on server
 
 do_visualization=1;
 
@@ -48,7 +51,7 @@ else
 end
 
 if load_new_data
-    clearvars -except output_dir previous_results_filename do_visualization
+    clearvars -except output_filename previous_results_filename do_visualization
     load(previous_results_filename);
     previous_results_filename__already_loaded=previous_results_filename;
 end
@@ -169,6 +172,8 @@ end
 
 %% Visualize
 if do_visualization
+    
+    addpath(genpath(other_scripts_directory))
 
     if strcmp(UI.statistic_type.ui,'Constrained') || strcmp(UI.statistic_type.ui,'SEA')
         visualization_scaling_factor=1000;
