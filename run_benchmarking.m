@@ -9,8 +9,8 @@
 
 %% User-defined
 
-config_file='/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/myscripts/NBS_benchmarking/config_files/cfg.m';
-% config_file='/mnt/store1/mridata2/mri_group/smn33_data/hcp/cNBS/config_files/cfg.m'; % if server
+%config_file='/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/myscripts/NBS_benchmarking/config_files/cfg.m';
+config_file='/mridata2/home2/smn33/scripts/NBS_benchmarking/config_files/cfg.m'; % if server
 
 %% Setup
 
@@ -98,7 +98,7 @@ mkdir(output_dir)
 if strcmp(UI.statistic_type.ui,'Size'); size_str=['_',UI.size.ui];
 else; size_str='';
 end
-if testing; test_str='_testing'; end
+if testing; test_str='_testing'; else test_str=''; end
 
 output_filename=[output_dir,'nbs_benchmark_results__',UI.statistic_type.ui,size_str,test_str,'_',datestr(now,'mmddyyyy_HHMM')];
 save(output_filename,'edge_stats_all','cluster_stats_all','pvals_all','FWER','UI','rep_params');
