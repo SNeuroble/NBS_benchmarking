@@ -21,6 +21,7 @@ previous_results_filename='/mnt/store1/mridata2/mri_group/smn33_data/hcp/NBS_ben
 %previous_results_filename='/mnt/store1/mridata2/mri_group/smn33_data/hcp/NBS_benchmarking_results/nbs_benchmark_results__TFCE_01082020_0824.mat';
 %previous_results_filename='/Users/steph/Steph-Lab/NBS_benchmarking/results_benchmarking/nbs_benchmark_results__Size_Intensity_01292020_1534.mat';
 
+do_visualization=1;
 
 %% Load results
 
@@ -55,13 +56,6 @@ size_cluster_stats_summary=size(cluster_stats_all);
 
 n_nodes=size_cluster_stats_summary(1);
 n_repetitions=size_cluster_stats_summary(end);
-
-if strcmp(UI.statistic_type.ui,'Constrained') || strcmp(UI.statistic_type.ui,'SEA')
-    visualization_scaling_factor=1000;
-else
-    visualization_scaling_factor=100000;
-end
-
 
 % remove any NBS summary data already loaded in workspace
 if exist('edge_stats_summary') && ~isstruct(edge_stats_summary)
@@ -175,7 +169,13 @@ end
 
 %% Visualize
 if do_visualization
-    
+
+    if strcmp(UI.statistic_type.ui,'Constrained') || strcmp(UI.statistic_type.ui,'SEA')
+        visualization_scaling_factor=1000;
+    else
+        visualization_scaling_factor=100000;
+    end
+
     fprintf('Making visualizations.\n');
     summarize_matrix_by_atlas((visualization_scaling_factor*positives_total/n_repetitions)'); % TODO: confirm whether need the transpose - not needed for Size - Extent 
 %     caxis([0,0.01]);
