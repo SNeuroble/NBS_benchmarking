@@ -14,8 +14,12 @@
 
 %% User-defined
 
-previous_results_filename='/Users/steph/Steph-Lab/NBS_benchmarking/results_benchmarking/nbs_benchmark_results__Size_Intensity_01292020_1534.mat';
-visualization_scaling_factor=100000;
+%previous_results_filename='/mnt/store1/mridata2/mri_group/smn33_data/hcp/NBS_benchmarking_results/nbs_benchmark_results__SEA_02032020_1306.mat';
+previous_results_filename='/mnt/store1/mridata2/mri_group/smn33_data/hcp/NBS_benchmarking_results/nbs_benchmark_results__Constrained_01072020_1423.mat';
+%previous_results_filename='/mnt/store1/mridata2/mri_group/smn33_data/hcp/NBS_benchmarking_results/nbs_benchmark_results__Size_Extent_01072020_1800.mat';
+%previous_results_filename='/mnt/store1/mridata2/mri_group/smn33_data/hcp/NBS_benchmarking_results/nbs_benchmark_results__Size_Intensity_01082020_1416.mat';
+%previous_results_filename='/mnt/store1/mridata2/mri_group/smn33_data/hcp/NBS_benchmarking_results/nbs_benchmark_results__TFCE_01082020_0824.mat';
+%previous_results_filename='/Users/steph/Steph-Lab/NBS_benchmarking/results_benchmarking/nbs_benchmark_results__Size_Intensity_01292020_1534.mat';
 
 
 %% Load results
@@ -25,7 +29,7 @@ load_new_data=0;
 output_filename=previous_results_filename;
 if exist('previous_results_filename__already_loaded')
     if ~strcmp(previous_results_filename__already_loaded,previous_results_filename)
-        user_response=input(sprintf('Data already loaded into the workspace does not match the data specified in the config file. Keep already loaded data or replace with results specified in config file? (keep/replace)\nPreviously loaded: %s\nFrom config file: %s\n>',previous_results_filename__already_loaded,previous_results_filename),'s');
+        user_response=input(sprintf('Data already loaded into the workspace does not match the data specified in the config file. Keep already loaded data or replace with results specified in config file? (keep/replace)\nPreviously loaded: %s\nFrom config file:  %s\n>',previous_results_filename__already_loaded,previous_results_filename),'s');
         if strcmp(user_response,'replace')
             fprintf('Replacing previously loaded data with data from file.\n');
             load_new_data=1; 
@@ -46,12 +50,18 @@ if load_new_data
     clearvars -except output_dir previous_results_filename do_visualization
     load(previous_results_filename);
     previous_results_filename__already_loaded=previous_results_filename;
-else
-    size_cluster_stats_summary=size(cluster_stats_all);
 end
+size_cluster_stats_summary=size(cluster_stats_all);
 
 n_nodes=size_cluster_stats_summary(1);
 n_repetitions=size_cluster_stats_summary(end);
+
+if strcmp(UI.statistic_type.ui,'Constrained') || strcmp(UI.statistic_type.ui,'SEA')
+    visualization_scaling_factor=1000;
+else
+    visualization_scaling_factor=100000;
+end
+
 
 % remove any NBS summary data already loaded in workspace
 if exist('edge_stats_summary') && ~isstruct(edge_stats_summary)
@@ -142,28 +152,31 @@ if save_summary_file
     save(output_filename_summary,'edge_stats_summary','cluster_stats_summary','positives','positives_total','FWER_manual');
 end
 
-%% Visualize
+   
+% make sure positives are in matrix form for cNBS and SEA visualization
+if strcmp(UI.statistic_type.ui,'Constrained') || strcmp(UI.statistic_type.ui,'SEA')
 
+    msk=UI.edge_groups.ui;
+    % Force mask to be upper triangular only if not already (Manually verified this for lower tri mask and upper tri input)
+    tmp=tril(msk,-1); if any(tmp(:)); msk=triu(msk'); end
+    groups=unique(msk); groups=groups(2:end);
+    n_groups=length(groups);
+
+    n_nodes=size(msk,1);
+    positives_total=zeros(n_nodes);
+    for i=1:n_groups
+        positives_total(msk==i)=sum(positives(i,:)); % TBD
+    end
+    
+    positives_total_mat=positives_total;
+    save(output_filename_summary,'positives_total_mat','-append');
+
+end
+
+%% Visualize
 if do_visualization
     
     fprintf('Making visualizations.\n');
-    
-    % make sure positives are in matrix form - esp for cNBS
-    if strcmp(UI.statistic_type.ui,'Constrained') || strcmp(UI.statistic_type.ui,'SEA')
-
-        msk=UI.edge_groups.ui;
-        % Force mask to be upper triangular only if not already (Manually verified this for lower tri mask and upper tri input)
-        tmp=tril(msk,-1); if any(tmp(:)); msk=triu(msk'); end
-        groups=unique(msk); groups=groups(2:end);
-        n_groups=length(groups);
-
-        n_nodes=size(msk,1);
-        positives_total=zeros(n_nodes);
-        for i=1:n_groups
-            positives_total(msk==i)=sum(positives(i,:)); % TBD
-        end
-    end
-       
     summarize_matrix_by_atlas((visualization_scaling_factor*positives_total/n_repetitions)'); % TODO: confirm whether need the transpose - not needed for Size - Extent 
 %     caxis([0,0.01]);
     
