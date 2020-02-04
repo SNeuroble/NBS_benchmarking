@@ -7,19 +7,11 @@
 % pvals_all: total # positives
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%% User-defined
-
-%config_file='/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/myscripts/NBS_benchmarking/config_files/cfg.m';
-config_file='/mridata2/home2/smn33/scripts/NBS_benchmarking/config_files/cfg.m'; % if server
-
 %% Setup
 
-% assuming current folder is NBS_benchmarking
+% adding NBS_benchmarking (current folder)
 [current_path,~,~]=fileparts(mfilename('fullpath'));
 addpath(genpath(current_path));
-
-% set up the rest from config file
-run(config_file);
 setup_benchmarking;
 
 %% Run repetitions

@@ -14,17 +14,25 @@
 
 %% User-defined
 
-% results to work on
-%previous_results_filename='/mnt/store1/mridata2/mri_group/smn33_data/hcp/NBS_benchmarking_results/nbs_benchmark_results__SEA_02032020_1306.mat';
-%previous_results_filename='/mnt/store1/mridata2/mri_group/smn33_data/hcp/NBS_benchmarking_results/nbs_benchmark_results__Constrained_01072020_1423.mat';
-%previous_results_filename='/mnt/store1/mridata2/mri_group/smn33_data/hcp/NBS_benchmarking_results/nbs_benchmark_results__Size_Extent_01072020_1800.mat';
-%previous_results_filename='/mnt/store1/mridata2/mri_group/smn33_data/hcp/NBS_benchmarking_results/nbs_benchmark_results__Size_Intensity_01082020_1416.mat';
-previous_results_filename='/mnt/store1/mridata2/mri_group/smn33_data/hcp/NBS_benchmarking_results/nbs_benchmark_results__TFCE_01082020_0824.mat';
-%previous_results_filename='/Users/steph/Steph-Lab/NBS_benchmarking/results_benchmarking/nbs_benchmark_results__Size_Intensity_01292020_1534.mat';
+% results file basename
+previous_results_basename='nbs_benchmark_results__TFCE_01082020_0824.mat';
+%previous_results_basename='nbs_benchmark_results__SEA_02032020_1306.mat';
+%previous_results_basename='nbs_benchmark_results__Constrained_01072020_1423.mat';
+%previous_results_basename='nbs_benchmark_results__Size_Extent_01072020_1800.mat';
+%previous_results_basename='nbs_benchmark_results__Size_Intensity_01082020_1416.mat';
+%previous_results_basename='nbs_benchmark_results__TFCE_01082020_0824.mat';
+previous_results_basename='nbs_benchmark_results__Size_Intensity_01292020_1534.mat';
 
-% visualization stuff
-%other_scripts_directory='/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/myscripts/general_mri';
-other_scripts_directory='/mridata2/home2/smn33/scripts/matlab/myscripts/general_mri_new/general_mri/'; % if on server
+%% Setup
+
+% assuming current folder is NBS_benchmarking - need config file for paths
+[current_path,~,~]=fileparts(mfilename('fullpath'));
+addpath(genpath(current_path));
+setpaths;
+
+% results file full path
+previous_results_filename=[output_dir,previous_results_basename];
+
 do_visualization=1;
 
 %% Load results
@@ -53,7 +61,7 @@ else
 end
 
 if load_new_data
-    clearvars -except output_filename previous_results_filename do_visualization other_scripts_directory
+    clearvars -except output_filename previous_results_filename do_visualization other_scripts_dir
     load(previous_results_filename);
     previous_results_filename__already_loaded=previous_results_filename;
 end
@@ -175,7 +183,7 @@ end
 %% Visualize
 if do_visualization
     
-    addpath(genpath(other_scripts_directory))
+    addpath(genpath(other_scripts_dir))
 
     if strcmp(UI.statistic_type.ui,'Constrained') || strcmp(UI.statistic_type.ui,'SEA')
         visualization_scaling_factor=1000;
