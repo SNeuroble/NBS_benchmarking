@@ -12,12 +12,17 @@ addpath(genpath(other_scripts_dir));
 % load data
 load_data='y';
 if exist('m','var');
-    load_data=input('Data is already loaded in workspace. Load anew? (y/n)','s');
+    load_data=input('Some data is already loaded in workspace. Replace? (y/n)','s');
 end    
 
 if strcmp(load_data,'y')
-    fprintf('Loading data.\n');
-    m=struct2array(load(data_path,'data'));
+    sprintf('Loading data: %s\n',data_path);
+    variableInfo = who('-file',data_path);
+    if ismember('data', variableInfo) % returns true
+        m=struct2array(load(data_path,'data'));
+    else
+        error('Could not find variable ''data'' in data file.');
+    end
     m=reorder_matrix_by_atlas(m,mapping_category);
 elseif strcmp(load_data,'n')
     fprintf('Using previously loaded data and assuming already reordered.\n');
