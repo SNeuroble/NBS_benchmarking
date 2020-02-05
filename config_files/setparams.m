@@ -1,7 +1,7 @@
 %% User-defined parameters for running NBS benchmarking
 
 % Resampling parameters
-testing=0; % developers only - speeds up analyses for troubleshooting but inappropriate for inference
+testing=1; % developers only - speeds up analyses for troubleshooting but inappropriate for inference
 n_workers=4; % num parallel workers for parfor, best to use # workers = # cores
 do_simulated_effect=0;
 networks_with_effects=[1,5]; % networks to add simulated effects into - only relevant if adding effect
