@@ -3,10 +3,11 @@
 % This will load data and set up the parameters needed to run NBS benchmarking
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
-% add script directories 
-% addpath(genpath(nbs_addon_path))
-addpath(genpath(nbs_path))
-addpath(genpath(other_scripts_directory))
+% set paths and params
+setpaths;
+setparams;
+addpath(genpath(nbs_dir));
+addpath(genpath(other_scripts_dir));
 
 % load data
 load_data='y';
@@ -16,7 +17,7 @@ end
 
 if strcmp(load_data,'y')
     fprintf('Loading data.\n');
-    m=struct2array(load(data_path));
+    m=struct2array(load(data_path,'data'));
     m=reorder_matrix_by_atlas(m,mapping_category);
 elseif strcmp(load_data,'n')
     fprintf('Using previously loaded data and assuming already reordered.\n');
