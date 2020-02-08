@@ -1,9 +1,15 @@
 %% User-defined parameters for running NBS benchmarking
 
+testing=1; % developers only - speeds up analyses for troubleshooting but inappropriate for inference
+
+% Data parameters
+do_TPR=0;
+task_condition='LANGUAGE'; % for TPR
+non_task_condition='REST'; % for FPR or TPR contrast
+encoding='RL'; % TODO: combine
+
 % Resampling parameters
-testing=0; % developers only - speeds up analyses for troubleshooting but inappropriate for inference
 n_workers=4; % num parallel workers for parfor, best to use # workers = # cores
-do_TPR=1;
 do_simulated_effect=0;
 networks_with_effects=[1,5]; % networks to add simulated effects into - only relevant if adding effect
 mapping_category='subnetwork'; % for cNBS

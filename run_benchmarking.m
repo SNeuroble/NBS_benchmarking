@@ -95,8 +95,9 @@ if strcmp(UI.statistic_type.ui,'Size'); size_str=['_',UI.size.ui];
 else; size_str='';
 end
 if testing; test_str='_testing'; else test_str=''; end
+if do_TPR; condition_str=[' ',rep_params.task_condition]; else condition_str=[' ',rep_params.non_task_condition]; end
 
-output_filename=[output_dir,'nbs_benchmark_results__',UI.statistic_type.ui,size_str,rep_params.task,test_str,'_',datestr(now,'mmddyyyy_HHMM'),'.mat'];
+output_filename=[output_dir,'nbs_benchmark_results__',UI.statistic_type.ui,size_str,condition_str,test_str,'_',datestr(now,'mmddyyyy_HHMM'),'.mat'];
 fprintf('Saving results in %s\n',output_filename)
 save(output_filename,'edge_stats_all','cluster_stats_all','pvals_all','FWER','UI','rep_params');
 

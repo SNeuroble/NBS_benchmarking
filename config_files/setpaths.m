@@ -4,11 +4,12 @@ switch getenv('USER');
 
 case 'smn33'
     
-    % data paths - input data is assumed to be n_nodes x n_nodes x n_subjects typically HCP toy data)
-    data_path='/mnt/store1/mridata2/mri_group/smn33_data/hcp/data_01ffd_v7_3.mat';
+    % data directory - input data is assumed to be n_nodes x n_nodes x n_subjects typically HCP toy data)
+    data_dir='/data15/mri_group/smn33_data/hcp_1200/matrices/';
+    %data_path='/mnt/store1/mridata2/mri_group/smn33_data/hcp/data_01ffd_v7_3.mat';
     
     % results directory
-    output_dir='/mnt/store1/mridata2/mri_group/smn33_data/hcp/NBS_benchmarking_results/';
+    output_dir='/data15/mri_group/smn33_data/NBS_benchmarking_results/';
 
     % NBS toolbox
     nbs_dir='/mridata2/home2/smn33/scripts/NBS1.2';
@@ -18,8 +19,9 @@ case 'smn33'
 
 case 'steph'
     
-    % data paths - input data is assumed to be n_nodes x n_nodes x n_subjects - must mount
-    data_path='/mnt/smn33_data/hcp/data_01ffd_v7_3.mat'; % mounted
+    % data directory (mount!) - input data is assumed to be n_nodes x n_nodes x n_subjects
+    data_dir='/mnt/d3_smn33/hcp_1200/matrices/'; % mounted
+    %data_path='/mnt/smn33_data/hcp/data_01ffd_v7_3.mat'; % mounted
     %data_path='/Users/steph/Steph-Lab/Misc/ConstableLab/MRRC Neuroinformatics/resources/scripts/cpm_hackathon/test_data/HCP900_rest_n50.mat'; % HCP toy data
     
     % results directory

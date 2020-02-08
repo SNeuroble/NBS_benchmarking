@@ -9,90 +9,84 @@ setparams;
 addpath(genpath(nbs_dir));
 addpath(genpath(other_scripts_dir));
 
+% get non-task IDs
+non_task_scan=[non_task_condition,'_',encoding];
+non_task_IDs_file=[data_dir,non_task_scan,'_subnames_short.txt'];
+non_task_IDs=fileread(non_task_IDs_file);
+non_task_IDs=strsplit(non_task_IDs,newline);
+
+% get subject IDs
 if do_TPR
 
-    % super hacky stuff
+    % compare IDs (thanks https://www.mathworks.com/matlabcentral/answers/358722-how-to-compare-words-from-two-text-files-and-get-output-as-number-of-matching-words)
 
-    data_dir='/data15/mri_group/smn33_data/hcp_1200/matrices/';
-    data1_name='LANGUAGE_RL';
-    data2_name='REST_RL';
-    subnames1_file=[data_dir,data1_name,'_subnames_short.txt'];
-    subnames2_file=[data_dir,data2_name,'_subnames_short.txt'];
+    % get task IDs
+    task_scan=[task_condition,'_',encoding];
+    task_IDs_file=[data_dir,task_scan,'_subnames_short.txt'];
+    task_IDs=fileread(task_IDs_file);
+    task_IDs=strsplit(task_IDs,newline);
 
-    % compare subnames (thanks https://www.mathworks.com/matlabcentral/answers/358722-how-to-compare-words-from-two-text-files-and-get-output-as-number-of-matching-words)
-    % Read the files into strings:
-    subnames1_str = fileread(subnames1_file);
-    subnames2_str = fileread(subnames2_file);
-    fprintf([subnames1_file subnames2_file]);
-    % Split the strings to words:
-    subnames1 = strsplit(subnames1_str, newline);
-    subnames2 = strsplit(subnames2_str, newline);
-    % Get the common words:
-    [subnames_common, iA, iB] = intersect(subnames1, subnames2);
-    subnames_common=subnames_common(2:end); % bc the first find is empty - TODO add a check here first
-    n_subs=length(subnames_common); % TODO: redefined below
-
-    % read data
-    load_data='y';
-    if exist('m','var');
-        load_data=input('Some data is already loaded in workspace. Replace? (y/n)','s');
-    end
-    if strcmp(load_data,'y')
-        
-        fprintf('Loading data: %s\n',data_path);
-        fprintf('Reading subject ');
-        template_file=[data_dir,data1_name,'/',subnames_common{1},'_',data1_name,'_GSR_matrix.txt'];
-        fprintf(template_file)
-        template=importdata(template_file);
-        m=zeros(size(template,1),size(template,2),n_subs*2);
-
-        for i = 1:length(subnames_common)
-            fprintf([subnames_common{i},' ']);
-            %'d3_smn33/hcp_1200/archives/home/ec2-user/data/matrices/LANGUAGE_RL/100206_LANGUAGE_RL_GSR_matrix.txt'
-            this_file_gr1 = [data_dir,data1_name,'/',subnames_common{i},'_',data1_name,'_GSR_matrix.txt'];
-            m(:,:,i) = importdata(this_file_gr1);
-            this_file_gr2 = [data_dir,data2_name,'/',subnames_common{i},'_',data2_name,'_GSR_matrix.txt'];
-            m(:,:,n_subs*2+i) = importdata(this_file_gr2);
-        end
-    elseif strcmp(load_data,'n')
-        fprintf('Using previously loaded data and assuming already reordered.\n');
-    else; error('Input must be y or n.');
-    end
+    % compare w non-task
+    fprintf(['Comparing subject IDs from from task (',task_IDs_file,') with IDs from non-task (',non_task_IDs_file,').\n']);
+    [subIDs,~,~]=intersect(task_IDs,non_task_IDs);
+    subIDs=subIDs(2:end); % bc the first find is empty - TODO add a check here first
 
 else
-    % load data
-    load_data='y';
-    if exist('m','var');
-        load_data=input('Some data is already loaded in workspace. Replace? (y/n)','s');
-    end    
+    subIDs=non_task_IDs;
+end
+n_subs=length(subIDs); % TODO: redefined below
 
-    if strcmp(load_data,'y')
-        sprintf('Loading data: %s\n',data_path);
-        variableInfo = who('-file',data_path);
-        if ismember('data', variableInfo) % returns true
-            m=struct2array(load(data_path,'data'));
-        else
-            error('Could not find variable ''data'' in data file.');
-        end
-        m=reorder_matrix_by_atlas(m,mapping_category);
-    elseif strcmp(load_data,'n')
-        fprintf('Using previously loaded data and assuming already reordered.\n');
-    else; error('Input must be y or n.');
-    end
 
-    % get n subs from data
-    n_subs=size(m,3);
 
-    % assume data is rest, although it could technically also be within task
-    data1_name='REST';
+% load data
 
+load_data='y';
+if exist('m','var');
+    load_data=input('Some data is already loaded in the workspace. Replace? (y/n)','s');
 end
 
-% get node size from data 
-n_nodes=size(m,1); % assuming square
+if strcmp(load_data,'y')
+    
+    template_file=[data_dir,non_task_scan,'/',subIDs{1},'_',non_task_scan,'_GSR_matrix.txt'];
+    template=importdata(template_file);
+
+    fprintf('Replacing existing data. Subjects loaded:');
+    
+    % load data differently for TPR or FPR
+    if do_TPR
+
+        m=zeros(size(template,1),size(template,2),n_subs*2);
+        for i = 1:n_subs
+            this_file_task = [data_dir,task_scan,'/',subIDs{i},'_',task_scan,'_GSR_matrix.txt'];
+            m(:,:,i) = importdata(this_file_task);
+            this_file_non_task = [data_dir,non_task_scan,'/',subIDs{i},'_',non_task_scan,'_GSR_matrix.txt'];
+            m(:,:,n_subs*2+i) = importdata(this_file_non_task);
+            % print every 50 subs x 2 tasks
+            if mod(i,50)==0; fprintf([i,'/',n_subs,' (x2 tasks)\n']); end
+        end
+    
+    else % for FPR
+
+        m=zeros(size(template,1),size(template,2),n_subs);
+        for i = 1:n_subs
+            this_file_non_task = [data_dir,non_task_scan,'/',subIDs{i},'_',non_task_scan,'_GSR_matrix.txt'];
+            m(:,:,i) = importdata(this_file_non_task);
+            % print every 100
+            if mod(i,100)==0; fprintf([i,'/',n_subs,'\n']); end
+        end   
+    
+    end
+
+    % reorder bc proximity matters for most of these
+    m=reorder_matrix_by_atlas(m,mapping_category);
+
+elseif strcmp(load_data,'n')
+    fprintf('Using previously loaded data and assuming already reordered.\n');
+else; error('Input must be y or n.');
+end
 
 
-% make design matrix for 2-sample t-test (equal group size)
+% make design matrix
 if do_TPR
     % set up design matrix for one-sample t-test
     % data should be organized: s1_gr1,s2_gr1, ... , sn-1_group2, sn_group2
@@ -121,6 +115,7 @@ else
 end
 
 % make edge groupings (for cNBS)
+n_nodes=size(m,1); % assuming square
 edge_groups=load_atlas_edge_groups(n_nodes,mapping_category);
 edge_groups=tril(edge_groups,-1);
 % TODO: in NBS function, should we require zero diag? Automatically clear diag? Something else?
@@ -137,7 +132,9 @@ rep_params.mapping_category=mapping_category;
 rep_params.n_repetitions=n_repetitions;
 rep_params.n_subs_subset=n_subs_subset;
 rep_params.do_TPR=do_TPR;
-rep_params.task=data1_name;
+if do_TPR; rep_params.task_condition=task_condition; end
+rep_params.non_task_condition=non_task_condition;
+rep_params.encoding=encoding;
 
 % assign NBS parameters to UI (see NBS.m)
 UI.method.ui=nbs_method; % TODO: revise to include vanilla FDR
