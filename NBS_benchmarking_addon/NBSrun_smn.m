@@ -546,7 +546,8 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function [contrast,ok]=read_contrast(Name,DIMS)
 ok=1; 
-data=readUI(Name);
+%data=readUI(Name); % SMN - workaround so don't have to pass as string
+data=Name;
 if ~isempty(data)
     [nr,nc,ns]=size(data); 
     if nr==1 && nc==DIMS.predictors && ns==1 && isnumeric(data) 
@@ -597,7 +598,8 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function [exchange,ok]=read_exchange(Name,DIMS)
 ok=1;
-data=readUI(Name);
+%data=readUI(Name); % SMN - again, replaced so not have to pass as string
+data=Name;
 if ~isempty(data)
     [nr,nc,ns]=size(data);
     if nr==DIMS.observations && nc==1 && ns==1

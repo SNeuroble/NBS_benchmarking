@@ -39,7 +39,7 @@ if resume_from_previous==0 % starting from the beginning
 end
 
 % Do NBS
-% using parfor which requires Parallel Computing Toolbox, but if don't have set to 1 worker
+% using parfor which requires Parallel Computing Toolbox, but if can't get it set to 1 worker
 
 if isempty(gcp('nocreate')); my_pool = parpool(n_workers); end % set from here bc doesn't limit to the specified n streams on server
 if rep_params.testing; fprintf('*** TESTING MODE ***\n'); end
@@ -51,6 +51,10 @@ parfor (this_repetition=(1+reps_completed_previously):rep_params.n_repetitions)
 
     % shuffle data
     ids=randperm(n_subs,rep_params.n_subs_subset);
+    if do_TPR
+        ids=[ids;ids+n_subs];
+    end
+
     m_test=m(:,:,ids);
 
     % simulate effects
@@ -92,7 +96,7 @@ else; size_str='';
 end
 if testing; test_str='_testing'; else test_str=''; end
 
-output_filename=[output_dir,'nbs_benchmark_results__',UI.statistic_type.ui,size_str,test_str,'_',datestr(now,'mmddyyyy_HHMM'),'.mat'];
+output_filename=[output_dir,'nbs_benchmark_results__',UI.statistic_type.ui,size_str,rep_params.task,test_str,'_',datestr(now,'mmddyyyy_HHMM'),'.mat'];
 fprintf('Saving results in %s\n',output_filename)
 save(output_filename,'edge_stats_all','cluster_stats_all','pvals_all','FWER','UI','rep_params');
 
