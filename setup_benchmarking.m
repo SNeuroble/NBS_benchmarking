@@ -50,7 +50,7 @@ if strcmp(load_data,'y')
     template_file=[data_dir,non_task_scan,'/',subIDs{1},'_',non_task_scan,'_GSR_matrix.txt'];
     template=importdata(template_file);
 
-    fprintf('Replacing existing data. Subjects loaded:');
+    fprintf('Loading %d subjects. Progress:\n',n_subs);
     
     % load data differently for TPR or FPR
     if do_TPR
@@ -60,9 +60,9 @@ if strcmp(load_data,'y')
             this_file_task = [data_dir,task_scan,'/',subIDs{i},'_',task_scan,'_GSR_matrix.txt'];
             m(:,:,i) = importdata(this_file_task);
             this_file_non_task = [data_dir,non_task_scan,'/',subIDs{i},'_',non_task_scan,'_GSR_matrix.txt'];
-            m(:,:,n_subs*2+i) = importdata(this_file_non_task);
+            m(:,:,n_subs+i) = importdata(this_file_non_task);
             % print every 50 subs x 2 tasks
-            if mod(i,50)==0; fprintf([i,'/',n_subs,' (x2 tasks)\n']); end
+            if mod(i,50)==0; fprintf('%d/%d  (x2 tasks)\n',i,n_subs); end
         end
     
     else % for FPR
@@ -72,7 +72,7 @@ if strcmp(load_data,'y')
             this_file_non_task = [data_dir,non_task_scan,'/',subIDs{i},'_',non_task_scan,'_GSR_matrix.txt'];
             m(:,:,i) = importdata(this_file_non_task);
             % print every 100
-            if mod(i,100)==0; fprintf([i,'/',n_subs,'\n']); end
+            if mod(i,100)==0; fprintf('%d/%d\n',i,n_subs); end
         end   
     
     end
@@ -124,7 +124,7 @@ edge_groups=tril(edge_groups,-1);
 % should be able to run config file, load rep_params and UI from reference, and replicate reference results
 
 % assign repetition parameters to rep_params
-rep_params.data_path=data_path;
+rep_params.data_dir=data_dir;
 rep_params.testing=testing;
 rep_params.do_simulated_effect=do_simulated_effect;
 rep_params.networks_with_effects=networks_with_effects;
