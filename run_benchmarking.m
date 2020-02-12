@@ -8,9 +8,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Setup
+% make sure config files in NBS_benchmarking are correct
 
-% adding NBS_benchmarking (current folder)
-[current_path,~,~]=fileparts(mfilename('fullpath'));
+[current_path,~,~]=fileparts(mfilename('fullpath')); % assuming NBS_benchmarking is current folder
 addpath(genpath(current_path));
 setup_benchmarking;
 
@@ -44,6 +44,7 @@ end
 if isempty(gcp('nocreate')); my_pool = parpool(n_workers); end % set from here bc doesn't limit to the specified n streams on server
 if rep_params.testing; fprintf('*** TESTING MODE ***\n'); end
 if rep_params.do_simulated_effect; fprintf('*** SYNTHETIC EFFECT ADDED ***\n'); end
+fprintf('Starting benchmarking repetitions.\n');
 
 parfor (this_repetition=(1+reps_completed_previously):rep_params.n_repetitions)
 % for this_repetition=(1+reps_completed_previously):rep_params.n_repetitions
@@ -95,11 +96,12 @@ if strcmp(UI.statistic_type.ui,'Size'); size_str=['_',UI.size.ui];
 else; size_str='';
 end
 if testing; test_str='_testing'; else test_str=''; end
-if do_TPR; condition_str=[' ',rep_params.task_condition]; else condition_str=[' ',rep_params.non_task_condition]; end
+if do_TPR; condition_str=['_',rep_params.task_condition]; else condition_str=['_',rep_params.non_task_condition]; end
 
-output_filename=[output_dir,'nbs_benchmark_results__',UI.statistic_type.ui,size_str,condition_str,test_str,'_',datestr(now,'mmddyyyy_HHMM'),'.mat'];
+output_filename=[output_dir,'nbs_benchmark_results__',condition_str,UI.statistic_type.ui,size_str,test_str,'_',datestr(now,'mmddyyyy_HHMM'),'.mat'];
 fprintf('Saving results in %s\n',output_filename)
 save(output_filename,'edge_stats_all','cluster_stats_all','pvals_all','FWER','UI','rep_params');
 
 % show that results are available in the workspace
 previous_results_filename__already_loaded=output_filename;
+

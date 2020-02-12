@@ -61,7 +61,7 @@ end
 if testing; test_str='_testing'; else test_str=''; end
 if do_TPR; condition_str=['_',rep_params.task_condition]; else condition_str=['_',rep_params.non_task_condition]; end
 
-output_filename=[output_dir,'nbs_ground_truth__',UI.statistic_type.ui,size_str,condition_str,test_str,'_',datestr(now,'mmddyyyy_HHMM'),'.mat'];
+output_filename=[output_dir,'nbs_ground_truth__',condition_str,UI.statistic_type.ui,size_str,test_str,'_',datestr(now,'mmddyyyy_HHMM'),'.mat'];
 fprintf('Saving results in %s\n',output_filename)
 save(output_filename,'edge_stats','cluster_stats','UI');
 
