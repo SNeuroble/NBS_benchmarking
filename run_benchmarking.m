@@ -1,4 +1,3 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 % Do NBS-based method benchmarking (cNBS, TFCE, etc)
 %
 % main outputs:
@@ -43,7 +42,7 @@ end
 
 if isempty(gcp('nocreate')); my_pool = parpool(n_workers); end % set from here bc doesn't limit to the specified n streams on server
 if rep_params.testing; fprintf('*** TESTING MODE ***\n'); end
-if rep_params.do_simulated_effect; fprintf('*** SYNTHETIC EFFECT ADDED ***\n'); end
+%if rep_params.do_simulated_effect; fprintf('*** SYNTHETIC EFFECT ADDED ***\n'); end
 fprintf('Starting benchmarking repetitions.\n');
 
 parfor (this_repetition=(1+reps_completed_previously):rep_params.n_repetitions)
@@ -59,22 +58,32 @@ parfor (this_repetition=(1+reps_completed_previously):rep_params.n_repetitions)
     m_test=m(:,:,ids);
 
     % simulate effects
-    if rep_params.do_simulated_effect
-        effect=+ismember(edge_groups,rep_params.networks_with_effects);
-        effect=effect+effect';
-        m_with_effect=m_test;
-        m_with_effect(:,:,1:1:n_subs/2)=m_with_effect(:,:,1:n_subs/2)+effect;
-        m_test=m_with_effect;
-    end
+%    if rep_params.do_simulated_effect
+%        effect=+ismember(edge_groups,rep_params.networks_with_effects);
+%        effect=effect+effect';
+%        m_with_effect=m_test;
+%        m_with_effect(:,:,1:1:n_subs/2)=m_with_effect(:,:,1:n_subs/2)+effect;
+%        m_test=m_with_effect;
+%    end
 
     UI_new=UI;
     UI_new.matrices.ui=m_test;
 
     nbs=NBSrun_smn(UI_new);
+    
+    % re-run with negative
+    UI_new_neg=UI_new;
+    UI_new_neg.contrast.ui=nbs_contrast_neg;
+
+    nbs_neg=NBSrun_smn(UI_new_neg);
+    
 
     % check for any positives (if there was no ground truth effect, this goes into the FWER calculation)
     if nbs.NBS.n>0
         FWER=FWER+1;
+    end
+    if nbs_neg.NBS.n>0
+        FWER_neg=FWER_neg+1;
     end
 
     % record everything
@@ -82,10 +91,15 @@ parfor (this_repetition=(1+reps_completed_previously):rep_params.n_repetitions)
     cluster_stats_all(:,:,this_repetition)=full(nbs.NBS.cluster_stats);
     pvals_all(:,this_repetition)=nbs.NBS.pval(:); % TODO: had to vectorize for TFCE... should give all outputs in same format tho 
 
+    edge_stats_all_neg(:,this_repetition)=nbs_neg.NBS.edge_stats;
+    cluster_stats_all_neg(:,:,this_repetition)=full(nbs_neg.NBS.cluster_stats);
+    pvals_all_neg(:,this_repetition)=nbs_neg.NBS.pval(:); % TODO: same as above
+
 end
 
 if strcmp(UI.statistic_type.ui,'Constrained') || strcmp(UI.statistic_type.ui,'SEA')
    cluster_stats_all=squeeze(cluster_stats_all);
+   cluster_stats_all_neg=squeeze(cluster_stats_all_neg);
 end
 
 %% Save
@@ -100,7 +114,7 @@ if do_TPR; condition_str=['_',rep_params.task_condition]; else condition_str=['_
 
 output_filename=[output_dir,'nbs_benchmark_results__',condition_str,UI.statistic_type.ui,size_str,test_str,'_',datestr(now,'mmddyyyy_HHMM'),'.mat'];
 fprintf('Saving results in %s\n',output_filename)
-save(output_filename,'edge_stats_all','cluster_stats_all','pvals_all','FWER','UI','rep_params');
+save(output_filename,'edge_stats_all','cluster_stats_all','pvals_all','FWER','edge_stats_all_neg','cluster_stats_all_neg','pvals_all_neg','FWER_neg','UI','rep_params');
 
 % show that results are available in the workspace
 previous_results_filename__already_loaded=output_filename;

@@ -98,9 +98,14 @@ if do_TPR
         dmat(n_subs_subset+i,i+1)=1;
     end
 
+    % set up contrasts - positive and negative
     nbs_contrast=zeros(1,n_subs_subset+1);
     nbs_contrast(1)=1;
 
+    nbs_contrast_neg=nbs_contrast;
+    nbs_contrast_neg(1)=-1;
+
+    % set up exchange
     nbs_exchange=[1:n_subs_subset, 1:n_subs_subset];
 else
     % set up design matrix for two-sample t-test
@@ -108,9 +113,12 @@ else
     dmat=zeros(n_subs_subset,2);
     dmat(1:(n_subs_subset/2),1)=1;
     dmat((n_subs_subset/2+1):end,2)=1;
-    
+   
+    % set up contrasts - positive and negative
     nbs_contrast=[1,-1];
-
+    nbs_contrast_neg=[-1,1];
+    
+    % set up exchange
     nbs_exchange='';
 end
 
@@ -126,8 +134,8 @@ edge_groups=tril(edge_groups,-1);
 % assign repetition parameters to rep_params
 rep_params.data_dir=data_dir;
 rep_params.testing=testing;
-rep_params.do_simulated_effect=do_simulated_effect;
-rep_params.networks_with_effects=networks_with_effects;
+%rep_params.do_simulated_effect=do_simulated_effect;
+%rep_params.networks_with_effects=networks_with_effects;
 rep_params.mapping_category=mapping_category;
 rep_params.n_repetitions=n_repetitions;
 rep_params.n_subs_subset=n_subs_subset;
@@ -142,7 +150,7 @@ UI.design.ui=dmat;
 UI.contrast.ui=nbs_contrast;
 UI.test.ui=nbs_test_stat; % alternatives are one-sample and F-test
 UI.perms.ui=n_perms; % previously: '5000'
-UI.thresh.ui=zthresh_first_level; % p=0.01
+UI.thresh.ui=tthresh_first_level; % p=0.01
 UI.alpha.ui=pthresh_second_level;
 UI.statistic_type.ui=cluster_stat_type; % 'Size' | 'TFCE' | 'Constrained' | 'SEA'
 UI.size.ui=cluster_size_type; % 'Intensity' | 'Extent' - only relevant if stat type is 'Size'
