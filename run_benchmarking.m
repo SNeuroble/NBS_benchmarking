@@ -26,6 +26,7 @@ end
 if resume_from_previous==0 % starting from the beginning
     reps_completed_previously=0;
     FWER=0;
+    FWER_neg=0;
     FP_mat=zeros(n_nodes);
     edge_stats_all=zeros(n_nodes*(n_nodes-1)/2,rep_params.n_repetitions);
     if strcmp(UI.statistic_type.ui,'Constrained') || strcmp(UI.statistic_type.ui,'SEA')
