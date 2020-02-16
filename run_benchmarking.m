@@ -26,14 +26,19 @@ end
 if resume_from_previous==0 % starting from the beginning
     reps_completed_previously=0;
     FWER=0;
-    FP_mat=zeros(n_nodes);
+    FWER_neg=0;
     edge_stats_all=zeros(n_nodes*(n_nodes-1)/2,rep_params.n_repetitions);
+    edge_stats_all_neg=zeros(n_nodes*(n_nodes-1)/2,rep_params.n_repetitions);
     if strcmp(UI.statistic_type.ui,'Constrained') || strcmp(UI.statistic_type.ui,'SEA')
         cluster_stats_all=zeros(length(unique(edge_groups))-1,1,rep_params.n_repetitions); % minus 1 to not count "zero"
+        cluster_stats_all_neg=zeros(length(unique(edge_groups))-1,1,rep_params.n_repetitions); % minus 1 to not count "zero"
         pvals_all=zeros(length(unique(UI.edge_groups.ui))-1,rep_params.n_repetitions); % minus 1 to not count "zero"
+        pvals_all_neg=zeros(length(unique(UI.edge_groups.ui))-1,rep_params.n_repetitions); % minus 1 to not count "zero"
     else
         cluster_stats_all=zeros(n_nodes,n_nodes,rep_params.n_repetitions); 
+        cluster_stats_all_neg=zeros(n_nodes,n_nodes,rep_params.n_repetitions); 
         pvals_all=zeros(n_nodes*n_nodes,rep_params.n_repetitions);
+        pvals_all_neg=zeros(n_nodes*n_nodes,rep_params.n_repetitions);
     end
 end
 
