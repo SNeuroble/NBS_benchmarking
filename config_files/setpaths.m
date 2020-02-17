@@ -33,6 +33,25 @@ case 'steph'
     % misc scripts used for summarization - structure_data, draw_atlas_boundaries, summarize_matrix_by_atlas
     other_scripts_dir='/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/myscripts/general_mri';
 
+
+case 'ubuntu'
+
+    % data directory - input data is assumed to be n_nodes x n_nodes x n_subjects typically HCP toy data)
+    %data_dir='/data15/mri_group/smn33_data/hcp_1200/matrices/';
+    data_dir='/home/ubuntu/tmp/test_data/';
+    %data_path='/mnt/store1/mridata2/mri_group/smn33_data/hcp/data_01ffd_v7_3.mat';
+    
+    % results directory
+    output_dir='/home/ubuntu/tmp/test_data/NBS_benchmarking_results/';
+
+    % NBS toolbox
+    nbs_dir='/home/ubuntu/tmp/NBS1.2/';
+
+    % misc scripts used for summarization - structure_data, draw_atlas_boundaries, summarize_matrix_by_atlas
+    other_scripts_dir='/home/ubuntu/tmp/other_scripts/atlas/'; 
+
+
+
 end
 
 

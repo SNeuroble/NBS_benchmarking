@@ -8,12 +8,14 @@ setpaths;
 setparams;
 addpath(genpath(nbs_dir));
 addpath(genpath(other_scripts_dir));
+page_screen_output (0); % for octave - also switched fprintf->printf
 
 % get non-task IDs
 non_task_scan=[non_task_condition,'_',encoding];
 non_task_IDs_file=[data_dir,non_task_scan,'_subnames_short.txt'];
 non_task_IDs=fileread(non_task_IDs_file);
-non_task_IDs=strsplit(non_task_IDs,newline);
+non_task_IDs=strsplit(non_task_IDs,'\n'); % octave
+%non_task_IDs=strsplit(non_task_IDs,newline);
 
 % get subject IDs
 if do_TPR
@@ -24,10 +26,11 @@ if do_TPR
     task_scan=[task_condition,'_',encoding];
     task_IDs_file=[data_dir,task_scan,'_subnames_short.txt'];
     task_IDs=fileread(task_IDs_file);
-    task_IDs=strsplit(task_IDs,newline);
+    task_IDs=strsplit(task_IDs,'\n'); % octave
+    %task_IDs=strsplit(task_IDs,newline);
 
     % compare w non-task
-    fprintf(['Comparing subject IDs from from task (',task_IDs_file,') with IDs from non-task (',non_task_IDs_file,').\n']);
+    printf(['Comparing subject IDs from from task (',task_IDs_file,') with IDs from non-task (',non_task_IDs_file,').\n']);
     [subIDs,~,~]=intersect(task_IDs,non_task_IDs);
     subIDs=subIDs(2:end); % bc the first find is empty - TODO add a check here first
 
@@ -48,9 +51,10 @@ end
 if strcmp(load_data,'y')
     
     template_file=[data_dir,non_task_scan,'/',subIDs{1},'_',non_task_scan,'_GSR_matrix.txt'];
+	printf([template_file,'\n'])
     template=importdata(template_file);
 
-    fprintf('Loading %d subjects. Progress:\n',n_subs);
+    printf('Loading %d subjects. Progress:\n',n_subs);
     
     % load data differently for TPR or FPR
     if do_TPR
@@ -62,7 +66,7 @@ if strcmp(load_data,'y')
             this_file_non_task = [data_dir,non_task_scan,'/',subIDs{i},'_',non_task_scan,'_GSR_matrix.txt'];
             m(:,:,n_subs+i) = importdata(this_file_non_task);
             % print every 50 subs x 2 tasks
-            if mod(i,50)==0; fprintf('%d/%d  (x2 tasks)\n',i,n_subs); end
+            if mod(i,50)==0; printf('%d/%d  (x2 tasks)\n',i,n_subs); end
         end
     
     else % for FPR
@@ -72,7 +76,7 @@ if strcmp(load_data,'y')
             this_file_non_task = [data_dir,non_task_scan,'/',subIDs{i},'_',non_task_scan,'_GSR_matrix.txt'];
             m(:,:,i) = importdata(this_file_non_task);
             % print every 100
-            if mod(i,100)==0; fprintf('%d/%d\n',i,n_subs); end
+            if mod(i,100)==0; printf('%d/%d\n',i,n_subs); end
         end   
     
     end
@@ -81,7 +85,7 @@ if strcmp(load_data,'y')
     m=reorder_matrix_by_atlas(m,mapping_category);
 
 elseif strcmp(load_data,'n')
-    fprintf('Using previously loaded data and assuming already reordered.\n');
+    printf('Using previously loaded data and assuming already reordered.\n');
 else; error('Input must be y or n.');
 end
 
