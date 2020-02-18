@@ -16,9 +16,8 @@ pkg load parallel
 pkg load ndpar
 
 % get non-task IDs
-non_task_scan=non_task_condition;
-non_task_IDs_file=[data_dir,non_task_scan,'_subIDs.txt'];
-%non_task_IDs_file=[data_dir,non_task_scan,'_subnames_short.txt'];
+non_task_IDs_file=[data_dir,non_task_condition,'_subIDs.txt'];
+%non_task_IDs_file=[data_dir,non_task_condition,'_subnames_short.txt'];
 non_task_IDs=fileread(non_task_IDs_file);
 non_task_IDs=strsplit(non_task_IDs,'\n'); % octave
 %non_task_IDs=strsplit(non_task_IDs,newline);
@@ -29,8 +28,7 @@ if do_TPR
     % compare IDs (thanks https://www.mathworks.com/matlabcentral/answers/358722-how-to-compare-words-from-two-text-files-and-get-output-as-number-of-matching-words)
 
     % get task IDs
-    task_scan=task_condition;
-    task_IDs_file=[data_dir,task_scan,'_subnames_short.txt'];
+    task_IDs_file=[data_dir,task_condition,'_subnames_short.txt'];
     task_IDs=fileread(task_IDs_file);
     task_IDs=strsplit(task_IDs,'\n'); % octave
     %task_IDs=strsplit(task_IDs,newline);
@@ -56,7 +54,7 @@ end
 
 if strcmp(load_data,'y')
     
-    template_file=[data_dir,non_task_scan,'/',subIDs{1},'_',non_task_scan,'_GSR_matrix.txt'];
+    template_file=[data_dir,non_task_condition,'/',subIDs{1},'_',non_task_condition,'_GSR_matrix.txt'];
 	printf([template_file,'\n'])
     template=importdata(template_file);
 
@@ -67,9 +65,9 @@ if strcmp(load_data,'y')
 
         m=zeros(size(template,1),size(template,2),n_subs*2);
         for i = 1:n_subs
-            this_file_task = [data_dir,task_scan,'/',subIDs{i},'_',task_scan,'_GSR_matrix.txt'];
+            this_file_task = [data_dir,task_condition,'/',subIDs{i},'_',task_condition,'_GSR_matrix.txt'];
             m(:,:,i) = importdata(this_file_task);
-            this_file_non_task = [data_dir,non_task_scan,'/',subIDs{i},'_',non_task_scan,'_GSR_matrix.txt'];
+            this_file_non_task = [data_dir,non_task_condition,'/',subIDs{i},'_',non_task_condition,'_GSR_matrix.txt'];
             m(:,:,n_subs+i) = importdata(this_file_non_task);
             % print every 50 subs x 2 tasks
             if mod(i,50)==0; printf('%d/%d  (x2 tasks)\n',i,n_subs); end
@@ -79,7 +77,7 @@ if strcmp(load_data,'y')
 
         m=zeros(size(template,1),size(template,2),n_subs);
         for i = 1:n_subs
-            this_file_non_task = [data_dir,non_task_scan,'/',subIDs{i},'_',non_task_scan,'_GSR_matrix.txt'];
+            this_file_non_task = [data_dir,non_task_condition,'/',subIDs{i},'_',non_task_condition,'_GSR_matrix.txt'];
             m(:,:,i) = importdata(this_file_non_task);
             % print every 100
             if mod(i,100)==0; printf('%d/%d\n',i,n_subs); end
