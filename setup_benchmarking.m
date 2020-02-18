@@ -8,11 +8,17 @@ setpaths;
 setparams;
 addpath(genpath(nbs_dir));
 addpath(genpath(other_scripts_dir));
+
+% octave stuff
 page_screen_output (0); % for octave - also switched fprintf->printf
+pkg load struct
+pkg load parallel
+pkg load ndpar
 
 % get non-task IDs
-non_task_scan=[non_task_condition,'_',encoding];
-non_task_IDs_file=[data_dir,non_task_scan,'_subnames_short.txt'];
+non_task_scan=non_task_condition;
+non_task_IDs_file=[data_dir,non_task_scan,'_subIDs.txt'];
+%non_task_IDs_file=[data_dir,non_task_scan,'_subnames_short.txt'];
 non_task_IDs=fileread(non_task_IDs_file);
 non_task_IDs=strsplit(non_task_IDs,'\n'); % octave
 %non_task_IDs=strsplit(non_task_IDs,newline);
@@ -23,7 +29,7 @@ if do_TPR
     % compare IDs (thanks https://www.mathworks.com/matlabcentral/answers/358722-how-to-compare-words-from-two-text-files-and-get-output-as-number-of-matching-words)
 
     % get task IDs
-    task_scan=[task_condition,'_',encoding];
+    task_scan=task_condition;
     task_IDs_file=[data_dir,task_scan,'_subnames_short.txt'];
     task_IDs=fileread(task_IDs_file);
     task_IDs=strsplit(task_IDs,'\n'); % octave
@@ -146,7 +152,6 @@ rep_params.n_subs_subset=n_subs_subset;
 rep_params.do_TPR=do_TPR;
 if do_TPR; rep_params.task_condition=task_condition; end
 rep_params.non_task_condition=non_task_condition;
-rep_params.encoding=encoding;
 
 % assign NBS parameters to UI (see NBS.m)
 UI.method.ui=nbs_method; % TODO: revise to include vanilla FDR

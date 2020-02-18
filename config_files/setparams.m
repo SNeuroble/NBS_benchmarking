@@ -6,7 +6,6 @@ testing=0; % developers only - speeds up analyses for troubleshooting but inappr
 do_TPR=1;
 task_condition='LANGUAGE'; % for TPR
 non_task_condition='REST'; % for FPR or TPR contrast
-encoding='RL'; % TODO: combine
 
 % Resampling parameters
 n_workers=2; % num parallel workers for parfor, best to use # workers = # cores
