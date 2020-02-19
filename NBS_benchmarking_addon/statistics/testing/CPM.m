@@ -1,4 +1,5 @@
 % CPM-based inference
+% untested
 
 % Setup
 resampling_param.n_reps=1000;
@@ -52,31 +53,5 @@ if validated
    positives=aggregate_model(models,resampling_param.aggregation_thresh);
 end
 con_mat=0;
-
-% Multiple comparison correction allows you to make inferences over a set 
-% of tests while limiting a false positive rate to a desired level. For a
-% set of features, this means selecting those features which, in isolation,
-% are most likely to be associated w an outcome.
-% Many machine learning approaches are not so much corrections as ways of
-% allowing you to select/combine features to maximize generalizability.
-% The goals of minimizing type I error at the feature level and maximizing 
-% generalizability are related, but not directly. At least one example is a
-% case where only a single FP is allowed in every iteration but 1000 large 
-% effect size TPs are allowed, st FWER is 100% but generalizability is also
-% almost 100%.
-
-% Since the goal of machine learning is generalizable behavior and not
-% specified control of a feature-level error rate (i.e., 5% of positive 
-% edges allowed to be FP or 5% of iterations allowed to have at least one 
-% FP edge), it's difficult to define the expected behavior.
-% We might be able to kind of estimate it for CPM because we aggregate 
-% results across folds to a set of features - but it seems important that 
-% the aggregation step itself isn't validated or theoretically motivated.
-% Other ML techniques that do not result in a selected set of features 
-% (e.g., neural nets) are probably more comparable to other omnibus tests. 
-% I think having a 
-% well-defined aggregation step is probably important here.
-
-
 
 
