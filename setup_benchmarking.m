@@ -20,18 +20,17 @@ pkg load parallel
 pkg load ndpar
 
 
-%% Compare filenames
+%% Compare subject IDs
+% thanks https://www.mathworks.com/matlabcentral/answers/358722-how-to-compare-words-from-two-text-files-and-get-output-as-number-of-matching-words
 
 % get non-task IDs
 non_task_IDs_file=[data_dir,non_task_condition,subIDs_suffix];
 non_task_IDs=fileread(non_task_IDs_file);
 non_task_IDs=strsplit(non_task_IDs,'\n'); % octave
 
-% get subject IDs
+% get task IDs
 if do_TPR
-
-	% compare IDs (thanks https://www.mathworks.com/matlabcentral/answers/358722-how-to-compare-words-from-two-text-files-and-get-output-as-number-of-matching-words)
-
+    
 	% get task IDs
 	task_IDs_file=[data_dir,task_condition,subIDs_suffix];
 	task_IDs=fileread(task_IDs_file);
@@ -52,7 +51,7 @@ n_subs=length(subIDs); % TODO: redefined below
 %% Load data
 
 load_data='y';
-if exist('m','var');
+if exist('m','var')
 	load_data=input('Some data is already loaded in the workspace. Replace? (y/n)','s');
 end
 
@@ -142,20 +141,19 @@ else
 	nbs_exchange='';
 end
 
-% make edge groupings (for cNBS)
-n_nodes=size(m,1); % assuming square
-edge_groups=load_atlas_edge_groups(n_nodes,mapping_category);
-edge_groups=tril(edge_groups,-1);
-% TODO: in NBS function, should we require zero diag? Automatically clear diag? Something else?
-
+% make edge groupings (for cNBS and SEA)
+if strcmp(cluster_stat_type,'cNBS') || strcmp(cluster_stat_type,'SEA')
+    n_nodes=size(m,1); % assuming square
+    edge_groups=load_atlas_edge_groups(n_nodes,mapping_category);
+    edge_groups=tril(edge_groups,-1);
+    % TODO: in NBS function, should we require zero diag? Automatically clear diag? Something else?
+end
 
 %% Assign params to structures
 
 % assign repetition parameters to rep_params
 rep_params.data_dir=data_dir;
 rep_params.testing=testing;
-%rep_params.do_simulated_effect=do_simulated_effect;
-%rep_params.networks_with_effects=networks_with_effects;
 rep_params.mapping_category=mapping_category;
 rep_params.n_repetitions=n_repetitions;
 rep_params.n_subs_subset=n_subs_subset;
