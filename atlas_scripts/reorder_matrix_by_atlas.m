@@ -37,9 +37,7 @@ if ismatrix
             reordered_mat{n}=orig_data{n}(map.oldroi,map.oldroi);
         end
     else
-        for n=1:n_matrices
-            reordered_mat(:,:,n)=orig_data(map.oldroi,map.oldroi,n);
-        end
+        reordered_mat=orig_data(map.oldroi,map.oldroi,1:n_matrices);
     end
 else
     if iscell(orig_data)
@@ -47,7 +45,7 @@ else
             reordered_mat{n}=orig_data{n}(map.oldroi);
         end
     else
-        reordered_mat(:,n)=orig_data(map.oldroi);
+        reordered_mat=orig_data(map.oldroi,1:n_matrices);
     end
 end
 
