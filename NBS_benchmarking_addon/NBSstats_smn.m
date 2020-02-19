@@ -1,4 +1,4 @@
-function [any_significant,con_mat,pval,edge_stats__target,cluster_stats__target]=NBSstats_smn2(varargin)
+function [any_significant,con_mat,pval,edge_stats__target,cluster_stats__target]=NBSstats_smn(varargin)
 %NBSstats Computes network components among edges that survive a primary 
 %test statistic threshold. Assigns a corrected p-value to each component 
 %using permuted data that has been supplied as part of the structure STATS. 
