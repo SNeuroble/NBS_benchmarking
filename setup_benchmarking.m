@@ -34,8 +34,11 @@ if do_TPR
 else
     subIDs=non_task_IDs;
 end
-n_subs=length(subIDs); % TODO: redefined below
-
+if testing
+    n_subs=n_subs_subset;
+else
+    n_subs=length(subIDs); % TODO: redefined below
+end
 
 
 % load data
@@ -49,21 +52,26 @@ if strcmp(load_data,'y')
     
     template_file=[data_dir,non_task_scan,'/',subIDs{1},'_',non_task_scan,'_GSR_matrix.txt'];
     template=importdata(template_file);
-
+    n_nodes=size(template,1); % assuming square
+    
     fprintf('Loading %d subjects. Progress:\n',n_subs);
 
-    trimask=logical(triu(ones(size(template))));
+    trimask=logical(triu(ones(size(template)),1));
+
+    if testing; n_subs=n_subs_subset; end
 
     % load data differently for TPR or FPR
     if do_TPR
 
-        m=zeros(size(template,1),size(template,2),n_subs*2);
+        m=zeros(n_nodes*(n_nodes-1)/2,n_subs*2);
         for i = 1:n_subs
             this_file_task = [data_dir,task_scan,'/',subIDs{i},'_',task_scan,'_GSR_matrix.txt'];
             d=importdata(this_file_task);
+            d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
             m(:,i) = d(trimask);
             this_file_non_task = [data_dir,non_task_scan,'/',subIDs{i},'_',non_task_scan,'_GSR_matrix.txt'];
             d=importdata(this_file_non_task);
+            d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
             m(:,n_subs+i) = d(trimask);
             % print every 50 subs x 2 tasks
             if mod(i,50)==0; fprintf('%d/%d  (x2 tasks)\n',i,n_subs); end
@@ -75,15 +83,13 @@ if strcmp(load_data,'y')
         for i = 1:n_subs
             this_file_non_task = [data_dir,non_task_scan,'/',subIDs{i},'_',non_task_scan,'_GSR_matrix.txt'];
             d=importdata(this_file_non_task);
+            d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
             m(:,i) = d(trimask);
             % print every 100
             if mod(i,100)==0; fprintf('%d/%d\n',i,n_subs); end
         end   
     
     end
-
-    % reorder bc proximity matters for most of these
-    m=reorder_matrix_by_atlas(m,mapping_category);
 
 elseif strcmp(load_data,'n')
     fprintf('Using previously loaded data and assuming already reordered.\n');
@@ -128,7 +134,6 @@ else
 end
 
 % make edge groupings (for cNBS)
-n_nodes=size(m,1); % assuming square
 edge_groups=load_atlas_edge_groups(n_nodes,mapping_category);
 edge_groups=tril(edge_groups,-1);
 % TODO: in NBS function, should we require zero diag? Automatically clear diag? Something else?
