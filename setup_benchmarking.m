@@ -44,7 +44,14 @@ if do_TPR
 else
 	subIDs=non_task_IDs;
 end
-n_subs=length(subIDs); % TODO: redefined below
+
+if testing
+    n_subs=40;
+    fprintf('** TESTING: Only using %d subjects to represent "full" data.\n',n_subs);
+else
+    n_subs=length(subIDs);
+end
+
 
 
 
@@ -60,11 +67,7 @@ if strcmp(load_data,'y')
 	template_file=[data_dir,non_task_condition,'/',subIDs{1},'_',non_task_condition,'_GSR_matrix.txt'];
 	fprintf([template_file,'\n'])
 	template=importdata(template_file);
-
-	if testing % TODO: maybe remove when done
-		n_subs=40;
-		fprintf('** TESTING: Only using %d subjects to represent "full" data.\n',n_subs);
-	end
+    trimask=logical(triu(ones(size(template))));
 
 	fprintf('Loading %d subjects. Progress:\n',n_subs);
 
@@ -72,24 +75,28 @@ if strcmp(load_data,'y')
 	if do_TPR
 
 		m=zeros(size(template,1),size(template,2),n_subs*2); 
-		for i = 1:n_subs
+        for i = 1:n_subs
 			this_file_task = [data_dir,task_condition,'/',subIDs{i},'_',task_condition,'_GSR_matrix.txt'];
-			m(:,:,i) = importdata(this_file_task);
+            d=importdata(this_file_task);
+            m(:,i) = d(trimask);
+% 			 m(:,:,i) = importdata(this_file_task);
 			this_file_non_task = [data_dir,non_task_condition,'/',subIDs{i},'_',non_task_condition,'_GSR_matrix.txt'];
-			m(:,:,n_subs+i) = importdata(this_file_non_task);
+			d=importdata(this_file_non_task);
+            m(:,:,n_subs+i) = d(trimask);
+%             m(:,:,n_subs+i) = importdata(this_file_non_task);
 			% print every 50 subs x 2 tasks
 			if mod(i,50)==0; printf('%d/%d  (x2 tasks)\n',i,n_subs); end
-			end
+        end
 
 	else % for FPR
 
 		m=zeros(size(template,1),size(template,2),n_subs);
-		for i = 1:n_subs
+        for i = 1:n_subs
 			this_file_non_task = [data_dir,non_task_condition,'/',subIDs{i},'_',non_task_condition,'_GSR_matrix.txt'];
 			m(:,:,i) = importdata(this_file_non_task);
 			% print every 100
 			if mod(i,100)==0; printf('%d/%d\n',i,n_subs); end
-			end   
+        end   
 
 	end
 	
@@ -172,7 +179,9 @@ UI.thresh.ui=tthresh_first_level; % p=0.01
 UI.alpha.ui=pthresh_second_level;
 UI.statistic_type.ui=cluster_stat_type; % 'Size' | 'TFCE' | 'Constrained' | 'SEA'
 UI.size.ui=cluster_size_type; % 'Intensity' | 'Extent' - only relevant if stat type is 'Size'
-UI.edge_groups.ui=edge_groups; % smn
+if strcmp(cluster_stat_type,'cNBS') || strcmp(cluster_stat_type,'SEA');
+    UI.edge_groups.ui=edge_groups; % smn
+end
 UI.exchange.ui=nbs_exchange;
 
 
