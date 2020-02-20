@@ -67,7 +67,7 @@ if strcmp(load_data,'y')
 	template_file=[data_dir,non_task_condition,'/',subIDs{1},'_',non_task_condition,'_GSR_matrix.txt'];
 	fprintf([template_file,'\n'])
 	template=importdata(template_file);
-    trimask=logical(triu(ones(size(template))));
+    trimask=logical(triu(ones(size(template)),1));
     
     n_nodes=size(template,1); % assuming square
 
