@@ -11,4 +11,9 @@ addpath(genpath(current_path));
 
 %load(sprintf('map%0.0f_%s.mat',n_nodes,category));
 load(sprintf('map%0.0f_%s.mat',n_nodes,category)); % octave
+map_orig=map;
+clear map
+map.newroi=map_orig(:,1);
+map.oldroi=map_orig(:,2);
+map.category=map_orig(:,3);
 
