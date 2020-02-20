@@ -1,6 +1,6 @@
 function summarize_TPRs(task_type,stat_type,date_time_str_ground_truth,date_time_str_results,varargin)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Before starting, mount data dir: sshfs smn33@172.23.202.124:d3_smn33/ f
+% Before starting, mount data dir: sshfs smn33@172.23.202.124:d3_smn33/ mnt/
 % e.g., summarize_TPRs('LANGUAGE','Size_Extent','02102020_1759');
 % Task can be: SOCIAL; WM; GAMBLING; RELATIONAL; EMOTION
 % This script summarizes and visualizes ground truth effect sizes % TBD: and TPR data
