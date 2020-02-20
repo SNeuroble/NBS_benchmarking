@@ -242,7 +242,9 @@ if summarize_benchmarking
          FWER_manual_neg=sum(+any(positives_reshaped_neg))/n_repetitions;
     end
     
-    save(benchmarking_summary_filename,'edge_stats_summary','edge_stats_summary_neg','cluster_stats_summary','cluster_stats_summary_neg','positives','positives_neg','positives_total','positives_total_neg','FWER_manual','FWER_manual_neg');
+    n_repetitions=size(positives,3);
+
+    save(benchmarking_summary_filename,'edge_stats_summary','edge_stats_summary_neg','cluster_stats_summary','cluster_stats_summary_neg','positives','positives_neg','positives_total','positives_total_neg','FWER_manual','FWER_manual_neg','n_repetitions','-v7.3');
 else
     load(benchmarking_summary_filename)
     size_positives=size(positives);
