@@ -51,16 +51,20 @@ if strcmp(load_data,'y')
     template=importdata(template_file);
 
     fprintf('Loading %d subjects. Progress:\n',n_subs);
-    
+
+    trimask=logical(triu(ones(size(template))));
+
     % load data differently for TPR or FPR
     if do_TPR
 
         m=zeros(size(template,1),size(template,2),n_subs*2);
         for i = 1:n_subs
             this_file_task = [data_dir,task_scan,'/',subIDs{i},'_',task_scan,'_GSR_matrix.txt'];
-            m(:,:,i) = importdata(this_file_task);
+            d=importdata(this_file_task);
+            m(:,i) = d(trimask);
             this_file_non_task = [data_dir,non_task_scan,'/',subIDs{i},'_',non_task_scan,'_GSR_matrix.txt'];
-            m(:,:,n_subs+i) = importdata(this_file_non_task);
+            d=importdata(this_file_non_task);
+            m(:,n_subs+i) = d(trimask);
             % print every 50 subs x 2 tasks
             if mod(i,50)==0; fprintf('%d/%d  (x2 tasks)\n',i,n_subs); end
         end
@@ -70,7 +74,8 @@ if strcmp(load_data,'y')
         m=zeros(size(template,1),size(template,2),n_subs);
         for i = 1:n_subs
             this_file_non_task = [data_dir,non_task_scan,'/',subIDs{i},'_',non_task_scan,'_GSR_matrix.txt'];
-            m(:,:,i) = importdata(this_file_non_task);
+            d=importdata(this_file_non_task);
+            m(:,i) = d(trimask);
             % print every 100
             if mod(i,100)==0; fprintf('%d/%d\n',i,n_subs); end
         end   
