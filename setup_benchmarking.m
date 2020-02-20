@@ -82,7 +82,7 @@ if strcmp(load_data,'y')
 % 			 m(:,:,i) = importdata(this_file_task);
 			this_file_non_task = [data_dir,non_task_condition,'/',subIDs{i},'_',non_task_condition,'_GSR_matrix.txt'];
 			d=importdata(this_file_non_task);
-            m(:,:,n_subs+i) = d(trimask);
+            m(:,n_subs+i) = d(trimask);
 %             m(:,:,n_subs+i) = importdata(this_file_non_task);
 			% print every 50 subs x 2 tasks
 			if mod(i,50)==0; printf('%d/%d  (x2 tasks)\n',i,n_subs); end
@@ -93,7 +93,8 @@ if strcmp(load_data,'y')
 		m=zeros(size(template,1),size(template,2),n_subs);
         for i = 1:n_subs
 			this_file_non_task = [data_dir,non_task_condition,'/',subIDs{i},'_',non_task_condition,'_GSR_matrix.txt'];
-			m(:,:,i) = importdata(this_file_non_task);
+			d=importdata(this_file_non_task);
+            m(:,i) = d(trimask);
 			% print every 100
 			if mod(i,100)==0; printf('%d/%d\n',i,n_subs); end
         end   
