@@ -288,10 +288,18 @@ for i=1:length(t)
 end
 
 % fit TPR v effect size
-tpr_fit=zeros(n_edges,1);
-res=zeros(n_edges,1);
-[tpr_fit(ids_pos),res(ids_pos),~]=fit_spline(dcoeff(ids_pos),tpr(ids_pos),spline_smoothing,[summary_prefix,'_esz_v_TPR_pos']);
-%         [tpr_fit(ids_neg),res(ids_neg),~]=fit_spline(dcoeff(ids_neg),true_positives(ids_neg,spline_smoothing,strcat(out_prefix,'_esz_v_TPR_neg'));
+% curve fitting toolbox required - check - thanks https://www.mathworks.com/matlabcentral/fileexchange/51794-istoolboxavailable
+v_=ver;
+[installedToolboxes{1:length(v_)}] = deal(v_.Name);
+curve_toolbox_exists = all(ismember('Curve Fitting Toolbox',installedToolboxes));
+if curve_toolbox_exists
+    tpr_fit=zeros(n_edges,1);
+    res=zeros(n_edges,1);
+    [tpr_fit(ids_pos),res(ids_pos),~]=fit_spline(dcoeff(ids_pos),tpr(ids_pos),spline_smoothing,[summary_prefix,'_esz_v_TPR_pos']);
+    %         [tpr_fit(ids_neg),res(ids_neg),~]=fit_spline(dcoeff(ids_neg),true_positives(ids_neg,spline_smoothing,strcat(out_prefix,'_esz_v_TPR_neg'));
+else
+    warning('Curve fitting toolbox required for fitting spline but not installed - you won''t be able to get residuals,');
+end
 
 %% Visualize
 
