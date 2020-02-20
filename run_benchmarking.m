@@ -50,8 +50,8 @@ if rep_params.testing; fprintf('*** TESTING MODE ***\n'); end
 %if rep_params.do_simulated_effect; fprintf('*** SYNTHETIC EFFECT ADDED ***\n'); end
 fprintf('Starting benchmarking repetitions.\n');
 
-parfor (this_repetition=(1+reps_completed_previously):rep_params.n_repetitions)
-% for this_repetition=(1+reps_completed_previously):rep_params.n_repetitions
+%parfor (this_repetition=(1+reps_completed_previously):rep_params.n_repetitions)
+for this_repetition=(1+reps_completed_previously):rep_params.n_repetitions
     fprintf('* Repetition %d\n',this_repetition)
 
     % shuffle data
@@ -60,7 +60,7 @@ parfor (this_repetition=(1+reps_completed_previously):rep_params.n_repetitions)
         ids=[ids;ids+n_subs];
     end
 
-    m_test=m(:,:,ids);
+    m_test=m(:,ids);
 
     % simulate effects
 %    if rep_params.do_simulated_effect
