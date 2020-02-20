@@ -166,17 +166,17 @@ if summarize_benchmarking
     % summarize edge and cluster stats
     edge_stats_summary.mean=mean(edge_stats_all,length(size(edge_stats_all)));
     edge_stats_summary.std=std(edge_stats_all,0,length(size(edge_stats_all)));
-%     edge_stats_summary_neg.mean==mean(edge_stats_all_neg,length(size(edge_stats_all_neg)));
-%     edge_stats_summary_neg.std=std(edge_stats_all_neg,0,length(size(edge_stats_all_neg)));
+     edge_stats_summary_neg.mean=mean(edge_stats_all_neg,length(size(edge_stats_all_neg)));
+     edge_stats_summary_neg.std=std(edge_stats_all_neg,0,length(size(edge_stats_all_neg)));
 
     cluster_stats_summary.mean=mean(cluster_stats_all,length(size(cluster_stats_all)));
     cluster_stats_summary.std=std(cluster_stats_all,0,length(size(cluster_stats_all)));
-%     cluster_stats_summary_neg.mean=mean(cluster_stats_all_neg,length(size(cluster_stats_all_neg)));
-%     cluster_stats_summary_neg.std=std(cluster_stats_all_neg,0,length(size(cluster_stats_all_neg)));
+     cluster_stats_summary_neg.mean=mean(cluster_stats_all_neg,length(size(cluster_stats_all_neg)));
+     cluster_stats_summary_neg.std=std(cluster_stats_all_neg,0,length(size(cluster_stats_all_neg)));
     
     % get positives
     positives=+(pvals_all<str2double(UI.alpha.ui));
-%     positives_neg=+(pvals_all_neg<str2double(UI.alpha.ui));
+     positives_neg=+(pvals_all_neg<str2double(UI.alpha.ui));
 
     % before significance masking, make sure positives are in same space as cluster-level stats
     if ~isequal(size(positives),size(cluster_stats_all))
@@ -212,7 +212,7 @@ if summarize_benchmarking
             n_nodes=size(cluster_stats_all,1);
             n_repetitions=size(cluster_stats_all,3);
             positives=reshape(positives,n_nodes,n_nodes,n_repetitions);
-%             positives_neg=reshape(positives_neg,n_nodes,n_nodes,n_repetitions);
+             positives_neg=reshape(positives_neg,n_nodes,n_nodes,n_repetitions);
             
         else
             error('Cluster stats and p-value dimensions don''t match. We can only fix this in two ways and they must have failed.')
@@ -223,26 +223,26 @@ if summarize_benchmarking
     % summarize positives, and mask with cluster_stats (all and
     % significant-only)
     positives_total=sum(positives,length(size(positives)));
-%     positives_total_neg=sum(positives_neg,length(size(positives)));
+     positives_total_neg=sum(positives_neg,length(size(positives)));
     cluster_stats_sig_all=cluster_stats_all.*positives; % why weight the positives by the effect size? don't we just care about the positives?
     cluster_stats_sig_summary.mean=mean(cluster_stats_sig_all,n_dim__cluster_stats_all);
     cluster_stats_sig_summary.std=std(cluster_stats_sig_all,0,n_dim__cluster_stats_all);
-%     cluster_stats_sig_all_neg=cluster_stats_all_neg.*positives_neg;
-%     cluster_stats_sig_summary_neg.mean=mean(cluster_stats_sig_all_neg,n_dim__cluster_stats_all);
-%     cluster_stats_sig_summary_neg.std=std(cluster_stats_sig_all_neg,0,n_dim__cluster_stats_all);
+     cluster_stats_sig_all_neg=cluster_stats_all_neg.*positives_neg;
+     cluster_stats_sig_summary_neg.mean=mean(cluster_stats_sig_all_neg,n_dim__cluster_stats_all);
+     cluster_stats_sig_summary_neg.std=std(cluster_stats_sig_all_neg,0,n_dim__cluster_stats_all);
     
     % double check FWER calculation
     if strcmp(UI.statistic_type.ui,'Constrained') || strcmp(UI.statistic_type.ui,'SEA')
         FWER_manual=sum(+any(positives))/n_repetitions;
-%         FWER_manual_neg=sum(+any(positives_neg))/n_repetitions;
+         FWER_manual_neg=sum(+any(positives_neg))/n_repetitions;
     else
         positives_reshaped=reshape(positives,n_nodes^2,n_repetitions);
-%         positives_reshaped_neg=reshape(positives_neg,n_nodes^2,n_repetitions);
+         positives_reshaped_neg=reshape(positives_neg,n_nodes^2,n_repetitions);
         FWER_manual=sum(+any(positives_reshaped))/n_repetitions;
-%         FWER_manual_neg=sum(+any(positives_reshaped_neg))/n_repetitions;
+         FWER_manual_neg=sum(+any(positives_reshaped_neg))/n_repetitions;
     end
     
-    save(benchmarking_summary_filename,'edge_stats_summary','cluster_stats_summary','positives','positives_total','FWER_manual');
+    save(benchmarking_summary_filename,'edge_stats_summary','edge_stats_summary_neg','cluster_stats_summary','cluster_stats_summary_neg','positives','positives_neg','positives_total','positives_total_neg','FWER_manual','FWER_manual_neg');
 else
     load(benchmarking_summary_filename)
     size_positives=size(positives);
