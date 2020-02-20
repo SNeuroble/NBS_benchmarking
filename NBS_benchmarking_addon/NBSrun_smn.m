@@ -470,13 +470,30 @@ function [y,ok,DIMS]=read_matrices(Name)
     end
     if ~isempty(data)
         [nr,nc,ns]=size(data);
-        if nr==nc && ns>0 && ~iscell(data) && isnumeric(data)
-            ind_upper=find(triu(ones(nr,nr),1));
-            y=zeros(ns,length(ind_upper));
-            %Collapse matrices
-            for i=1:ns
-                tmp=data(:,:,i);
-                y(i,:)=tmp(ind_upper);
+        if ns>0 && ~iscell(data) && isnumeric(data)
+            if nr~=nc && ns==1
+                % accept stuff that's been triangularized - smn
+                y=data';
+                nr_old=nr;
+                nr=ceil(sqrt(2*nr_old));
+                if nr_old==nr*(nr-1)/2
+                    ns=nc;
+                    nc=nr;
+                else
+                    ok=0; y=[];
+                    return
+                end
+            elseif nr==nc
+                ind_upper=find(triu(ones(nr,nr),1));
+                y=zeros(ns,length(ind_upper));
+                %Collapse matrices
+                for i=1:ns
+                    tmp=data(:,:,i);
+                    y(i,:)=tmp(ind_upper);
+                end
+            else
+                ok=0; y=[];
+                return
             end
         elseif iscell(data)
             [nr,nc]=size(data{1});
