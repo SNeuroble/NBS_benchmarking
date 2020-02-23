@@ -6,10 +6,9 @@ testing=0; % developers only - speeds up analyses for troubleshooting but inappr
 do_TPR=1;
 task_condition='LANGUAGE'; % for TPR
 non_task_condition='REST'; % for FPR or TPR contrast
-encoding='RL'; % TODO: combine
 
 % Resampling parameters
-n_workers=7; % num parallel workers for parfor, best to use # workers = # cores
+n_workers=8; % num parallel workers for parfor, best to use # workers = # cores
 mapping_category='subnetwork'; % for cNBS
 n_repetitions=500;
 n_subs_subset=40; % size of subset is full group size (N=n*2 for two sample t-test or N=n for one-sample)
