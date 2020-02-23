@@ -52,7 +52,15 @@ thresh_small=0.2; thresh_med=0.5; thresh_high=0.8;
 
 % cmap threshold
 clim=[-thresh_med, thresh_med];
-clim_res=[-0.001,0.001];
+%clim_res=[-0.001,0.001]; % for N=20
+if strcmp(stat_type,'Constrained') || strcmp(stat_type,'SEA')
+    clim_res=[-10,10]; % for N=40
+    clim_res_detailed=[-60,60]; % for N=40
+else
+    clim_res=[-0.5,0.5]; % for N=40
+    clim_res_detailed=[-3,3]; % for N=40
+end
+
 
 
 %% Setup
@@ -61,7 +69,7 @@ clim_res=[-0.001,0.001];
 addpath(genpath(current_path));
 setpaths;
 
-ground_truth_results_basename_prefix=['nbs_ground_truth__',task_type,'_',stat_type,'_',date_time_str_ground_truth];
+ground_truth_results_basename_prefix=['nbs_ground_truth__',task_type,'_Size_Extent_',date_time_str_ground_truth];
 bench_results_basename_prefix=['nbs_benchmark_results__',task_type,'_',stat_type,'_',date_time_str_results];
 
 % set results files
@@ -77,7 +85,7 @@ summary_prefix=[summary_output_dir,'nbs_benchmark_results__',task_type,'_',stat_
 % define a few output summary files to test existence
 esz_hist_file=[ground_truth_summary_prefix,'_esz_hist.png'];
 esz_v_tpr_file=[summary_prefix,'_tpr_v_esz.png'];
-logfile=[ground_truth_summary_prefix,'_log.txt'];
+logfile=[summary_prefix,'_log.txt'];
 
 % setup summary output dir
 mkdir(summary_output_dir);
@@ -144,7 +152,8 @@ n_nodes=size(cluster_stats,1); % TODO: this is also set above
 n_edges=length(dcoeff);
 
 % re-create upper triangular mask
-upper_tri_msk=triu(true(n_nodes),1);
+triu_msk=triu(true(n_nodes),1);
+ids_triu=find(triu_msk);
 
 % to visualize residual outliers, highlight points less or greater than 2 std
 n_std_residual_outlier=2;
@@ -166,17 +175,17 @@ if summarize_benchmarking
     % summarize edge and cluster stats
     edge_stats_summary.mean=mean(edge_stats_all,length(size(edge_stats_all)));
     edge_stats_summary.std=std(edge_stats_all,0,length(size(edge_stats_all)));
-%     edge_stats_summary_neg.mean==mean(edge_stats_all_neg,length(size(edge_stats_all_neg)));
-%     edge_stats_summary_neg.std=std(edge_stats_all_neg,0,length(size(edge_stats_all_neg)));
+     edge_stats_summary_neg.mean=mean(edge_stats_all_neg,length(size(edge_stats_all_neg)));
+     edge_stats_summary_neg.std=std(edge_stats_all_neg,0,length(size(edge_stats_all_neg)));
 
     cluster_stats_summary.mean=mean(cluster_stats_all,length(size(cluster_stats_all)));
     cluster_stats_summary.std=std(cluster_stats_all,0,length(size(cluster_stats_all)));
-%     cluster_stats_summary_neg.mean=mean(cluster_stats_all_neg,length(size(cluster_stats_all_neg)));
-%     cluster_stats_summary_neg.std=std(cluster_stats_all_neg,0,length(size(cluster_stats_all_neg)));
+     cluster_stats_summary_neg.mean=mean(cluster_stats_all_neg,length(size(cluster_stats_all_neg)));
+     cluster_stats_summary_neg.std=std(cluster_stats_all_neg,0,length(size(cluster_stats_all_neg)));
     
     % get positives
     positives=+(pvals_all<str2double(UI.alpha.ui));
-%     positives_neg=+(pvals_all_neg<str2double(UI.alpha.ui));
+     positives_neg=+(pvals_all_neg<str2double(UI.alpha.ui));
 
     % before significance masking, make sure positives are in same space as cluster-level stats
     if ~isequal(size(positives),size(cluster_stats_all))
@@ -212,7 +221,7 @@ if summarize_benchmarking
             n_nodes=size(cluster_stats_all,1);
             n_repetitions=size(cluster_stats_all,3);
             positives=reshape(positives,n_nodes,n_nodes,n_repetitions);
-%             positives_neg=reshape(positives_neg,n_nodes,n_nodes,n_repetitions);
+             positives_neg=reshape(positives_neg,n_nodes,n_nodes,n_repetitions);
             
         else
             error('Cluster stats and p-value dimensions don''t match. We can only fix this in two ways and they must have failed.')
@@ -223,26 +232,28 @@ if summarize_benchmarking
     % summarize positives, and mask with cluster_stats (all and
     % significant-only)
     positives_total=sum(positives,length(size(positives)));
-%     positives_total_neg=sum(positives_neg,length(size(positives)));
+     positives_total_neg=sum(positives_neg,length(size(positives)));
     cluster_stats_sig_all=cluster_stats_all.*positives; % why weight the positives by the effect size? don't we just care about the positives?
     cluster_stats_sig_summary.mean=mean(cluster_stats_sig_all,n_dim__cluster_stats_all);
     cluster_stats_sig_summary.std=std(cluster_stats_sig_all,0,n_dim__cluster_stats_all);
-%     cluster_stats_sig_all_neg=cluster_stats_all_neg.*positives_neg;
-%     cluster_stats_sig_summary_neg.mean=mean(cluster_stats_sig_all_neg,n_dim__cluster_stats_all);
-%     cluster_stats_sig_summary_neg.std=std(cluster_stats_sig_all_neg,0,n_dim__cluster_stats_all);
+     cluster_stats_sig_all_neg=cluster_stats_all_neg.*positives_neg;
+     cluster_stats_sig_summary_neg.mean=mean(cluster_stats_sig_all_neg,n_dim__cluster_stats_all);
+     cluster_stats_sig_summary_neg.std=std(cluster_stats_sig_all_neg,0,n_dim__cluster_stats_all);
     
     % double check FWER calculation
     if strcmp(UI.statistic_type.ui,'Constrained') || strcmp(UI.statistic_type.ui,'SEA')
         FWER_manual=sum(+any(positives))/n_repetitions;
-%         FWER_manual_neg=sum(+any(positives_neg))/n_repetitions;
+         FWER_manual_neg=sum(+any(positives_neg))/n_repetitions;
     else
         positives_reshaped=reshape(positives,n_nodes^2,n_repetitions);
-%         positives_reshaped_neg=reshape(positives_neg,n_nodes^2,n_repetitions);
+         positives_reshaped_neg=reshape(positives_neg,n_nodes^2,n_repetitions);
         FWER_manual=sum(+any(positives_reshaped))/n_repetitions;
-%         FWER_manual_neg=sum(+any(positives_reshaped_neg))/n_repetitions;
+         FWER_manual_neg=sum(+any(positives_reshaped_neg))/n_repetitions;
     end
     
-    save(benchmarking_summary_filename,'edge_stats_summary','cluster_stats_summary','positives','positives_total','FWER_manual');
+    n_repetitions=size(positives,3);
+
+    save(benchmarking_summary_filename,'edge_stats_summary','edge_stats_summary_neg','cluster_stats_summary','cluster_stats_summary_neg','positives','positives_neg','positives_total','positives_total_neg','FWER_manual','FWER_manual_neg','n_repetitions','-v7.3');
 else
     load(benchmarking_summary_filename)
     size_positives=size(positives);
@@ -260,14 +271,24 @@ ids_btw_thr_med_and_small=abs(dcoeff) <= thresh_med & abs(dcoeff) >= thresh_smal
 perc_edges_lt_thr_med=sum(+ids_lt_thr_med) * 100 / n_edges;
 perc_edges_btw_thr_med_and_small=sum(+ids_btw_thr_med_and_small) * 100 / n_edges;
 
-% positives->TPR
-positives_total_unique__pos=positives_total(upper_tri_msk);
-% positives_total_unique__neg=positives_total_neg(upper_tri_msk);
-ids_pos=dcoeff>0;
-% ids_neg=dcoeff<0;
-true_positives=zeros(size(positives_total_unique__pos));
-true_positives(ids_pos)=positives_total_unique__pos(ids_pos);
-% true_positives(ids_neg)=positives_total_unique__neg(ids_neg); % TODO: all the neg stuff
+%% Calculate TPR from positives
+    
+ids_pos_vec=dcoeff>0;
+ids_neg_vec=dcoeff<0;
+
+if strcmp(stat_type,'Constrained') || strcmp(stat_type,'SEA')
+    edge_groups_triu=UI.edge_groups.ui';
+    edge_groups_vec=edge_groups_triu(ids_triu);
+    ids_pos=edge_groups_vec(ids_pos_vec);
+    ids_neg=edge_groups_vec(ids_neg_vec);
+else
+    ids_pos=ids_triu(ids_pos_vec);
+    ids_neg=ids_triu(ids_neg_vec);
+end
+
+true_positives=zeros(size(dcoeff));
+true_positives(ids_pos_vec)=positives_total(ids_pos);
+true_positives(ids_neg_vec)=positives_total_neg(ids_neg); % TODO: all the neg stuff
 tpr=true_positives*100/n_repetitions;
 
 % mean TPR within thresholds
@@ -279,24 +300,29 @@ tpr_btw_thr_med_and_small = sum(tpr(ids_btw_thr_med_and_small)) / sum(+ids_btw_t
 t=[thresh_med, thresh_small];
 for i=1:length(t)
     ids_at_pos_thr = abs(dcoeff-t(i)) <= half_bin_width;
-    %     ids_at_neg_thr = dcoeff <= (-t(i)+half_bin_width) & dcoeff >= (-t(i)-half_bin_width);
-    tpr_at_thr(i) = sum(tpr(ids_at_pos_thr)) / sum(+ids_at_pos_thr);
-    tpr_at_thr(3*i-1)=0;
-    tpr_at_thr(3*i)=0;
-    %     tpr_at_thr(3*i-1)=( sum(data(ids_at_neg_thr, 4)) / sum(+ids_at_neg_thr) );
-    %     tpr_at_thr(3*i)=mean(tpr_at_thr((3*i-2):(3*i-1)));
+    ids_at_neg_thr = abs(dcoeff+t(i)) <= half_bin_width;
+    tpr_at_thr(3*(i-1) + 1) = sum(tpr(ids_at_pos_thr)) / sum(+ids_at_pos_thr);
+    tpr_at_thr(3*(i-1) + 2) = sum(tpr(ids_at_neg_thr)) / sum(+ids_at_neg_thr);
+    tpr_at_thr(3*(i-1) + 3) = mean(tpr_at_thr((3*i-2):(3*i-1)));
 end
 
 % fit TPR v effect size
-tpr_fit=zeros(n_edges,1);
-res=zeros(n_edges,1);
-[tpr_fit(ids_pos),res(ids_pos),~]=fit_spline(dcoeff(ids_pos),tpr(ids_pos),spline_smoothing,[summary_prefix,'_esz_v_TPR_pos']);
-%         [tpr_fit(ids_neg),res(ids_neg),~]=fit_spline(dcoeff(ids_neg),true_positives(ids_neg,spline_smoothing,strcat(out_prefix,'_esz_v_TPR_neg'));
+% curve fitting toolbox required - check - thanks https://www.mathworks.com/matlabcentral/fileexchange/51794-istoolboxavailable
+v_=ver;
+[installedToolboxes{1:length(v_)}] = deal(v_.Name);
+curve_toolbox_exists = all(ismember('Curve Fitting Toolbox',installedToolboxes));
+if curve_toolbox_exists
+    tpr_fit=zeros(n_edges,1);
+    res=zeros(n_edges,1);
+    [tpr_fit,res,~]=fit_spline(dcoeff,tpr,spline_smoothing,[summary_prefix,'_esz_v_TPR_pos']);
+    %         [tpr_fit(ids_neg),res(ids_neg),~]=fit_spline(dcoeff(ids_neg),true_positives(ids_neg,spline_smoothing,strcat(out_prefix,'_esz_v_TPR_neg'));
+else
+    warning('Curve fitting toolbox required for fitting spline but not installed - you won''t be able to get residuals,');
+end
 
 %% Visualize
 
-if make_figs
-    
+if make_figs 
     
     % 1. Plot effect size histograms
 
@@ -323,7 +349,7 @@ if make_figs
 
     % put stuff back into upper triangle
     dcoeff_mat=zeros(n_nodes);
-    dcoeff_mat(upper_tri_msk)=dcoeff;
+    dcoeff_mat(triu_msk)=dcoeff;
     
     % edge-level results
     draw_atlas_boundaries(dcoeff_mat');
@@ -363,7 +389,7 @@ if make_figs
     plot(h.BinEdges(1:end-1)+ h.BinWidth/2,h.BinCounts/n_edges,'--','LineWidth',2)
     rectangle('Position',[-thresh_high,ax_ymin,2*thresh_high,ax_ymax_tp],'FaceColor',[1 1 0 0.2],'EdgeColor','none')
     hold off
-    
+   
     if save_figs__results
         saveas(gcf,esz_v_tpr_file,'png')
     end
@@ -375,36 +401,13 @@ if make_figs
     hold on;
     scatter(dcoeff,res,1,'b.')
 
-    % pos residuals
     std_thresh=n_std_residual_outlier*std(res);
     idx=abs(res)>std_thresh;
     scatter(dcoeff(idx),res(idx),1,'.')
     plot(dcoeff,zeros(size(dcoeff)),'k-','LineWidth',2) % plot zero residual line
 
-%     % pos residuals
-%     std_thresh_pos=n_std_residual_outlier*std(res_pos);
-%     idx=res_pos>std_thresh_pos | res_pos<(-std_thresh_pos);
-%     scatter(data(idx,1),res_pos(idx),1,'.')
-%     % neg residuals
-%     std_thresh_neg=n_std_residual_outlier*std(res_neg);
-%     idx=res_neg>std_thresh_neg | res_neg<(-std_thresh_neg);
-%     scatter(data(idx,1),res_neg(idx),1,'.')
-%     plot(data(ind,1),zeros(size(data(:,1))),'k-','LineWidth',2) % plot zero residual line
     hold off;
-    
-    %     subplot(3,1,3) % NEG PLOT
-    %     hold on;
-    %     scatter(data(:,1),res_neg,1,'.')
-    %     plot(data(ind,1),zeros(size(data(:,1))),'k-','LineWidth',2)
-    %     % highlight points less or greater than 2 std
-    %     n_std=2;
-    %     std_thresh_neg=n_std*std(res_neg);
-    %     idx=res_neg>std_thresh_neg | res_neg<(-std_thresh_neg);
-    %     scatter(data(idx,1),res_neg(idx),1,'.')
-    %     hold off;
-    
-    %[r,p]=corr(residuals,x); % residuals should now be uncorrelated w x
-    
+        
     if save_figs__results
         % save plot
         saveas(gcf,[summary_prefix,'_esz_v_TPR__residuals'],'png')
@@ -416,13 +419,14 @@ if make_figs
 
     % put stuff back into upper triangle
     res_mat=zeros(n_nodes);
-    res_mat(upper_tri_msk)=res;
+    res_mat(triu_msk)=res;
 
     draw_atlas_boundaries(res_mat');
     colormap(bipolar([],0.1));
-    caxis(clim_res);
-    if save_figs__gt
-        saveas(gcf,[ground_truth_summary_prefix,'_residuals_by_edges'],'png')
+    caxis(clim_res_detailed);
+
+    if save_figs__results
+        saveas(gcf,[summary_prefix,'_residuals_by_edges'],'png')
     end
     
     % network-level results
@@ -430,8 +434,8 @@ if make_figs
     colormap(bipolar([],0.1));
     caxis(clim_res);
 
-    if save_figs__gt
-        saveas(gcf,[ground_truth_summary_prefix,'_residuals_by_networks'],'png')
+    if save_figs__results
+        saveas(gcf,[summary_prefix,'_residuals_by_networks'],'png')
     end
     
 end
