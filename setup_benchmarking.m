@@ -8,10 +8,11 @@ setpaths;
 setparams;
 addpath(genpath(nbs_dir));
 addpath(genpath(other_scripts_dir));
+subIDs_suffix='_subIDs.txt';
 
 % get non-task IDs
-non_task_scan=[non_task_condition,'_',encoding];
-non_task_IDs_file=[data_dir,non_task_scan,'_subnames_short.txt'];
+non_task_scan=non_task_condition;
+non_task_IDs_file=[data_dir,non_task_scan,subIDs_suffix];
 non_task_IDs=fileread(non_task_IDs_file);
 non_task_IDs=strsplit(non_task_IDs,newline);
 
@@ -21,8 +22,8 @@ if do_TPR
     % compare IDs (thanks https://www.mathworks.com/matlabcentral/answers/358722-how-to-compare-words-from-two-text-files-and-get-output-as-number-of-matching-words)
 
     % get task IDs
-    task_scan=[task_condition,'_',encoding];
-    task_IDs_file=[data_dir,task_scan,'_subnames_short.txt'];
+    task_scan=task_condition;
+    task_IDs_file=[data_dir,task_scan,subIDs_suffix];
     task_IDs=fileread(task_IDs_file);
     task_IDs=strsplit(task_IDs,newline);
 
@@ -51,45 +52,48 @@ end
 if strcmp(load_data,'y')
     
     template_file=[data_dir,non_task_scan,'/',subIDs{1},'_',non_task_scan,'_GSR_matrix.txt'];
+    
+    fprintf('This version does not pre-load data. Loading template file %s.\n',template_file);
+    
     template=importdata(template_file);
     n_nodes=size(template,1); % assuming square
     
-    fprintf('Loading %d subjects. Progress:\n',n_subs);
+    %fprintf('Loading %d subjects. Progress:\n',n_subs);
 
     trimask=logical(triu(ones(size(template)),1));
 
     if testing; n_subs=n_subs_subset; end
 
-    % load data differently for TPR or FPR
-    if do_TPR
-
-        m=zeros(n_nodes*(n_nodes-1)/2,n_subs*2);
-        for i = 1:n_subs
-            this_file_task = [data_dir,task_scan,'/',subIDs{i},'_',task_scan,'_GSR_matrix.txt'];
-            d=importdata(this_file_task);
-            d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
-            m(:,i) = d(trimask);
-            this_file_non_task = [data_dir,non_task_scan,'/',subIDs{i},'_',non_task_scan,'_GSR_matrix.txt'];
-            d=importdata(this_file_non_task);
-            d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
-            m(:,n_subs+i) = d(trimask);
-            % print every 50 subs x 2 tasks
-            if mod(i,50)==0; fprintf('%d/%d  (x2 tasks)\n',i,n_subs); end
-        end
-    
-    else % for FPR
-
-        m=zeros(size(template,1),size(template,2),n_subs);
-        for i = 1:n_subs
-            this_file_non_task = [data_dir,non_task_scan,'/',subIDs{i},'_',non_task_scan,'_GSR_matrix.txt'];
-            d=importdata(this_file_non_task);
-            d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
-            m(:,i) = d(trimask);
-            % print every 100
-            if mod(i,100)==0; fprintf('%d/%d\n',i,n_subs); end
-        end   
-    
-    end
+%    % load data differently for TPR or FPR
+%    if do_TPR
+%
+%        m=zeros(n_nodes*(n_nodes-1)/2,n_subs*2);
+%        for i = 1:n_subs
+%            this_file_task = [data_dir,task_scan,'/',subIDs{i},'_',task_scan,'_GSR_matrix.txt'];
+%            d=importdata(this_file_task);
+%            d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
+%            m(:,i) = d(trimask);
+%            this_file_non_task = [data_dir,non_task_scan,'/',subIDs{i},'_',non_task_scan,'_GSR_matrix.txt'];
+%            d=importdata(this_file_non_task);
+%            d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
+%            m(:,n_subs+i) = d(trimask);
+%            % print every 50 subs x 2 tasks
+%            if mod(i,50)==0; fprintf('%d/%d  (x2 tasks)\n',i,n_subs); end
+%        end
+%    
+%    else % for FPR
+%
+%        m=zeros(size(template,1),size(template,2),n_subs);
+%        for i = 1:n_subs
+%            this_file_non_task = [data_dir,non_task_scan,'/',subIDs{i},'_',non_task_scan,'_GSR_matrix.txt'];
+%            d=importdata(this_file_non_task);
+%            d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
+%            m(:,i) = d(trimask);
+%            % print every 100
+%            if mod(i,100)==0; fprintf('%d/%d\n',i,n_subs); end
+%        end   
+%    
+%    end
 
 elseif strcmp(load_data,'n')
     fprintf('Using previously loaded data and assuming already reordered.\n');
@@ -152,7 +156,6 @@ rep_params.n_subs_subset=n_subs_subset;
 rep_params.do_TPR=do_TPR;
 if do_TPR; rep_params.task_condition=task_condition; end
 rep_params.non_task_condition=non_task_condition;
-rep_params.encoding=encoding;
 
 % assign NBS parameters to UI (see NBS.m)
 UI.method.ui=nbs_method; % TODO: revise to include vanilla FDR
