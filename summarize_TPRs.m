@@ -1,4 +1,4 @@
-function summarize_TPRs(task_type,stat_type,date_time_str_ground_truth,date_time_str_results,varargin)
+function summarize_TPRs(task_type,stat_type,date_time_str_ground_truth,date_time_str_results,grsize,varargin)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Before starting, mount data dir: sshfs smn33@172.23.202.124:d3_smn33/ mnt/
 % e.g., summarize_TPRs('LANGUAGE','Size_Extent','02102020_1759');
@@ -61,8 +61,8 @@ clim_res=[-0.001,0.001];
 addpath(genpath(current_path));
 setpaths;
 
-ground_truth_results_basename_prefix=['nbs_ground_truth__',task_type,'_',stat_type,'_',date_time_str_ground_truth];
-bench_results_basename_prefix=['nbs_benchmark_results__',task_type,'_',stat_type,'_',date_time_str_results];
+ground_truth_results_basename_prefix=['nbs_ground_truth__',task_type,'_Size_Extent_',date_time_str_ground_truth];
+bench_results_basename_prefix=['nbs_benchmark_results__',task_type,'_',stat_type,'_','_grsize',grsize,'_',date_time_str_results];
 
 % set results files
 ground_truth_filename=[output_dir,ground_truth_results_basename_prefix,'.mat'];
@@ -432,7 +432,7 @@ if make_figs
     colormap(bipolar([],0.1));
     caxis(clim_res);
     if save_figs__gt
-        saveas(gcf,[ground_truth_summary_prefix,'_residuals_by_edges'],'png')
+        saveas(gcf,[summary_prefix,'_residuals_by_edges'],'png')
     end
     
     % network-level results
@@ -441,7 +441,7 @@ if make_figs
     caxis(clim_res);
 
     if save_figs__gt
-        saveas(gcf,[ground_truth_summary_prefix,'_residuals_by_networks'],'png')
+        saveas(gcf,[summary_prefix,'_residuals_by_networks'],'png')
     end
     
 end

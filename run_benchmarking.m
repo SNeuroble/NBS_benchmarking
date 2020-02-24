@@ -45,22 +45,47 @@ end
 % Do NBS
 % using parfor which requires Parallel Computing Toolbox, but if can't get it set to 1 worker
 
+% randomly subsample subject IDs into groups 
+for i=1:rep_params.n_repetitions
+    ids=randperm(n_subs,n_subs_subset)';
+    if do_TPR
+        ids=[ids;ids+n_subs];
+    end
+    ids_sampled(:,i)=ids;
+end
+
+c = parcluster('local');
+if n_workers>c.NumWorkers
+    fprintf('Specified %d workers but only %d available. Setting to max available.\n',n_workers,c.NumWorkers);
+     n_workers=c.NumWorkers;
+end
 if isempty(gcp('nocreate')); my_pool = parpool(n_workers); end % set from here bc doesn't limit to the specified n streams on server
 if rep_params.testing; fprintf('*** TESTING MODE ***\n'); end
 %if rep_params.do_simulated_effect; fprintf('*** SYNTHETIC EFFECT ADDED ***\n'); end
 fprintf('Starting benchmarking repetitions.\n');
 
-%parfor (this_repetition=(1+reps_completed_previously):rep_params.n_repetitions)
-for this_repetition=(1+reps_completed_previously):rep_params.n_repetitions
-    fprintf('* Repetition %d\n',this_repetition)
 
-    % shuffle data
-    ids=randperm(n_subs,rep_params.n_subs_subset);
-    if do_TPR
-        ids=[ids;ids+n_subs];
+
+parfor (this_repetition=(1+reps_completed_previously):rep_params.n_repetitions)
+%for this_repetition=(1+reps_completed_previously):rep_params.n_repetitions
+    fprintf('* Repetition %d - positive contrast\n',this_repetition)
+
+    m_test=zeros(n_nodes*(n_nodes-1)/2,n_subs_subset*2);
+    ids_thisrep=ids_sampled(:,this_repetition);
+    for i = 1:n_subs_subset
+        this_file_task = [data_dir,task_scan,'/',subIDs{ids_thisrep(i)},'_',task_scan,'_GSR_matrix.txt'];
+        d=importdata(this_file_task);
+        d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
+        m_test(:,i) = d(trimask);
+        this_file_non_task = [data_dir,non_task_scan,'/',subIDs{ids_thisrep(i)},'_',non_task_scan,'_GSR_matrix.txt'];
+        d=importdata(this_file_non_task);
+        d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
+        m_test(:,n_subs_subset+i) = d(trimask);
+        % print every 50 subs x 2 tasks
+        if mod(i,50)==0; fprintf('%d/%d  (x2 tasks)\n',i,n_subs_subset); end
     end
 
-    m_test=m(:,ids);
+    %m_test=m(:,ids_sampled(:,this_repetition)); % TEST
 
     % simulate effects
 %    if rep_params.do_simulated_effect
@@ -77,6 +102,7 @@ for this_repetition=(1+reps_completed_previously):rep_params.n_repetitions
     nbs=NBSrun_smn(UI_new);
     
     % re-run with negative
+    fprintf('* Repetition %d - negative contrast\n',this_repetition)
     UI_new_neg=UI_new;
     UI_new_neg.contrast.ui=nbs_contrast_neg;
 
@@ -102,6 +128,8 @@ for this_repetition=(1+reps_completed_previously):rep_params.n_repetitions
 
 end
 
+
+
 if strcmp(UI.statistic_type.ui,'Constrained') || strcmp(UI.statistic_type.ui,'SEA')
    cluster_stats_all=squeeze(cluster_stats_all);
    cluster_stats_all_neg=squeeze(cluster_stats_all_neg);
@@ -115,12 +143,14 @@ if strcmp(UI.statistic_type.ui,'Size'); size_str=['_',UI.size.ui];
 else; size_str='';
 end
 if testing; test_str='_testing'; else test_str=''; end
-if do_TPR; condition_str=['_',rep_params.task_condition]; else condition_str=['_',rep_params.non_task_condition]; end
+if do_TPR; condition_str=rep_params.task_condition; else condition_str=rep_params.non_task_condition; end
 
-output_filename=[output_dir,'nbs_benchmark_results__',condition_str,UI.statistic_type.ui,size_str,test_str,'_',datestr(now,'mmddyyyy_HHMM'),'.mat'];
+output_filename=[output_dir,'nbs_benchmark_results__',condition_str,'_',UI.statistic_type.ui,size_str,'_grsize',num2str(rep_params.n_subs_subset),test_str,'_',datestr(now,'mmddyyyy_HHMM'),'.mat'];
 fprintf('Saving results in %s\n',output_filename)
 save(output_filename,'edge_stats_all','cluster_stats_all','pvals_all','FWER','edge_stats_all_neg','cluster_stats_all_neg','pvals_all_neg','FWER_neg','UI','rep_params');
 
 % show that results are available in the workspace
 previous_results_filename__already_loaded=output_filename;
+
+
 
