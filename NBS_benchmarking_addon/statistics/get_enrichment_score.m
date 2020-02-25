@@ -1,4 +1,4 @@
-function [es,leading_edge]=get_enrichment_score(ids,test_stat,set1_ids,set2_ids,w,get_ledge)
+function [es,leading_edge]=get_enrichment_score(edge_groups,unique_edge_groups,test_stat,w,get_ledge)
 % Calculate enrichment score for Set Enrichment Analysis - 2 complementary variable sets
 %
 % ---INPUT---
@@ -23,6 +23,9 @@ function [es,leading_edge]=get_enrichment_score(ids,test_stat,set1_ids,set2_ids,
 %    netwoids for mesenchymal transformation of brain tumoutest_stat. Nature, 
 %    463(7279), 318-325.
 
+% all IDs
+ids=[1:length(edge_groups)];
+
 % check input format
 if size(ids,1)==1; ids = ids'; end
 if size(test_stat,1)==1; test_stat = test_stat'; end
@@ -38,36 +41,48 @@ test_stat_c = test_stat_c(ix);
 dmat        = dmat(ix);
 size_tests_combined = size(test_stat_c);
 
-% record overlap of variable sets and ranked list 
-in_set1=ismember(ids_c,set1_ids);
-in_set2=ismember(ids_c,set2_ids);
-ids_for_sea = +((dmat>0 & in_set1) | (dmat<0 & in_set2));
+set_ids_positions=1:length(edge_groups);
+set_ids_c=[edge_groups;edge_groups];
+set_ids_c=set_ids_c(ix);
 
-score_hit           = cumsum((abs(test_stat_c.*ids_for_sea)).^w);
-score_hit           = score_hit/score_hit(end);
-score_miss          = cumsum(1-ids_for_sea);
-score_miss          = score_miss/score_miss(end);
-es_all              = score_hit - score_miss;
-[es_max, id_max]    = max(es_all);
-[es_min, id_min]    = min(es_all);
-es                  = es_max + es_min;
+es=zeros(length(unique_edge_groups),1);
+for i=unique_edge_groups;
 
-% get leading edge if specified
-if get_ledge
-    isen = zeros(size_tests_combined);
-    if es<0
-        sup_id = id_min;
-        isen(sup_id:end) = 1; % what to call this?
-        leading_edge = ids_c((isen==1)&(ids_for_sea==1));
-        leading_edge = leading_edge(end:-1:1);
+    % set up set IDs
+       % record overlap of variable sets and ranked list 
+    %in_set1=ismember(ids_c,set1_ids);
+    %in_set2=ismember(ids_c,set2_ids);
+    in_set1=set_ids_c==i;
+    in_set2=~in_set1;
+  
+    ids_for_sea = +((dmat>0 & in_set1) | (dmat<0 & in_set2));
+
+    score_hit           = cumsum((abs(test_stat_c.*ids_for_sea)).^w);
+    score_hit           = score_hit/score_hit(end);
+    score_miss          = cumsum(1-ids_for_sea);
+    score_miss          = score_miss/score_miss(end);
+    es_all              = score_hit - score_miss;
+    [es_max, id_max]    = max(es_all);
+    [es_min, id_min]    = min(es_all);
+    es(i)               = es_max + es_min;
+
+    % get leading edge if specified
+    if get_ledge
+        isen = zeros(size_tests_combined);
+        if es<0
+            sup_id = id_min;
+            isen(sup_id:end) = 1; % what to call this?
+            leading_edge_precursor = ids_c((isen==1)&(ids_for_sea==1));
+            leading_edge(i,:) = leading_edge_precursor(end:-1:1);
+        else
+            sup_id = id_max;
+            isen(1:sup_id) = 1;
+            leading_edge(i,:) = ids_c((isen==1)&(ids_for_sea==1));
+            
+        end
     else
-        sup_id = id_max;
-        isen(1:sup_id) = 1;
-        leading_edge = ids_c((isen==1)&(ids_for_sea==1));
-        
+        leading_edge(i)=NaN;
     end
-else
-    leading_edge=NaN;
 end
 
 end

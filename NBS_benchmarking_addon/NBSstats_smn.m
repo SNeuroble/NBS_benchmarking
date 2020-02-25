@@ -290,12 +290,7 @@ switch STATS.statistic_type_numeric
     case 3 % do Set Enrichment Analysis (SEA; GSEA minus the G bc not genetics)
         
         edge_groups_vec=STATS.edge_groups.groups(ind_upper); % TODO: do this during setup
-        cluster_stats=zeros(length(STATS.edge_groups.unique),1);
-        for i=STATS.edge_groups.unique
-            set1_ids=find(edge_groups_vec==i);
-            set2_ids=find(edge_groups_vec~=i);
-            [cluster_stats(i),~]=get_enrichment_score([1:length(edge_groups_vec)],test_stat,set1_ids,set2_ids,1,0); % TODO: pass w as param
-        end
+        cluster_stats=get_enrichment_score(edge_groups_vec,STATS.edge_groups.unique,test_stat,1,0);
         
         null_stat=cluster_stats; % TODO - this is not a max value but instead 1 val for null per group - think of how to name
         
