@@ -52,7 +52,7 @@ thresh_small=0.2; thresh_med=0.5; thresh_high=0.8;
 % cmap threshold
 clim=[-thresh_med, thresh_med];
 %clim_res=[-0.001,0.001]; % for N=20
-if strcmp(stat_type,'Constrained') || strcmp(stat_type,'SEA')
+if strcmp(stat_type,'Constrained') || strcmp(stat_type,'SEA')f
     clim_res=[-10,10]; % for N=40
     clim_res_detailed=[-60,60]; % for N=40
 else
@@ -195,11 +195,10 @@ perc_edges_btw_thr_med_and_small=sum(+ids_btw_thr_med_and_small) * 100 / n_edges
 %% Load and summarize benchmarking results: 'edge_stats_summary','cluster_stats_summary','positives','positives_total','FWER_manual'
 if summarize_benchmarking
     
-    load(results_filename);
+    load(results_filename,'cluster_stats_all');
     size_cluster_stats_all=size(cluster_stats_all);
-    n_repetitions=rep_params.n_repetitions;
-%     n_repetitions=size_cluster_stats_all(end);
-    n_dim__cluster_stats_all=length(size_cluster_stats_all); %note that matrices may have different sizes, so we summarize over the last dimension)
+    n_repetitions=size_cluster_stats_all(end); %note that matrices may have different sizes, so we summarize over the last dimension)
+    n_dim__cluster_stats_all=length(size_cluster_stats_all);
     
     % summarize edge and cluster stats
     edge_stats_summary.mean=mean(edge_stats_all,length(size(edge_stats_all)));
@@ -220,10 +219,11 @@ if summarize_benchmarking
     if ~isequal(size(positives),size(cluster_stats_all))
         
         if strcmp(UI.statistic_type.ui,'Constrained') || strcmp(UI.statistic_type.ui,'SEA')
-            error('Something went wrong - this shouldn''t happen anymore, only in old summaries created by old script.')
+            error('Something went wrong - this shouldn''t happen anymore, only in old data.')
         elseif numel(positives)==numel(cluster_stats_all)
             
             % reshape positives to matrix to match cluster_stats_all
+            n_repetitions=size(cluster_stats_all,3);
             positives=reshape(positives,n_nodes,n_nodes,n_repetitions);
             positives_neg=reshape(positives_neg,n_nodes,n_nodes,n_repetitions);
             
@@ -256,16 +256,14 @@ if summarize_benchmarking
         FWER_manual_neg=sum(+any(positives_reshaped_neg))/n_repetitions;
     end
     
-    n_subs_subset=rep_params.n_subs_subset;
-    n_perms=UI.perms.ui;
-    run_time_h=run_time/(60*60);
+    
+    run_info.n_repetitions=rep_params.n_repetitions;
+    run_info.n_subs_subset=rep_params.n_subs_subset;
 
-    save(benchmarking_summary_filename,'edge_stats_summary','edge_stats_summary_neg','cluster_stats_summary','cluster_stats_summary_neg','positives','positives_neg','positives_total','positives_total_neg','FWER_manual','FWER_manual_neg','n_repetitions','n_subs_subset','run_time_h','n_perms','-v7.3');
+    save(benchmarking_summary_filename,'edge_stats_summary','edge_stats_summary_neg','cluster_stats_summary','cluster_stats_summary_neg','positives','positives_neg','positives_total','positives_total_neg','FWER_manual','FWER_manual_neg','n_repetitions','n_subs_subset','run_time','-v7.3');
 else
-    load(benchmarking_summary_filename,'positives_total','positives_total_neg','n_repetitions','n_subs_subset','run_time_h','n_perms')
-    if strcmp(stat_type,'Constrained') || strcmp(stat_type,'SEA') % need for summary in edge_groups
-        load(results_filename,'UI');
-    end
+    load(benchmarking_summary_filename,'positives_total','positives_total_neg','n_repetitions')
+    load(results_filename,'UI');
 end
 
 %% Calculate TPR
@@ -331,7 +329,6 @@ if curve_toolbox_exists
         
         spline_smoothing_set=0.99999;
         [tpr_fit_summat,res_summat,~]=fit_spline(dcoeff_summat,tpr_summat,spline_smoothing_set,[summary_prefix,'_esz_v_TPR_summat_pos']);
-        [tpr_fit_by_edge,res_by_edge,~]=fit_spline(dcoeff,tpr,spline_smoothing,[summary_prefix,'_esz_v_TPR_pos']);
     else
         [tpr_fit,res,~]=fit_spline(dcoeff,tpr,spline_smoothing,[summary_prefix,'_esz_v_TPR_pos']);
     %         [tpr_fit(ids_neg),res(ids_neg),~]=fit_spline(dcoeff(ids_neg),true_positives(ids_neg,spline_smoothing,strcat(out_prefix,'_esz_v_TPR_neg'));
@@ -484,9 +481,9 @@ if save_log
         fprintf(fid,'\nPercent detected at d=+/-%1.1f: %f (+), %f (-), %f (mean) ',thresh_med,tpr_at_thr(1:3));
         fprintf(fid,'\nPercent detected at d=+/-%1.1f: %f (+), %f (-), %f (mean) ',thresh_small,tpr_at_thr(4:6));
         fprintf(fid,'\n(%d total repetitions)',n_repetitions);
-        fprintf(fid,'\n(%d total permutations)',n_perms);
-        fprintf(fid,'\n(%d subjects sampled out of %d total subjects)',n_subs_subset,n_subs_total);
-        fprintf(fid,'\n(Run time: %1.2f hours )',run_time_h); % toc is in sec
+        fprintf(fid,'\n(%d total permutations)',perms);
+        fprintf(fid,'\n(%d subjects sampled from %d total subjects)',n_subs_subset,n_subs_total);
+        fprintf(fid,'\n(Run time: %1.2f hours )',run_time/(60*60)); % toc is in sec
     fclose(fid);
 end
 

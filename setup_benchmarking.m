@@ -45,7 +45,7 @@ end
 % load data
 
 load_data='y';
-if exist('m','var');
+if exist('m','var')
     load_data=input('Some data is already loaded in the workspace. Replace? (y/n)','s');
 end
 

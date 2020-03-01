@@ -25,15 +25,16 @@ case 'steph'
     %data_path='/Users/steph/Steph-Lab/Misc/ConstableLab/MRRC Neuroinformatics/resources/scripts/cpm_hackathon/test_data/HCP900_rest_n50.mat'; % HCP toy data
     
     % results directory
-%     output_dir='/Users/steph/Steph-Lab/NBS_benchmarking/results_benchmarking/'; % local results
-    output_dir='/Users/steph/Documents/data/mnt/NBS_benchmarking_results/'; % server results
+    output_dir='/Users/steph/Documents/data/mnt/NBS_benchmarking_results/';
+    %output_dir='/Users/steph/Steph-Lab/NBS_benchmarking/results_benchmarking/'; % local results
+%     output_dir='/Users/steph/Documents/data/mnt/NBS_benchmarking_results/'; % server results
     
     % NBS toolbox
     nbs_dir='/Users/steph/Steph-Lab/Misc/Software/scripts/Matlab/fmri/NBS1.2';
     
     % misc scripts used for summarization - structure_data, draw_atlas_boundaries, summarize_matrix_by_atlas
-   other_scripts_dir='/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/myscripts/general_mri';
-    %other_scripts_dir='/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/myscripts/NBS_benchmarking/support_scripts/';
+   %other_scripts_dir='/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/myscripts/general_mri';
+    other_scripts_dir='/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/myscripts/NBS_benchmarking/support_scripts/';
 
 case 'ubuntu'
 
@@ -50,7 +51,6 @@ case 'ubuntu'
 
     % misc scripts used for cNBS and for summarization - structure_data, draw_atlas_boundaries, summarize_matrix_by_atlas
     other_scripts_dir='/home/ubuntu/scripts/NBS_benchmarking/support_scripts/';
-
 
 end
 
