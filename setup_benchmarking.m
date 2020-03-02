@@ -10,9 +10,25 @@ addpath(genpath(nbs_dir));
 addpath(genpath(other_scripts_dir));
 subIDs_suffix='_subIDs.txt';
 
+% get task based on whether ground truth
+if exist('do_ground_truth')
+    if do_ground_truth
+        task=task_gt;
+        preload_data=1;
+        do_TPR=1;
+        cluster_stat_type='Size';
+        n_perms='1';
+
+        fprintf('Setting params for ground truth.\nDoing standard NBS for %s vs REST (1 perm) - will preload data.\n',task);
+    end
+else
+    do_ground_truth=0;
+    preload_data=0;
+end
+
+
 % get non-task IDs
-non_task_scan=non_task_condition;
-non_task_IDs_file=[data_dir,non_task_scan,subIDs_suffix];
+non_task_IDs_file=[data_dir,non_task,subIDs_suffix];
 non_task_IDs=fileread(non_task_IDs_file);
 non_task_IDs=strsplit(non_task_IDs,newline);
 
@@ -22,8 +38,7 @@ if do_TPR
     % compare IDs (thanks https://www.mathworks.com/matlabcentral/answers/358722-how-to-compare-words-from-two-text-files-and-get-output-as-number-of-matching-words)
 
     % get task IDs
-    task_scan=task_condition;
-    task_IDs_file=[data_dir,task_scan,subIDs_suffix];
+    task_IDs_file=[data_dir,task,subIDs_suffix];
     task_IDs=fileread(task_IDs_file);
     task_IDs=strsplit(task_IDs,newline);
 
@@ -35,71 +50,79 @@ if do_TPR
 else
     subIDs=non_task_IDs;
 end
+
+% if testing limit to subset of data
 if testing
     n_subs=n_subs_subset;
 else
-    n_subs=length(subIDs); % TODO: redefined below
+    n_subs=length(subIDs);
 end
 
-
-% load data
-
-load_data='y';
-if exist('m','var')
-    load_data=input('Some data is already loaded in the workspace. Replace? (y/n)','s');
+% use all data is doing ground truth
+if do_ground_truth
+    n_subs_subset=n_subs;
 end
 
-if strcmp(load_data,'y')
-    
-    template_file=[data_dir,non_task_scan,'/',subIDs{1},'_',non_task_scan,'_GSR_matrix.txt'];
-    
-    fprintf('This version does not pre-load data. Loading template file %s.\n',template_file);
-    
-    template=importdata(template_file);
-    n_nodes=size(template,1); % assuming square
-    
-    %fprintf('Loading %d subjects. Progress:\n',n_subs);
+% Setup up template for data
 
-    trimask=logical(triu(ones(size(template)),1));
+template_file=[data_dir,non_task,'/',subIDs{1},'_',non_task,'_GSR_matrix.txt'];
+fprintf('Template file is: %s.\n',template_file);
+template=importdata(template_file);
+n_nodes=size(template,1); % assuming square
+trimask=logical(triu(ones(size(template)),1));
 
-    if testing; n_subs=n_subs_subset; end
+% Load data
 
-%    % load data differently for TPR or FPR
-%    if do_TPR
-%
-%        m=zeros(n_nodes*(n_nodes-1)/2,n_subs*2);
-%        for i = 1:n_subs
-%            this_file_task = [data_dir,task_scan,'/',subIDs{i},'_',task_scan,'_GSR_matrix.txt'];
-%            d=importdata(this_file_task);
-%            d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
-%            m(:,i) = d(trimask);
-%            this_file_non_task = [data_dir,non_task_scan,'/',subIDs{i},'_',non_task_scan,'_GSR_matrix.txt'];
-%            d=importdata(this_file_non_task);
-%            d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
-%            m(:,n_subs+i) = d(trimask);
-%            % print every 50 subs x 2 tasks
-%            if mod(i,50)==0; fprintf('%d/%d  (x2 tasks)\n',i,n_subs); end
-%        end
-%    
-%    else % for FPR
-%
-%        m=zeros(size(template,1),size(template,2),n_subs);
-%        for i = 1:n_subs
-%            this_file_non_task = [data_dir,non_task_scan,'/',subIDs{i},'_',non_task_scan,'_GSR_matrix.txt'];
-%            d=importdata(this_file_non_task);
-%            d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
-%            m(:,i) = d(trimask);
-%            % print every 100
-%            if mod(i,100)==0; fprintf('%d/%d\n',i,n_subs); end
-%        end   
-%    
-%    end
+if preload_data
+   
+    load_data='y';
+    if exist('m','var');
+        load_data=input('Some data is already loaded in the workspace. Replace? (y/n)','s');
+    end
 
-elseif strcmp(load_data,'n')
-    fprintf('Using previously loaded data and assuming already reordered.\n');
-else; error('Input must be y or n.');
+    if strcmp(load_data,'y')
+    
+        fprintf('Loading %d subjects. Progress:\n',n_subs);
+
+        % load data differently for TPR or FPR
+        if do_TPR
+
+            m=zeros(n_nodes*(n_nodes-1)/2,n_subs*2);
+            for i = 1:n_subs
+                this_file_task = [data_dir,task,'/',subIDs{i},'_',task,'_GSR_matrix.txt'];
+                d=importdata(this_file_task);
+                d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
+                m(:,i) = d(trimask);
+                this_file_non_task = [data_dir,non_task,'/',subIDs{i},'_',non_task,'_GSR_matrix.txt'];
+                d=importdata(this_file_non_task);
+                d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
+                m(:,n_subs+i) = d(trimask);
+                
+                % print every 50 subs x 2 tasks
+                if mod(i,50)==0; fprintf('%d/%d  (x2 tasks)\n',i,n_subs); end
+            end
+        
+        else % for FPR
+
+            m=zeros(size(template,1),size(template,2),n_subs);
+            for i = 1:n_subs
+                this_file_non_task = [data_dir,non_task,'/',subIDs{i},'_',non_task,'_GSR_matrix.txt'];
+                d=importdata(this_file_non_task);
+                d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
+                m(:,i) = d(trimask);
+                % print every 100
+                if mod(i,100)==0; fprintf('%d/%d\n',i,n_subs); end
+            end
+        
+        end
+
+    else
+        fprintf('Okay, keeping previous data and assuming already reordered.\n');
+    end
+
+else
+    fprintf('This version does not pre-load data.\n');
 end
-
 
 % make design matrix
 if do_TPR
@@ -154,8 +177,8 @@ rep_params.mapping_category=mapping_category;
 rep_params.n_repetitions=n_repetitions;
 rep_params.n_subs_subset=n_subs_subset;
 rep_params.do_TPR=do_TPR;
-if do_TPR; rep_params.task_condition=task_condition; end
-rep_params.non_task_condition=non_task_condition;
+if do_TPR; rep_params.task=task; end
+rep_params.non_task=non_task;
 
 % assign NBS parameters to UI (see NBS.m)
 UI.method.ui=nbs_method; % TODO: revise to include vanilla FDR

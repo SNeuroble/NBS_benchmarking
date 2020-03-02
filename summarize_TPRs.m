@@ -1,4 +1,4 @@
-% function summarize_TPRs(task,stat_type,date_time_str_results,grsize,varargin)
+function summarize_TPRs(task,stat_type,date_time_str_results,grsize,varargin)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Before starting locally, mount data dir: sshfs smn33@172.23.202.124:d3_smn33/ mnt/
 % This script summarizes and visualizes ground truth effect sizes and TPR data
@@ -258,7 +258,11 @@ if summarize_benchmarking
     
     n_subs_subset=rep_params.n_subs_subset;
     n_perms=UI.perms.ui;
-    run_time_h=run_time/(60*60);
+    if exist('run_time','var')
+        run_time_h=run_time/(60*60);
+    else
+        run_time_h=NaN;
+    end
 
     save(benchmarking_summary_filename,'edge_stats_summary','edge_stats_summary_neg','cluster_stats_summary','cluster_stats_summary_neg','positives','positives_neg','positives_total','positives_total_neg','FWER_manual','FWER_manual_neg','n_repetitions','n_subs_subset','run_time_h','n_perms','-v7.3');
 else
@@ -392,85 +396,90 @@ if make_figs
     end
     
 
-    % 3. Plot effect size vs. TPR
-     
-    if strcmp(stat_type,'Constrained') || strcmp(stat_type,'SEA')
-        dcoeff_new=dcoeff_summat;
-        tpr_new=tpr_summat;
-        tpr_fit_new=tpr_fit_summat;
-    else
-        dcoeff_new=dcoeff;
-        tpr_new=tpr;
-        tpr_fit_new=tpr_fit;
-    end
-    
-    figure
-    hold on
-    [~,ind]=sort(dcoeff_new);
-    yyaxis left
-    scatter(dcoeff_new,tpr_new,1,'b.')
-    plot(dcoeff_new(ind),tpr_fit_new(ind),'k-','LineWidth',2)
-    hold off
-    
-    % add stuff to TPR by esz
-    axis([ax_xmin,ax_xmax,ax_ymin,ax_ymax_tp])
-    set(gca,'fontsize',fontsz)
-    % add trace of previous hist
-    hold on
-    yyaxis right
-    axis([ax_xmin,ax_xmax,ax_ymin,ax_ymax_esz])
-    plot(h.BinEdges(1:end-1)+ h.BinWidth/2,h.BinCounts/n_edges,'--','LineWidth',2)
-    rectangle('Position',[-thresh_high,ax_ymin,2*thresh_high,ax_ymax_tp],'FaceColor',[1 1 0 0.2],'EdgeColor','none')
-    hold off
-   
-    if save_figs__results
-        saveas(gcf,esz_v_tpr_file,'png')
-    end
-    
-    
-    % 4. Plot effect size vs. TPR residuals - diagnostics
+    % Plot results from fitting spline
 
-    figure;
-    hold on;
-    scatter(dcoeff,res,1,'b.')
-
-    std_thresh=n_std_residual_outlier*std(res);
-    idx=abs(res)>std_thresh;
-    scatter(dcoeff(idx),res(idx),1,'.')
-    plot(dcoeff,zeros(size(dcoeff)),'k-','LineWidth',2) % plot zero residual line
-
-    hold off;
+    if curve_toolbox_exists
         
-    if save_figs__results
-        % save plot
-        saveas(gcf,[summary_prefix,'_esz_v_TPR__residuals'],'png')
+        % 3. Plot effect size vs. TPR
+        
+        if strcmp(stat_type,'Constrained') || strcmp(stat_type,'SEA')
+            dcoeff_new=dcoeff_summat;
+            tpr_new=tpr_summat;
+            tpr_fit_new=tpr_fit_summat;
+        else
+            dcoeff_new=dcoeff;
+            tpr_new=tpr;
+            tpr_fit_new=tpr_fit;
+        end
+        
+        figure
+        hold on
+        [~,ind]=sort(dcoeff_new);
+        yyaxis left
+        scatter(dcoeff_new,tpr_new,1,'b.')
+        plot(dcoeff_new(ind),tpr_fit_new(ind),'k-','LineWidth',2)
+        hold off
+        
+        % add stuff to TPR by esz
+        axis([ax_xmin,ax_xmax,ax_ymin,ax_ymax_tp])
+        set(gca,'fontsize',fontsz)
+        % add trace of previous hist
+        hold on
+        yyaxis right
+        axis([ax_xmin,ax_xmax,ax_ymin,ax_ymax_esz])
+        plot(h.BinEdges(1:end-1)+ h.BinWidth/2,h.BinCounts/n_edges,'--','LineWidth',2)
+        rectangle('Position',[-thresh_high,ax_ymin,2*thresh_high,ax_ymax_tp],'FaceColor',[1 1 0 0.2],'EdgeColor','none')
+        hold off
+       
+        if save_figs__results
+            saveas(gcf,esz_v_tpr_file,'png')
+        end
+        
+        % 4. Plot effect size vs. TPR residuals - diagnostics
+
+        figure;
+        hold on;
+        scatter(dcoeff,res,1,'b.')
+
+        std_thresh=n_std_residual_outlier*std(res);
+        idx=abs(res)>std_thresh;
+        scatter(dcoeff(idx),res(idx),1,'.')
+        plot(dcoeff,zeros(size(dcoeff)),'k-','LineWidth',2) % plot zero residual line
+
+        hold off;
+            
+        if save_figs__results
+            % save plot
+            saveas(gcf,[summary_prefix,'_esz_v_TPR__residuals'],'png')
+        end
+        
+
+        % 5. Plot effect size vs. TPR residuals - spatial distribution
+        % edge-level results
+
+        % put stuff back into upper triangle
+        res_mat=zeros(n_nodes);
+        res_mat(triu_msk)=res;
+
+        draw_atlas_boundaries(res_mat');
+        colormap(bipolar([],0.1));
+        caxis(clim_res_detailed);
+
+        if save_figs__results
+            saveas(gcf,[summary_prefix,'_residuals_by_edges'],'png')
+        end
+        
+        % network-level results
+        summarize_matrix_by_atlas(res_mat');
+        colormap(bipolar([],0.1));
+        caxis(clim_res);
+
+        if save_figs__results
+            saveas(gcf,[summary_prefix,'_residuals_by_networks'],'png')
+        end
+
     end
-    
 
-    % 5. Plot effect size vs. TPR residuals - spatial distribution
-    % edge-level results
-
-    % put stuff back into upper triangle
-    res_mat=zeros(n_nodes);
-    res_mat(triu_msk)=res;
-
-    draw_atlas_boundaries(res_mat');
-    colormap(bipolar([],0.1));
-    caxis(clim_res_detailed);
-
-    if save_figs__results
-        saveas(gcf,[summary_prefix,'_residuals_by_edges'],'png')
-    end
-    
-    % network-level results
-    summarize_matrix_by_atlas(res_mat');
-    colormap(bipolar([],0.1));
-    caxis(clim_res);
-
-    if save_figs__results
-        saveas(gcf,[summary_prefix,'_residuals_by_networks'],'png')
-    end
-    
 end
 
 %% Log percent esz and TP at thresholds
@@ -483,10 +492,10 @@ if save_log
         fprintf(fid,'\nAvg percent detected between d=+/-%1.1f: %f; ALSO greater than %1.1f: %f',thresh_med,tpr_lt_thr_med,thresh_small,tpr_btw_thr_med_and_small);
         fprintf(fid,'\nPercent detected at d=+/-%1.1f: %f (+), %f (-), %f (mean) ',thresh_med,tpr_at_thr(1:3));
         fprintf(fid,'\nPercent detected at d=+/-%1.1f: %f (+), %f (-), %f (mean) ',thresh_small,tpr_at_thr(4:6));
-        fprintf(fid,'\n(%d total repetitions)',n_repetitions);
-        fprintf(fid,'\n(%d total permutations)',n_perms);
-        fprintf(fid,'\n(%d subjects sampled out of %d total subjects)',n_subs_subset,n_subs_total);
-        fprintf(fid,'\n(Run time: %1.2f hours )',run_time_h); % toc is in sec
+        fprintf(fid,'\n%d total repetitions',n_repetitions);
+        fprintf(fid,'\n%s total permutations',n_perms);
+        fprintf(fid,'\n%d subjects sampled out of %d total subjects',n_subs_subset,n_subs_total);
+        fprintf(fid,'\nRun time: %1.2f hours',run_time_h); % toc is in sec
     fclose(fid);
 end
 
