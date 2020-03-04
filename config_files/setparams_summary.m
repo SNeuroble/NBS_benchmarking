@@ -22,7 +22,7 @@ switch stat_type
         date_time_str_results.SOCIAL='03012020_1942';
         date_time_str_results.WM='02252020_1931';
     case 'TFCE'
-%         date_time_str_bench.EMOTION='03032020_1816';
+        date_time_str_results.EMOTION='03042020_0355';
         date_time_str_results.GAMBLING='03032020_0007';
         date_time_str_results.LANGUAGE='02242020_1327';
         date_time_str_results.MOTOR='03012020_0101';
@@ -30,7 +30,7 @@ switch stat_type
         date_time_str_results.SOCIAL='03022020_0203';
         date_time_str_results.WM='02262020_0139';
     case 'Constrained'
-%         date_time_str_bench.EMOTION='03032020_1816';
+        date_time_str_results.EMOTION='03042020_0724';
         date_time_str_results.GAMBLING='03032020_0332';
         date_time_str_results.LANGUAGE='02242020_0355';
         date_time_str_results.MOTOR='03012020_0417';
