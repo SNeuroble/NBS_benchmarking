@@ -1,4 +1,4 @@
-function [y_predict,residuals,SSE,residual_r,residual_p]=fit_spline(x,y,smoothing,plot_filename)  
+function [y_predict,residuals,x_windowed,y_windowed,y_windowed_std,SSE,residual_r,residual_p]=fit_spline(x,y,smoothing,plot_filename)  
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This function fits a cubic spline for the "Cluster Failure or Power
@@ -14,11 +14,13 @@ overlap=window_sz*percent_overlap;
 nwindows=ceil( (max(x) - min(x) - overlap) / (window_sz - overlap) );
 for i=1:nwindows
     x_windowed(i)= min(x)+i*(window_sz-overlap);
-    y_predict_windowed(i)=mean(y(x>(x_windowed(i)-overlap) & x<=(x_windowed(i)+overlap)));
+    y_in_window=y(x>(x_windowed(i)-overlap) & x<=(x_windowed(i)+overlap));
+    y_windowed(i)=mean(y_in_window);
+    y_windowed_std(i)=std(y_in_window);
 end
 
 % fit spline to smooth model
-y_predict = csaps(double(x_windowed),double(y_predict_windowed),smoothing,x);
+y_predict = csaps(double(x_windowed),double(y_windowed),smoothing,x);
 
 % descriptive stuff
 residuals=y-y_predict;
