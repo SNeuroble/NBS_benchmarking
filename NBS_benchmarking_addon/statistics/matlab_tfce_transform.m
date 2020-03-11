@@ -1,6 +1,6 @@
 function [tfced,comps,comp_sizes] = matlab_tfce_transform(img,varargin)
 % Generalized for connectivity using code from https://github.com/markallenthornton/MatlabTFCE
-% Matrix parameter defaults from https://github.com/MRtrix3/mrtrix3/blob/master/cmd/connectomestats.cpp
+% Matrix TFCE parameter defaults from https://github.com/MRtrix3/mrtrix3/blob/master/cmd/connectomestats.cpp
 % 
 % Specify: 'matrix' for matrix, 'image' for 2 or 3D image
 % TODO: other weightings as optional args
@@ -21,7 +21,7 @@ if nargin > 1
     if strcmp(varargin{1},'image')
         is_graph=0;
         if ndim==3 % defaults only tested for fMRI data?
-            % setting defaults for 3D - from matlab_fce (Smith et al.) - TODO: move to user-defined section
+            % defaults parameters for 3D from matlab_fce (Smith et al.) - TODO: move to user-defined section
             % TODO: these param are for 3D - add check for 2D (C=8) (default to full neighborhood)
             H = 2;
             E = 0.5;
@@ -36,7 +36,7 @@ if nargin > 1
     elseif strcmp(varargin{1},'matrix')
         is_graph=1;
         if ndim==2
-            % setting defaults - from mrtrix NBS tfce - cited Vinokur et al., but no actual values given there - close-ish to the values from Baggio et al.: "We therefore recommend E parameter values of 0.5 (combined with H parameter values between 2.25 and 3) or 0.75 (combined with H parameters between 3 and 3.5)"
+            % default parameters from Mrtrix2 connectomestats.cpp function (see TFCE_*_DEFAULT)- cited Vinokur et al., 2015 in the code and Baggio et al., 2018 in the docs - values differ from the references - close to the values from Baggio et al.: "We therefore recommend E parameter values of 0.5 (combined with H parameter values between 2.25 and 3) or 0.75 (combined with H parameters between 3 and 3.5)"
             H = 3.0;
             E = 0.4;
         else
