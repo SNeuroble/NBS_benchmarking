@@ -57,12 +57,14 @@ fontsz=25;
 
 % smoothing factor for spline
 spline_smoothing=0.995;
+spline_smoothing_set=0.99999;
 
 % histograms params (keep an eye out for NAN/empty bins)
 bin_width=0.07;
 nbins=ceil((ax_xmax-ax_xmin)/bin_width);
 % nbins=75; % this fits for the narrower x-axis, 60 for larger axis
 bin_width_at_summary_thresh=0.1;
+bin_width_at_summary_thresh__network=0.1;
 % half_bin_width=bin_width/2; % ad hoc bin size for 
 
 % effect size thresholds

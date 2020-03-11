@@ -83,7 +83,7 @@ if compare_all_tasks
     end
     
     date_time_str=datestr(now,'mmddyyyy');
-    [~,~]=do_summary('all',stat_type_gt,date_time_str,output_dir,make_figs,save_figs,save_log,save_settings_for_all,d_all,tasks); % TODO
+    [~,~]=do_summary('all_tasks',stat_type_gt,date_time_str,output_dir,make_figs,save_figs,save_log,save_settings_for_all,d_all,tasks); % TODO
     
 end
 
@@ -149,7 +149,7 @@ end
 
 % load (TODO: only need to get n_nodes only from first file loaded)
 
-if strcmp(task,'all') % get average dcoeff across tasks
+if strcmp(task,'all_tasks') % get average dcoeff across tasks
     
     % Load mean data
     dcoeff_all=varargin{1};
@@ -241,7 +241,7 @@ if make_figs
     
     % reset save_settings_for_all when doing mean and deltas, bc may
     % want to save these differently than individual tasks
-    if strcmp(task,'all')
+    if strcmp(task,'all_tasks')
         save_settings_for_all.asked.figs=0;
     end
     
@@ -249,8 +249,8 @@ if make_figs
         
         d=dcoeff(:,i);
         
-        % special setup for 'all' - outfiles, new hist ymax
-        if strcmp(task,'all')
+        % special setup for 'all_tasks' - outfiles, new hist ymax
+        if strcmp(task,'all_tasks')
             if i==1; special_str='_mean';
             else
                 special_str=['_',tasks{i},'_delta'];
@@ -353,8 +353,8 @@ if save_log
     fprintf('Saving log in %s.\n',logfile);
     
     fid=fopen(logfile,'w');
-    fprintf(fid,'Percent between d=+/-%1.1f: %1.3f\n',[thresholds, perc_edges_lt_thr]);
-    fprintf(fid,'Percent between d=%1.1f and %1.1f: %1.3f\n',[thresholds(2:end), thresholds(1:end-1), perc_edges_btw_thr_and_thr_below]);
+    fprintf(fid,'Percent between d=+/-%1.1f: %1.3f\n',[thresholds; perc_edges_lt_thr]);
+    fprintf(fid,'Percent between d=%1.1f and %1.1f: %1.3f\n',[thresholds(2:end); thresholds(1:end-1); perc_edges_btw_thr_and_thr_below]);
     fprintf(fid,'N=%d total subjects\n',n_subs);
     fclose(fid);
 end

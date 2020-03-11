@@ -43,7 +43,7 @@ save_settings_for_all.asked.summarize=0;
 save_settings_for_all.asked.figs=0;
 save_settings_for_all.asked.log=0;
 
-fprintf('* Summarizing benchmarking results.\n');
+fprintf('* Summarizing true positive benchmarking results.\n');
 
 for t=1:length(tasks)
     for s=1:length(stat_types)
@@ -51,7 +51,7 @@ for t=1:length(tasks)
     % task-/stat-specific setup
     task=tasks{t};
     stat_type=stat_types{s};
-    fprintf(['Summarizing ',task,'::',stat_type,'\n'])
+    fprintf(['Summarizing TPRs - ',task,'::',stat_type,'\n'])
     setparams_summary;
 
     ground_truth_results_basename_prefix=['nbs_ground_truth__',task,'_',stat_type_gt,'_',date_time_str_ground_truth.(task)];
@@ -67,11 +67,6 @@ for t=1:length(tasks)
     summary_output_dir_gt=[output_dir,task,'_',stat_type_gt,'_summary/'];
     ground_truth_summary_prefix=[summary_output_dir_gt,'nbs_ground_truth__',task,'_',stat_type_gt,'_',date_time_str_ground_truth.(task)];
     summary_prefix=[summary_output_dir,'nbs_benchmark_results__',task,'_',stat_type,'_',date_time_str_results.(task)];
-
-    % define a few output files to save for testing already created
-    esz_hist_file=[ground_truth_summary_prefix,'_esz_hist.png'];
-    esz_v_tpr_file=[summary_prefix,'_tpr_v_esz.png'];
-    logfile=[summary_prefix,'_log.txt'];
 
     % setup summary output dir
     if ~exist(summary_output_dir,'dir'); mkdir(summary_output_dir); end
@@ -110,75 +105,10 @@ for t=1:length(tasks)
         
     end
 
-    if make_figs && save_figs
-        save_figs__results=1;
-        if exist(esz_v_tpr_file,'file')
-            if ~save_settings_for_all.asked.figs || ~save_settings_for_all.use_same.figs
-                resp=input(sprintf('Results figures already exist in %s. \nOverwrite? (Otherwise will plot without saving.) [y/n]\n> ',esz_v_tpr_file),'s');
-                if strcmp(resp,'y')
-                    fprintf('Replacing results figures.\n');
-                else
-                    save_figs__results=0;
-                    fprintf('Okay, won''t overwrite.\n');
-                end
-
-                if ~save_settings_for_all.asked.figs
-                    user_response=input(sprintf('Repeat for all? [yes/no]\n> '),'s');
-                    if strcmp(user_response,'yes')
-                        fprintf('Using this setting for all.\n');
-                        save_settings_for_all.use_same.figs=1;
-                        save_settings_for_all.figs=save_figs__results;
-                    else
-                        fprintf('Okay, will ask each time.\n');
-                        save_settings_for_all.use_same.figs=0;
-                    end
-                    save_settings_for_all.asked.figs=1;
-                end
-
-            else
-                save_figs__results=save_settings_for_all.figs;
-            end
-        end
-    else
-        save_figs__results=0;
-    end
-
-    if save_log
-        if exist(logfile,'file')
-            if ~save_settings_for_all.asked.log || ~save_settings_for_all.use_same.log
-                
-                resp=input('Log file already exists. \nOverwrite? [y/n]\n> ','s');
-                if strcmp(resp,'y')
-                    fprintf('Replacing log.\n');
-                else
-                    save_log=0;
-                    fprintf('Okay, won''t overwrite.\n');
-                end
-                
-                if ~save_settings_for_all.asked.log
-                    user_response=input(sprintf('Repeat for all? [yes/no]\n> '),'s');
-                    if strcmp(user_response,'yes')
-                        fprintf('Using this setting for all.\n');
-                        save_settings_for_all.use_same.log=1;
-                        save_settings_for_all.log=save_log;
-                    else
-                        fprintf('Okay, will ask each time.\n');
-                        save_settings_for_all.use_same.log=0;
-                    end
-                    save_settings_for_all.asked.log=1;
-                end
-                
-            else
-                save_log=save_settings_for_all.log;
-            end
-        end
-    end
 
 
 
-    %% GROUND TRUTH
-
-    %% Estimate effect sizes
+    %% GROUND TRUTH: estimate effect sizes
 
     try
         load(ground_truth_filename,'edge_stats','cluster_stats','rep_params');
@@ -190,8 +120,6 @@ for t=1:length(tasks)
     n_subs_total=rep_params.n_subs_subset;
     dcoeff=(edge_stats/sqrt(n_subs_total))';
 
-    %% Additional setup
-
     % get num nodes and edges
     n_edges=length(dcoeff);
     n_nodes=size(cluster_stats,1);
@@ -202,7 +130,8 @@ for t=1:length(tasks)
 
 
     %% BENCHMARKING RESULTS
-    %% Load and summarize benchmarking results: 'edge_stats_summary','cluster_stats_summary','positives','positives_total','FWER_manual'
+    
+    % Load and summarize benchmarking results: 'edge_stats_summary','cluster_stats_summary','positives','positives_total','FWER_manual'
     if summarize_benchmarking
 
         load(results_filename);
@@ -301,36 +230,7 @@ for t=1:length(tasks)
     true_positives(ids_pos_vec)=positives_total(ids_pos);
     true_positives(ids_neg_vec)=positives_total_neg(ids_neg);
     tpr=true_positives*100/n_repetitions;
-    
-    
-    %% Mean TPR within effect size thresholds
 
-    thresholds=[thresh_small, thresh_med, thresh_large];
-
-    for i=1:length(thresholds)
-
-        % Get IDs of edges below/between d-thresh (e.g., edges < thresh_high; edges < thresh_high & > thresh_low)
-        ids_lt_thr=abs(dcoeff) <= thresholds(i);
-        if i~=1
-            ids_btw_thr_and_thr_below=abs(dcoeff) <= thresholds(i) & abs(dcoeff) >= thresholds(i-1);
-        end
-
-        % -> Get TPR of edges below/between d-threshold
-        tpr_lt_thr(i) = sum(tpr(ids_lt_thr)) / sum(+ids_lt_thr);
-        if i~=1
-            tpr_btw_thr_and_thr_below(i-1) = sum(tpr(ids_btw_thr_and_thr_below)) / sum(+ids_btw_thr_and_thr_below) ;
-        end
-
-        % Get IDs of edges at (around) dcoeff (divide by 2 to get both halves of the bin)
-        ids_at_pos_thr = abs(dcoeff-thresholds(i)) <= bin_width_at_summary_thresh / 2;
-        ids_at_neg_thr = abs(dcoeff+thresholds(i)) <= bin_width_at_summary_thresh / 2;
-
-        % -> Get TPR of edges at (around) +thresh, -thresh, and mean
-        tpr_at_thr(3*(i-1) + 1) = sum(tpr(ids_at_pos_thr)) / sum(+ids_at_pos_thr);
-        tpr_at_thr(3*(i-1) + 2) = sum(tpr(ids_at_neg_thr)) / sum(+ids_at_neg_thr);
-        tpr_at_thr(3*(i-1) + 3) = mean(tpr_at_thr((3*i-2):(3*i-1)));
-
-    end
     
     
     %% Fit TPR v effect size
@@ -340,168 +240,257 @@ for t=1:length(tasks)
     [installedToolboxes{1:length(v_)}] = deal(v_.Name);
     curve_toolbox_exists = all(ismember('Curve Fitting Toolbox',installedToolboxes));
     if curve_toolbox_exists
-        tpr_fit=zeros(n_edges,1);
-        res=zeros(n_edges,1);
-        if strcmp(stat_type,'Constrained') || strcmp(stat_type,'SEA')
-            dcoeff_mat=zeros(n_nodes);
-            dcoeff_mat(triu_msk)=dcoeff;
+        
+        % setup for 2 levels of scaling - edges and networks
+        scaling_str{1}='_by_edges';
+        scaling_str{2}='_by_networks';
+        clim_res_scaled{1}=clim_res_detailed;
+        clim_res_scaled{2}=clim_res;
 
-            dcoeff_summat=summarize_matrix_by_atlas(dcoeff_mat')';
-            close
-            triu_msk_summat=logical(triu(ones(size(dcoeff_summat))));
-            dcoeff_summat=dcoeff_summat(triu_msk_summat);
+        dcoeff_mat=zeros(n_nodes);
+        dcoeff_mat(triu_msk)=dcoeff;
 
-            ids_pos_summat=dcoeff_summat>0;
-            ids_neg_summat=dcoeff_summat<0;
+        dcoeff_scaled{1}=dcoeff;
+        dcoeff_scaled{2}=summarize_matrix_by_atlas(dcoeff_mat')';
+        close
+        
+        triu_msk_summat=logical(triu(ones(size(dcoeff_scaled{2}))));
+        dcoeff_scaled{2}=dcoeff_scaled{2}(triu_msk_summat);
 
-            %TBD
-            true_positives_summat(ids_pos_summat)=positives_total(ids_pos_summat);
-            true_positives_summat(ids_neg_summat)=positives_total_neg(ids_neg_summat);
+        ids_pos_summat=dcoeff_scaled{2}>0;
+        ids_neg_summat=dcoeff_scaled{2}<0;
 
-            tpr_summat=true_positives_summat*100/n_repetitions;
+        %TBD
+        true_positives_summat(ids_pos_summat)=positives_total(ids_pos_summat);
+        true_positives_summat(ids_neg_summat)=positives_total_neg(ids_neg_summat);
 
-            spline_smoothing_set=0.99999;
-            [tpr_fit_summat,res_summat,dcoeff_windowed_summat,tpr_windowed_summat,tpr_windowed_std_summat,~]=fit_spline(dcoeff_summat,tpr_summat,spline_smoothing_set,[summary_prefix,'_esz_v_TPR_summat_pos']);
-            [tpr_fit_by_edge,res_by_edge,dcoeff_windowed_by_edge,tpr_windowed_by_edge,tpr_windowed_std_by_edge,~]=fit_spline(dcoeff,tpr,spline_smoothing,[summary_prefix,'_esz_v_TPR_pos']);
-        else
-            [tpr_fit,res,dcoeff_windowed,tpr_windowed,tpr_windowed_std,~]=fit_spline(dcoeff,tpr,spline_smoothing,[summary_prefix,'_esz_v_TPR_pos']);
-        %         [tpr_fit(ids_neg),res(ids_neg),~]=fit_spline(dcoeff(ids_neg),true_positives(ids_neg,spline_smoothing,strcat(out_prefix,'_esz_v_TPR_neg'));
-        end
+        tpr_scaled{1}=tpr;
+        tpr_scaled{2}=(true_positives_summat*100/n_repetitions)';
+        
+        % fit TPR v esz
+        [tpr_fit{1},res_scaled{1},dcoeff_windowed{1},tpr_windowed{1},tpr_windowed_std{1},~]=fit_spline(dcoeff_scaled{1},tpr_scaled{1},spline_smoothing,[summary_prefix,'_esz_v_TPR_pos']);
+        [tpr_fit{2},res_scaled{2},dcoeff_windowed{2},tpr_windowed{2},tpr_windowed_std{2},~]=fit_spline(dcoeff_scaled{2},tpr_scaled{2},spline_smoothing_set,[summary_prefix,'_esz_v_TPR_summat_pos']);
     else
         warning('Curve fitting toolbox required for fitting spline but not installed - you won''t be able to plot residuals.');
     end
 
 
 
-    %% VISUALIZATION
+    %% VISUALIZATION: results from fitting spline
+    
+    for scaling=1:length(dcoeff_windowed)
+        
+         % Setup 
 
-    if make_figs && curve_toolbox_exists
+        this_dcoeff_windowed=dcoeff_windowed{scaling};
+        this_tpr=tpr_scaled{scaling};
+        
+        this_tpr_windowed=tpr_windowed{scaling};
+        this_tpr_std=tpr_windowed_std{scaling};
 
-        % Plot results from fitting spline
+        this_dcoeff_fit=dcoeff_scaled{scaling};
+        this_tpr_fit=tpr_fit{scaling};
 
-        % first get that hist so can underlay in plot
-        tmp=figure;
-        bin_edges=linspace(ax_xmin,ax_xmax,nbins+1);
-        h=histogram(dcoeff,bin_edges,'Normalization','probability');
+        this_res=res_scaled{scaling};
 
-        % 1. Plot effect size vs. TPR
+        % Check figs already created
 
-        if strcmp(stat_type,'Constrained') || strcmp(stat_type,'SEA')
-    %         dcoeff_plt=dcoeff_summat;
-    %         tpr_plt=tpr_summat;
-            dcoeff_plt=dcoeff_windowed_by_edge;
-            tpr_plt=tpr_windowed_by_edge;
-            tpr_std_plt=tpr_windowed_std_by_edge;
-
-            dcoeff_fit_plt=dcoeff;
-            tpr_fit_plt=tpr_fit_by_edge;
+        if make_figs && curve_toolbox_exists
             
-            res_plt=res_by_edge;
-        else
-    %         dcoeff_plt=dcoeff;
-    %         tpr_plt=tpr;
-            dcoeff_plt=dcoeff_windowed;
-            tpr_plt=tpr_windowed;
-            tpr_std_plt=tpr_windowed_std;
 
-            dcoeff_fit_plt=dcoeff;
-            tpr_fit_plt=tpr_fit;
             
-            res_plt=res;
+            esz_v_tpr_file=[summary_prefix,'_tpr_v_esz',scaling_str{scaling},'.png'];
+            if save_figs
+                save_figs__results=1;
+                if exist(esz_v_tpr_file,'file')
+                    if ~save_settings_for_all.asked.figs || ~save_settings_for_all.use_same.figs
+                        resp=input(sprintf('Results figures already exist in %s. \nOverwrite? (Otherwise will plot without saving.) [y/n]\n> ',esz_v_tpr_file),'s');
+                        if strcmp(resp,'y')
+                            fprintf('Replacing results figures.\n');
+                        else
+                            save_figs__results=0;
+                            fprintf('Okay, won''t overwrite.\n');
+                        end
+
+                        if ~save_settings_for_all.asked.figs
+                            user_response=input(sprintf('Repeat for all? [yes/no]\n> '),'s');
+                            if strcmp(user_response,'yes')
+                                fprintf('Using this setting for all.\n');
+                                save_settings_for_all.use_same.figs=1;
+                                save_settings_for_all.figs=save_figs__results;
+                            else
+                                fprintf('Okay, will ask each time.\n');
+                                save_settings_for_all.use_same.figs=0;
+                            end
+                            save_settings_for_all.asked.figs=1;
+                        end
+
+                    else
+                        save_figs__results=save_settings_for_all.figs;
+                    end
+                end
+            else
+                save_figs__results=0;
+            end
+
+            % 1. Plot effect size vs. TPR
+
+            % first get that hist so can underlay in plot
+            tmp=figure;
+            bin_edges=linspace(ax_xmin,ax_xmax,nbins+1);
+            h=histogram(dcoeff,bin_edges,'Normalization','probability');
+
+            figure
+            hold on
+            yyaxis left
+            [~,ind]=sort(this_dcoeff_fit);
+            plot(this_dcoeff_fit(ind),this_tpr_fit(ind),'k-','LineWidth',2)
+            if scaling==1
+                if exist('shadedErrorBar','file')
+                    shadedErrorBar(this_dcoeff_windowed,this_tpr_windowed,this_tpr_std,'noLine',1,'lineProps','-b')
+                else
+                    warning('Can''t find shadedError function, so won''t draw shaded error bars.')
+                end
+            else
+                scatter(this_dcoeff_windowed,this_tpr_windowed,1,'b.')
+            %         errorbar(dcoeff_plt,tpr_plt,tpr_std_plt,'.')
+            end
+            hold off
+
+            % add stuff to TPR by esz
+            axis([ax_xmin,ax_xmax,ax_ymin,ax_ymax_tp])
+            set(gca,'fontsize',fontsz)
+            % add trace of previous hist
+            hold on
+            yyaxis right
+            axis([ax_xmin,ax_xmax,ax_ymin,ax_ymax_esz])
+            plot(h.BinEdges(1:end-1)+ h.BinWidth/2,h.BinCounts/n_edges,'--','LineWidth',2)
+            rectangle('Position',[-thresh_large,ax_ymin,2*thresh_large,ax_ymax_tp],'FaceColor',[1 1 0 0.2],'EdgeColor','none')
+            hold off
+
+            if save_figs__results
+                saveas(gcf,esz_v_tpr_file,'png')
+            end
+            close(tmp);
+
+            % 2. Plot effect size vs. TPR residuals - diagnostics
+
+            figure
+            hold on;
+            scatter(this_dcoeff_fit,this_res,1,'b.')
+
+            std_thresh=n_std_residual_outlier*std(this_res);
+            idx=abs(this_res)>std_thresh;
+            scatter(this_dcoeff_fit(idx),this_res(idx),1,'.')
+            plot(this_dcoeff_fit,zeros(size(this_dcoeff_fit)),'k-','LineWidth',2) % plot zero residual line
+
+            hold off;
+
+            if save_figs__results
+                saveas(gcf,[summary_prefix,'_esz_v_TPR__residuals',scaling_str{scaling}],'png')
+            end
+
+
+            % 3. Plot effect size vs. TPR residuals - spatial distribution
+
+            % put edge-level residuals back into upper triangle
+            res_mat=zeros(n_nodes);
+            res_mat(triu_msk)=res_scaled{1};
+
+            if scaling==1
+                draw_atlas_boundaries(res_mat');
+            else
+                summarize_matrix_by_atlas(res_mat');
+            end
+            
+            caxis(clim_res_scaled{scaling});
+            colormap(bipolar([],0.1));
+
+            if save_figs__results
+                saveas(gcf,[summary_prefix,'_residuals',scaling_str{scaling}],'png')
+            end
+
+        end
+    
+
+        %% Mean TPR within effect size thresholds
+
+        thresholds=[thresh_small, thresh_med, thresh_large];
+
+        for i=1:length(thresholds)
+
+            % Get IDs of edges below/between d-thresh (e.g., edges < thresh_high; edges < thresh_high & > thresh_low)
+            ids_lt_thr=abs(this_dcoeff_windowed) <= thresholds(i);
+            if i~=1
+                ids_btw_thr_and_thr_below=abs(this_dcoeff_windowed) <= thresholds(i) & abs(this_dcoeff_windowed) >= thresholds(i-1);
+            end
+
+            % -> Get TPR of edges below/between d-threshold
+            tpr_lt_thr(i) = nanmean(this_tpr_windowed(ids_lt_thr));
+            if i~=1
+                tpr_btw_thr_and_thr_below(i-1) = nanmean(this_tpr_windowed(ids_btw_thr_and_thr_below));
+            end
+
+            % Get IDs of edges at (around) dcoeff (divide by 2 to get both halves of the bin)
+            ids_at_pos_thr = abs(this_dcoeff_windowed-thresholds(i)) <= bin_width_at_summary_thresh / 2;
+            ids_at_neg_thr = abs(this_dcoeff_windowed+thresholds(i)) <= bin_width_at_summary_thresh / 2;
+
+            % -> Get TPR of edges at (around) +thresh, -thresh, and mean
+            tpr_at_thr(3*(i-1) + 1) = nanmean(this_tpr_windowed(ids_at_pos_thr));
+            tpr_at_thr(3*(i-1) + 2) = nanmean(this_tpr_windowed(ids_at_neg_thr));
+            tpr_at_thr(3*(i-1) + 3) = mean(tpr_at_thr((3*i-2):(3*i-1)));
+
+        end
+        
+        %% Log percent esz and TP at thresholds
+        
+        logfile=[summary_prefix,'_log',scaling_str{scaling},'.txt'];
+        if save_log
+            if exist(logfile,'file')
+                if ~save_settings_for_all.asked.log || ~save_settings_for_all.use_same.log
+
+                    resp=input('Log file already exists. \nOverwrite? [y/n]\n> ','s');
+                    if strcmp(resp,'y')
+                        fprintf('Replacing log.\n');
+                    else
+                        save_log=0;
+                        fprintf('Okay, won''t overwrite.\n');
+                    end
+
+                    if ~save_settings_for_all.asked.log
+                        user_response=input(sprintf('Repeat for all? [yes/no]\n> '),'s');
+                        if strcmp(user_response,'yes')
+                            fprintf('Using this setting for all.\n');
+                            save_settings_for_all.use_same.log=1;
+                            save_settings_for_all.log=save_log;
+                        else
+                            fprintf('Okay, will ask each time.\n');
+                            save_settings_for_all.use_same.log=0;
+                        end
+                        save_settings_for_all.asked.log=1;
+                    end
+
+                else
+                    save_log=save_settings_for_all.log;
+                end
+            end
         end
 
-        figure
-        hold on
-        yyaxis left
-        [~,ind]=sort(dcoeff_fit_plt);
-        plot(dcoeff_fit_plt(ind),tpr_fit_plt(ind),'k-','LineWidth',2)
-        if exist('shadedErrorBar','file')
-            shadedErrorBar(dcoeff_plt,tpr_plt,tpr_std_plt,'noLine',1)
-    %         scatter(dcoeff_plt,tpr_plt,1,'b.')
-    %         errorbar(dcoeff_plt,tpr_plt,tpr_std_plt,'.')
-        else
-            warning('Must add function shadedError to the path to draw shaded error bars.')
+        if save_log
+            fprintf('Saving log in %s.\n',logfile);
+
+            fid=fopen(logfile,'w');
+            fprintf(fid,'Mean TPR between d=+/-%1.1f: %1.3f\n',[thresholds; tpr_lt_thr]);
+            fprintf(fid,'Mean TPR between d=%1.1f and %1.1f: %1.3f\n',[thresholds(2:end); thresholds(1:end-1); tpr_btw_thr_and_thr_below]);
+            fprintf(fid,'Mean TPR at d=+/-%1.1f: %f (+), %f (-), %f (mean)\n',[thresholds; reshape(tpr_at_thr,3,length(thresholds))]);
+            fprintf(fid,'%d total repetitions',n_repetitions);
+            fprintf(fid,'\n%s total permutations',n_perms);
+            fprintf(fid,'\n%d subjects sampled out of %d total subjects',n_subs_subset,n_subs_total);
+            fprintf(fid,'\nRun time: %1.2f hours',run_time_h); % toc is in sec
+            fclose(fid);
         end
-        hold off
-
-        % add stuff to TPR by esz
-        axis([ax_xmin,ax_xmax,ax_ymin,ax_ymax_tp])
-        set(gca,'fontsize',fontsz)
-        % add trace of previous hist
-        hold on
-        yyaxis right
-        axis([ax_xmin,ax_xmax,ax_ymin,ax_ymax_esz])
-        plot(h.BinEdges(1:end-1)+ h.BinWidth/2,h.BinCounts/n_edges,'--','LineWidth',2)
-        rectangle('Position',[-thresh_large,ax_ymin,2*thresh_large,ax_ymax_tp],'FaceColor',[1 1 0 0.2],'EdgeColor','none')
-        hold off
-
-        if save_figs__results
-            saveas(gcf,esz_v_tpr_file,'png')
-        end
-        close(tmp);
-
-        % 2. Plot effect size vs. TPR residuals - diagnostics
-
-        figure
-        hold on;
-        scatter(dcoeff_fit_plt,res_plt,1,'b.')
-
-        std_thresh=n_std_residual_outlier*std(res_plt);
-        idx=abs(res_plt)>std_thresh;
-        scatter(dcoeff_fit_plt(idx),res_plt(idx),1,'.')
-        plot(dcoeff_fit_plt,zeros(size(dcoeff_fit_plt)),'k-','LineWidth',2) % plot zero residual line
-
-        hold off;
-
-        if save_figs__results
-            % save plot
-            saveas(gcf,[summary_prefix,'_esz_v_TPR__residuals'],'png')
-        end
-
-
-        % 3. Plot effect size vs. TPR residuals - spatial distribution
-        % edge-level results
-
-        % put stuff back into upper triangle
-        res_mat=zeros(n_nodes);
-        res_mat(triu_msk)=res_plt;
-
-        draw_atlas_boundaries(res_mat');
-        colormap(bipolar([],0.1));
-        caxis(clim_res_detailed);
-
-        if save_figs__results
-            saveas(gcf,[summary_prefix,'_residuals_by_edges'],'png')
-        end
-
-        % network-level results
-        summarize_matrix_by_atlas(res_mat');
-        colormap(bipolar([],0.1));
-        caxis(clim_res);
-
-        if save_figs__results
-            saveas(gcf,[summary_prefix,'_residuals_by_networks'],'png')
-        end
-
-
-
     end
-
-    %% Log percent esz and TP at thresholds
-
-    if save_log
-        fprintf('Saving log in %s.\n',logfile);
-
-        fid=fopen(logfile,'w');
-        fprintf(fid,'Mean TPR between d=+/-%1.1f: %1.3f\n',[thresholds; tpr_lt_thr]);
-        fprintf(fid,'Mean TPR between d=%1.1f and %1.1f: %1.3f\n',[thresholds(2:end); thresholds(1:end-1); tpr_btw_thr_and_thr_below]);
-        fprintf(fid,'Mean TPR at d=+/-%1.1f: %f (+), %f (-), %f (mean)\n',[thresholds; reshape(tpr_at_thr,3,length(thresholds))]);
-        fprintf(fid,'%d total repetitions',n_repetitions);
-        fprintf(fid,'\n%s total permutations',n_perms);
-        fprintf(fid,'\n%d subjects sampled out of %d total subjects',n_subs_subset,n_subs_total);
-        fprintf(fid,'\nRun time: %1.2f hours',run_time_h); % toc is in sec
-        fclose(fid);
-    end
+    
     
     end
 end
