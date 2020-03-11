@@ -9,6 +9,7 @@
 %% Setup
 % make sure config files in NBS_benchmarking are correct
 
+clear all
 [current_path,~,~]=fileparts(mfilename('fullpath')); % assuming NBS_benchmarking is current folder
 addpath(genpath(current_path));
 
