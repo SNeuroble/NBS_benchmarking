@@ -1,4 +1,4 @@
-function [any_significant,con_mat,pval,edge_stats__target,cluster_stats__target]=NBSstats_smn2(varargin)
+function [any_significant,con_mat,pval,edge_stats__target,cluster_stats__target]=NBSstats_smn(varargin)
 %NBSstats Computes network components among edges that survive a primary 
 %test statistic threshold. Assigns a corrected p-value to each component 
 %using permuted data that has been supplied as part of the structure STATS. 
@@ -90,6 +90,8 @@ switch STATS.statistic_type
         STATS.statistic_type_numeric=1;
     case 'Constrained' % cNBS
         STATS.statistic_type_numeric=2;
+    case 'SEA' % SEA
+        STATS.statistic_type_numeric=3;
     otherwise
         error(sprintf('Statistic type %s was provided, but only ''Size'', ''TFCE'', or ''Constrained'' allowed.',STATS.statistic_type))
 end
@@ -107,7 +109,7 @@ end
 
 do_FWER_for_2nd_level=NaN;
 do_parametric_for_2nd_level=NaN;
-if STATS.statistic_type_numeric==2
+if STATS.statistic_type_numeric==2 || STATS.statistic_type_numeric==3
     
     % special multidimensional null for cNBS
     n_nulls=length(STATS.edge_groups.unique);
@@ -160,7 +162,7 @@ end
 % This gets cluster-based statistics satisfying FWER threshold
 [pval]=perform_correction(null_dist,cluster_stats__target,max_stat__target,do_FWER_for_2nd_level,do_parametric_for_2nd_level,STATS,K);
 any_significant=any(pval(:)<STATS.alpha);
-con_mat=0;
+con_mat=0; % this is for original NBS visualization in GUI and needs to be in a specific format; instead, we'll use the stats directly
 
 end
 
@@ -192,26 +194,43 @@ function y_perm=permute_signal(GLM)
 % don't think this is true... or I don't understand what they meant by this
 
 if isempty(GLM.ind_nuisance) 
-        %Permute signal 
-        if exist('GLM.blk_ind','var')
-            for j=1:GLM.n_blks
-                y_perm(GLM.blk_ind(j,:),:)=...
-                GLM.y(GLM.blk_ind(j,randperm(GLM.sz_blk)),:);
-            end
-        else                
-            y_perm=GLM.y(randperm(GLM.n_observations)',:);
+    %Permute signal 
+    if exist('GLM.blk_ind','var')
+        for j=1:GLM.n_blks
+            y_perm(GLM.blk_ind(j,:),:)=...
+            GLM.y(GLM.blk_ind(j,randperm(GLM.sz_blk)),:);
+        end
+    else                
+        y_perm=GLM.y(randperm(GLM.n_observations)',:);
+    end
+else
+    %Permute residuals
+    % TODO: this returns altered GLM, not y_perm
+    if exist('blk_ind','var')
+        for j=1:GLM.n_blks
+            GLM.resid_y(GLM.blk_ind(j,:),:)=...
+            GLM.resid_y(GLM.blk_ind(j,randperm(GLM.sz_blk)),:);
         end
     else
-        %Permute residuals
-        if exist('blk_ind','var')
-            for j=1:GLM.n_blks
-                GLM.resid_y(GLM.blk_ind(j,:),:)=...
-                GLM.resid_y(GLM.blk_ind(j,randperm(GLM.sz_blk)),:);
-            end
-        else
-            GLM.resid_y=GLM.resid_y(randperm(GLM.n_observations)',:);
-        end
+        GLM.resid_y=GLM.resid_y(randperm(GLM.n_observations)',:);
     end
+
+    %Add permuted residual back to nuisance signal, giving a realisation 
+    %of the data under the null hypothesis (Freedma & Lane)
+    
+    if ~isempty(GLM.ind_nuisance)
+        y_perm=GLM.resid_y+[GLM.X(:,GLM.ind_nuisance)]*GLM.b_nuisance;
+    end
+
+    %Flip signs
+    %Don't permute first run % TODO: SMN - why is this here and not
+    %elsewhere? also, shuffling already happened - whyis this
+    %happening again here??
+    if strcmp(GLM.test,'onesample')
+        y_perm=y_perm.*repmat(sign(rand(GLM.n_observations,1)-0.5),1,GLM.n_GLMs);
+    end
+
+end
 end
 
 
@@ -249,23 +268,29 @@ switch STATS.statistic_type_numeric
        
     case 1 % do TFCE
         
-        ind=ind_upper;
         test_stat_mat=zeros(N,N);
         test_stat_mat(ind_upper)=test_stat;
         test_stat_mat=(test_stat_mat+test_stat_mat');
         
-        [cluster_stats]=matlab_tfce_transform(test_stat_mat,'matrix');
+        cluster_stats=matlab_tfce_transform(test_stat_mat,'matrix');
         
         null_stat=max(cluster_stats(:));
         
     case 2 % do cNBS - returns a group-length vector
         
-        ind=ind_upper;
+        % TODO: this should be done directly from the test_stat without making mat - just need network IDs 
         test_stat_mat=zeros(N,N);
         test_stat_mat(ind_upper)=test_stat;
         test_stat_mat=(test_stat_mat+test_stat_mat');
          
-        [cluster_stats]=get_constrained_stats(test_stat_mat,STATS.edge_groups);
+        cluster_stats=get_constrained_stats(test_stat_mat,STATS.edge_groups);
+        
+        null_stat=cluster_stats; % TODO - this is not a max value but instead 1 val for null per group - think of how to name
+        
+    case 3 % do Set Enrichment Analysis (SEA; GSEA minus the G bc not genetics)
+        
+        edge_groups_vec=STATS.edge_groups.groups(ind_upper); % TODO: do this during setup
+        cluster_stats=get_enrichment_score(edge_groups_vec,STATS.edge_groups.unique,test_stat,1,0);
         
         null_stat=cluster_stats; % TODO - this is not a max value but instead 1 val for null per group - think of how to name
         
@@ -293,7 +318,7 @@ switch STATS.statistic_type_numeric
         
         pval=arrayfun(@(this_stat) sum(+(this_stat<null_dist))/K, target_stat);
         
-    case 2 % cNBS
+    case {2, 3} % cNBS
         
         % estimate pvalue for each network
         pval_uncorr=zeros(size(STATS.edge_groups.unique));
@@ -319,8 +344,8 @@ switch STATS.statistic_type_numeric
                 J=length(pval_uncorr);
                 ind_srt=zeros(1,J); 
                 [pval_uncorr_sorted,ind_srt]=sort(pval_uncorr);
-                tmp=(pval_uncorr_sorted<=(1:J)/J*STATS.alpha);
-                ind_sig=find(tmp);
+                tmp=(1:J)/J*STATS.alpha;
+                ind_sig=pval_uncorr_sorted<=tmp;
                 
                 pval=ones(1,J);
                 pval(ind_srt(ind_sig))=0; % here, binary: 0 means significant (<alpha), 1 is not significant (>alpha) 

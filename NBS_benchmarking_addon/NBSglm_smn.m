@@ -44,42 +44,33 @@ function test_stat=NBSglm_smn(GLM)
 %       
 %   azalesky@unimelb.edu.au
 
+
 test_stat=zeros(1,GLM.n_GLMs);
-y_data=GLM.y;
 
-%Freedman & Lane
-%Add permuted residual back to nuisance signal, giving a realisation 
-%of the data under the null hypothesis  
-if ~isempty(GLM.ind_nuisance)
-    y_data=GLM.resid_y+[GLM.X(:,GLM.ind_nuisance)]*GLM.b_nuisance;
-end
-
-b_perm=zeros(GLM.n_predictors,GLM.n_GLMs);
-b_perm=GLM.X\y_data;
+beta=zeros(GLM.n_predictors,GLM.n_GLMs);
+beta=GLM.X\GLM.y;
 
 %Compute statistic of interest
 % TODO: consider moving to switch/case in glm_setup
 if strcmp(GLM.test,'onesample')
-    %Flip signs
-        %Don't permute first run % TODO: SMN - why is this here and not
-        %elsewhere? also, shuffling already happened - why is this
-        %happening again here??
-        test_stat(:)=mean(y_data); 
+        
+        % TODO:  why isn't a standardized effect being calculated? this would influence the NBS extent/intensity calculation bc the initial threshold is a std effect size 
+        test_stat(:)=mean(GLM.y); 
 
 elseif strcmp(GLM.test,'ttest')
     resid=zeros(GLM.n_observations,GLM.n_GLMs);
     mse=zeros(GLM.n_observations,GLM.n_GLMs);
-    resid=y_data-GLM.X*b_perm;
+    resid=GLM.y-GLM.X*beta;
     mse=sum(resid.^2)/(GLM.n_observations-GLM.n_predictors);
     se=sqrt(mse*(GLM.contrast*inv(GLM.X'*GLM.X)*GLM.contrast'));
-    test_stat(:)=(GLM.contrast*b_perm)./se;
+    test_stat(:)=(GLM.contrast*beta)./se;
 elseif strcmp(GLM.test,'ftest')
     sse=zeros(1,GLM.n_GLMs);
     ssr=zeros(1,GLM.n_GLMs);
     %Sum of squares due to error
-    sse=sum((y_data-GLM.X*b_perm).^2);
+    sse=sum((GLM.y-GLM.X*beta).^2);
     %Sum of square due to regression
-    ssr=sum((GLM.X*b_perm-repmat(mean(y_data),GLM.n_observations,1)).^2);
+    ssr=sum((GLM.X*beta-repmat(mean(GLM.y),GLM.n_observations,1)).^2);
     if isempty(GLM.ind_nuisance)
         test_stat(:)=(ssr/(GLM.n_predictors-1))./(sse/(GLM.n_observations-GLM.n_predictors));
     else
@@ -103,9 +94,9 @@ elseif strcmp(GLM.test,'ftest')
 
         sse_red=zeros(1,GLM.n_GLMs);
         ssr_red=zeros(1,GLM.n_GLMs);
-        b_red=X_new\y_data;
-        sse_red=sum((y_data-X_new*b_red).^2);
-        ssr_red=sum((X_new*b_red-repmat(mean(y_data),GLM.n_observations,1)).^2);
+        b_red=X_new\GLM.y;
+        sse_red=sum((GLM.y-X_new*b_red).^2);
+        ssr_red=sum((X_new*b_red-repmat(mean(GLM.y),GLM.n_observations,1)).^2);
         test_stat(:)=((ssr-ssr_red)/v)./(sse/(GLM.n_observations-GLM.n_predictors));
     end
 end

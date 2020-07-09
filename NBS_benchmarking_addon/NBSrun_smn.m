@@ -23,7 +23,7 @@ function nbs=NBSrun_smn(varargin)
 %                       [optional if UI.method.ui=='Run FDR']
 %                       See also NBSstats
 %
-%   UI.statistic_type.ui:    'Size' | 'Constrained' | 'TFCE'
+%   UI.statistic_type.ui:    'Size' | 'TFCE' | 'Constrained' | 'SEA'
 %                       If 'Constrained', use pre-defined edge groups to define
 %                       network components
 %                       See also NBSstats
@@ -110,7 +110,7 @@ function nbs=NBSrun_smn(varargin)
 %
 %   UI.edge_groups.ui:  N x N integer array specifying edge groups, 
 %                       where N is the number of nodes 
-%                       [required if using Constrained NBS]
+%                       [required if using Constrained or SEA NBS]
 %                       Can be specified either as a:
 %                       1. Valid Matlab expression for an N x N array
 %                       2. Text file containing numeric data arranged into
@@ -300,7 +300,7 @@ try nbs.STATS.size=UI.size.ui; catch; UI.ok=0; end
 try nbs.STATS.statistic_type=UI.statistic_type.ui; catch; UI.statistic_type.ok=0; end 
 %Edge groups for constrained [required if constrained]
 if isfield(UI.statistic_type,'ui')
-    if strcmp(UI.statistic_type.ui,'Constrained')
+    if strcmp(UI.statistic_type.ui,'Constrained') || strcmp(UI.statistic_type.ui,'SEA')
         try [nbs.STATS.edge_groups,UI.edge_groups.ok]=read_edge_groups(UI.edge_groups.ui,DIMS);
         catch UI.edge_groups.ok=0;
         end
@@ -470,13 +470,30 @@ function [y,ok,DIMS]=read_matrices(Name)
     end
     if ~isempty(data)
         [nr,nc,ns]=size(data);
-        if nr==nc && ns>0 && ~iscell(data) && isnumeric(data)
-            ind_upper=find(triu(ones(nr,nr),1));
-            y=zeros(ns,length(ind_upper));
-            %Collapse matrices
-            for i=1:ns
-                tmp=data(:,:,i);
-                y(i,:)=tmp(ind_upper);
+        if ns>0 && ~iscell(data) && isnumeric(data)
+            if nr~=nc && ns==1
+                % accept stuff that's been triangularized - smn
+                y=data';
+                nr_old=nr;
+                nr=ceil(sqrt(2*nr_old));
+                if nr_old==nr*(nr-1)/2
+                    ns=nc;
+                    nc=nr;
+                else
+                    ok=0; y=[];
+                    return
+                end
+            elseif nr==nc
+                ind_upper=find(triu(ones(nr,nr),1));
+                y=zeros(ns,length(ind_upper));
+                %Collapse matrices
+                for i=1:ns
+                    tmp=data(:,:,i);
+                    y(i,:)=tmp(ind_upper);
+                end
+            else
+                ok=0; y=[];
+                return
             end
         elseif iscell(data)
             [nr,nc]=size(data{1});
@@ -546,7 +563,8 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function [contrast,ok]=read_contrast(Name,DIMS)
 ok=1; 
-data=readUI(Name);
+%data=readUI(Name); % SMN - workaround so don't have to pass as string
+data=Name;
 if ~isempty(data)
     [nr,nc,ns]=size(data); 
     if nr==1 && nc==DIMS.predictors && ns==1 && isnumeric(data) 
@@ -597,7 +615,8 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function [exchange,ok]=read_exchange(Name,DIMS)
 ok=1;
-data=readUI(Name);
+%data=readUI(Name); % SMN - again, replaced so not have to pass as string
+data=Name;
 if ~isempty(data)
     [nr,nc,ns]=size(data);
     if nr==DIMS.observations && nc==1 && ns==1
@@ -624,7 +643,7 @@ end
     end
     
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%Read edge groups for constrained NBS
+%Read edge groups for Constrained or SEA NBS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function [edge_groups,ok]=read_edge_groups(Name,DIMS)
     ok=1;
