@@ -57,7 +57,7 @@ fontsz=25;
 
 % smoothing factor for spline
 spline_smoothing=0.995;
-spline_smoothing_set=0.99999;
+spline_smoothing_set=0.99995;
 
 % histograms params (keep an eye out for NAN/empty bins)
 bin_width=0.07;
