@@ -14,7 +14,7 @@ overlap=window_sz*percent_overlap;
 nwindows=ceil( (max(x) - min(x) - overlap) / (window_sz - overlap) );
 for i=1:nwindows
     x_windowed(i)= min(x)+i*(window_sz-overlap);
-    y_in_window=y(x>(x_windowed(i)-overlap) & x<=(x_windowed(i)+overlap));
+    y_in_window=y(x>=(x_windowed(i)-overlap) & x<(x_windowed(i)+overlap));
     y_windowed(i)=mean(y_in_window);
     y_windowed_std(i)=std(y_in_window);
 end
