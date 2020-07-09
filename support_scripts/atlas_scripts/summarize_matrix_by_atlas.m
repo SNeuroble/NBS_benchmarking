@@ -1,8 +1,8 @@
-function summary_matrix=summarize_matrix_by_atlas(mat,varargin)
+function [summary_matrix,summary_matrix_std]=summarize_matrix_by_atlas(mat,varargin)
 % load mask, take avg within edge pairs
 % IF WANT TO REORDER, MUST NOT ALREADY BE REORDERED!
 % inputs: mat
-% optionals: atlascategory,datacategory,saveimg,suppressimg,doedgecounts
+% optionals: atlascategory,datacategory,saveimg,suppressimg,do_edge_counts
 % e.g., summarize_matrix_by_atlas(mat,'atlascategory','lobe','datacategory','ICC','reorderimg',1);
 
 %% Parse input
@@ -11,14 +11,16 @@ p = inputParser;
 defaultsaveimg=0;
 defaultsuppressimg=0;
 defaultreorderimg=0;
-defaultdoedgecounts=0;
+defaultdo_edge_counts=0;
+defaultdo_std=0;
 defaultatlascategory='subnetwork'; % options include subnetwork, lobe
 defaultdatacategory='none'; % options include ICC, scandur, none
 
 addParameter(p,'saveimg',defaultsaveimg,@isnumeric);
 addParameter(p,'suppressimg',defaultsuppressimg,@isnumeric);
 addParameter(p,'reorderimg',defaultreorderimg,@isnumeric);
-addParameter(p,'doedgecounts',defaultdoedgecounts,@isnumeric);
+addParameter(p,'do_edge_counts',defaultdo_edge_counts,@isnumeric);
+addParameter(p,'do_std',defaultdo_std,@isnumeric);
 addParameter(p,'atlascategory',defaultatlascategory,@ischar);
 addParameter(p,'datacategory',defaultdatacategory,@ischar);
 
@@ -28,7 +30,8 @@ saveimg = p.Results.saveimg;
 suppressimg = p.Results.suppressimg;
 if saveimg; suppressimg = 0; end
 reorderimg = p.Results.reorderimg;
-doedgecounts = p.Results.doedgecounts;
+do_edge_counts = p.Results.do_edge_counts;
+do_std = p.Results.do_std;
 atlascategory = p.Results.atlascategory;
 datacategory = p.Results.datacategory;
 
@@ -74,7 +77,7 @@ for lobe_a=1:(length(lobe_mapping)-1)
         trimask_ab=trimask(lobe_mapping(lobe_a):(lobe_mapping(lobe_a+1)-1),lobe_mapping(lobe_b):(lobe_mapping(lobe_b+1)-1)); %tril
         matrix_ab=matrix_ab(trimask_ab); %tril
  
-        if doedgecounts % count edges in a-b; normalize by total edges
+        if do_edge_counts % count edges in a-b; normalize by total edges
             % useful if working with binary map
             edgecount_ab=nansum(matrix_ab);
             edgecount_tot_ab=length(matrix_ab);
@@ -85,6 +88,11 @@ for lobe_a=1:(length(lobe_mapping)-1)
         end
 
         summary_matrix(lobe_a,lobe_b)=summary_ab;
+        
+        if do_std % calc std
+            summary_matrix_std(lobe_a,lobe_b)=nanstd(matrix_ab);
+        end
+        
     end
 end
 
@@ -94,6 +102,10 @@ end
 if ~suppressimg
     combined_summary=(tril(summary_matrix));
     draw_atlas_boundaries(combined_summary,'usingsummary',1,'atlascategory',atlascategory,'datacategory',datacategory,'saveimg',saveimg);
+end
+
+if ~do_std
+    summary_matrix_std=[];
 end
 
 
