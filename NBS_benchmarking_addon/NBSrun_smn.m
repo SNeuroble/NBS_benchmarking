@@ -280,17 +280,26 @@ try nbs.GLM.test=UI.test.ui;
     end
 catch; UI.test.ok=0; end
 %Number of permutations
-try nbs.GLM.perms=str2num(UI.perms.ui); catch; UI.perms.ok=0; end 
+try if ischar(UI.perms.ui); nbs.GLM.perms=str2num(UI.perms.ui);
+    else; nbs.GLM.perms=UI.perms.ui;
+    end
+catch; UI.perms.ok=0; end
 try if ~isnumeric(nbs.GLM.perms) || ~(nbs.GLM.perms>0)
     UI.perms.ok=0; end
 catch; UI.perms.ok=0; end
 %Test statistic threshold
-try nbs.STATS.thresh=str2num(UI.thresh.ui); catch; UI.thresh.ok=0; end
+try if ischar(UI.thresh.ui); nbs.STATS.thresh=str2num(UI.thresh.ui); 
+    else;  nbs.STATS.thresh=UI.thresh.ui;
+    end
+catch; UI.thresh.ok=0; end
 try if ~isnumeric(nbs.STATS.thresh) || ~(nbs.STATS.thresh>0)
     UI.thresh.ok=0; end
 catch; UI.thresh.ok=0; end
 %Corrected p-value threshold
-try nbs.STATS.alpha=str2num(UI.alpha.ui); catch; UI.alpha.ok=0; end 
+try if ischar(UI.alpha.ui); nbs.STATS.alpha=str2num(UI.alpha.ui); 
+    else nbs.STATS.alpha=UI.alpha.ui; 
+    end
+catch; UI.alpha.ok=0; end
 try if ~isnumeric(nbs.STATS.alpha) || ~(nbs.STATS.alpha>0)
     UI.alpha.ok=0; end
 catch; UI.alpha.ok=0; end
@@ -563,8 +572,11 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function [contrast,ok]=read_contrast(Name,DIMS)
 ok=1; 
-%data=readUI(Name); % SMN - workaround so don't have to pass as string
-data=Name;
+if ischar(Name) % SMN - workaround so don't have to pass as string
+    data=readUI(Name);
+else
+    data=Name;
+end
 if ~isempty(data)
     [nr,nc,ns]=size(data); 
     if nr==1 && nc==DIMS.predictors && ns==1 && isnumeric(data) 
@@ -615,8 +627,11 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function [exchange,ok]=read_exchange(Name,DIMS)
 ok=1;
-%data=readUI(Name); % SMN - again, replaced so not have to pass as string
-data=Name;
+if ischar(Name) % SMN - again, replaced so not have to pass as string
+    data=readUI(Name);
+else
+    data=Name;
+end
 if ~isempty(data)
     [nr,nc,ns]=size(data);
     if nr==DIMS.observations && nc==1 && ns==1
