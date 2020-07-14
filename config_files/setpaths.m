@@ -1,4 +1,5 @@
-% Set input, output, and script directories depending on computer
+%% Set input, output, and script directories depending on computer system
+% Will only run if system_dependent_paths=1 in setparams_bench.m
 
 switch getenv('USER')
 

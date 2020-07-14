@@ -4,11 +4,17 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
 % set paths and params
-setpaths;
-setparams;
+setparams_bench;
+if system_dependent_paths
+    setpaths;
+end
 addpath(genpath(nbs_dir));
 addpath(genpath(other_scripts_dir));
-subIDs_suffix='_subIDs.txt';
+
+% Developers: parameter changes
+if testing
+    n_perms=test_n_perms;
+end
 
 % get task based on whether ground truth
 if exist('do_ground_truth')
@@ -51,7 +57,7 @@ else
     subIDs=non_task_IDs;
 end
 
-% if testing limit to subset of data
+% Developers: if testing limit to subset of data
 if testing
     n_subs=n_subs_subset;
 else
@@ -65,7 +71,7 @@ end
 
 % Setup up template for data
 
-template_file=[data_dir,non_task,'/',subIDs{1},'_',non_task,'_GSR_matrix.txt'];
+template_file=[data_dir,non_task,'/',subIDs{1},'_',non_task,data_type_suffix];
 fprintf('Template file is: %s.\n',template_file);
 template=importdata(template_file);
 n_nodes=size(template,1); % assuming square
@@ -76,7 +82,7 @@ trimask=logical(triu(ones(size(template)),1));
 if preload_data
    
     load_data='y';
-    if exist('m','var');
+    if exist('m','var')
         load_data=input('Some data is already loaded in the workspace. Replace? (y/n)','s');
     end
 
@@ -89,11 +95,11 @@ if preload_data
 
             m=zeros(n_nodes*(n_nodes-1)/2,n_subs*2);
             for i = 1:n_subs
-                this_file_task = [data_dir,task,'/',subIDs{i},'_',task,'_GSR_matrix.txt'];
+                this_file_task = [data_dir,task,'/',subIDs{i},'_',task,data_type_suffix];
                 d=importdata(this_file_task);
                 d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
                 m(:,i) = d(trimask);
-                this_file_non_task = [data_dir,non_task,'/',subIDs{i},'_',non_task,'_GSR_matrix.txt'];
+                this_file_non_task = [data_dir,non_task,'/',subIDs{i},'_',non_task,data_type_suffix];
                 d=importdata(this_file_non_task);
                 d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
                 m(:,n_subs+i) = d(trimask);
@@ -106,7 +112,7 @@ if preload_data
 
             m=zeros(size(template,1),size(template,2),n_subs);
             for i = 1:n_subs
-                this_file_non_task = [data_dir,non_task,'/',subIDs{i},'_',non_task,'_GSR_matrix.txt'];
+                this_file_non_task = [data_dir,non_task,'/',subIDs{i},'_',non_task,data_type_suffix];
                 d=importdata(this_file_non_task);
                 d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
                 m(:,i) = d(trimask);

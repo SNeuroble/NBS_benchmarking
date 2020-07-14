@@ -13,9 +13,6 @@ clear all
 [current_path,~,~]=fileparts(mfilename('fullpath')); % assuming NBS_benchmarking is current folder
 addpath(genpath(current_path));
 
-all_cluster_stat_types={'Size','TFCE','Constrained'};
-%all_cluster_stat_types={'Size','TFCE','Constrained','SEA'};
-
 for stat_id=1:length(all_cluster_stat_types)
 
 tic

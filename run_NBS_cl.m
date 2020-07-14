@@ -1,14 +1,15 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Runs NBS from command line
 % Directions:
-% 1. fill out setparams_cl
+% 1. fill out setparams
 % 2. run this script
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Setup
-setparams_cl;
+[current_path,~,~]=fileparts(mfilename('fullpath')); % assuming NBS_benchmarking is current folder
+addpath(genpath(current_path));
+setparams;
 addpath(genpath(nbs_dir));
-addpath(genpath(nbs_addon_dir));
 
 % Developer parameter changes
 if testing 
