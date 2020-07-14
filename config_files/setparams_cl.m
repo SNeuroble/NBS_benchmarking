@@ -3,10 +3,14 @@
 % or strings
 % E.g., edge_groups_file can be defined as 
 %     edge_groups_file='~/NBS_benchmarking/NBS_addon/SchizophreniaExample/Example_74node_map.mat';
+%     edge_groups_file='~/NBS_benchmarking/NBS_benchmarking_addon/SchizophreniaExample/Example_74node_map.mat';
 %     OR
 %     edge_groups_file=edge_groups;
 % Strings are permissible because the GUI-based NBS parses string data
 % entered by the user
+
+% Data
+data_file='/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/fmri/NBS1.2/SchizophreniaExample/matrices.mat';
 
 % Scripts
 nbs_dir='/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/fmri/NBS1.2/'; % NBS toolbox

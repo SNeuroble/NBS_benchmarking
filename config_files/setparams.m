@@ -35,6 +35,7 @@ n_perms='1000'; % previously: '5000'
 tthresh_first_level='3.1'; % corresponds with p=0.005-0.001 (DOF=10-1000)
 pthresh_second_level='0.05';
 all_cluster_stat_types={'Size','TFCE','Constrained'}; % NBS stats to be benchmarked: {'Size', 'TFCE', 'Constrained', 'SEA'}
+%cluster_stat_type='Constrained'; % 'Size' | 'TFCE' | 'Constrained' | 'SEA' % smn - commented out bc looping in script
 cluster_size_type='Extent'; % 'Intensity' | 'Extent' - only relevant if stat type is 'Size'
 
 
