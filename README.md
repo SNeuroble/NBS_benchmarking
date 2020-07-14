@@ -13,16 +13,21 @@ NBS toolbox: https://sites.google.com/site/bctnet/comparison/nbs
 
 #### 1. Minimal command line usage (available on devel branch)
 
-1. Set files and parameters in setparams_cl.m
+1. Set files and parameters in setparams.m
 2. Run run_NBS_cl.m
 
 #### 2. Benchmarking
 
-1. Set script and data paths in setpaths.m (this file is intended to enable different path presets for multiple systems)
-2. Set parameters in setparams.m
+1. Set parameters in setparams_bench.m
+2. Optional: If want system-dependent paths, set script and data paths for each system in setpaths.m. Must also define system_dependent_paths=1 in setparams_bench.m to use.
 3. Run run_benchmarking.m
 
+### References
 
-For more about the Constrained Network Based Statistic (cNBS), please see
+- Zalesky, A., Fornito, A. and Bullmore, E.T., 2010. Network-based statistic: identifying differences in brain networks. Neuroimage, 53(4), pp.1197-1207.
 
-"The constrained network-based statistic: a new level of inference for neuroimaging" (MICCAI 2020, reference forthcoming).
+- Smith, S.M. and Nichols, T.E., 2009. Threshold-free cluster enhancement: addressing problems of smoothing, threshold dependence and localisation in cluster inference. Neuroimage, 44(1), pp.83-98.
+
+- Noble, S., and Scheinost, D., (Accepted 2020). The constrained network-based statistic: a new level of inference for neuroimaging. MICCAI.
+
+
