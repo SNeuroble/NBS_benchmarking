@@ -1,6 +1,12 @@
 %% User-defined parameters for running NBS via command line
-% note: can define all numerical arguments as matrices or strings
-% e.g., data_file can be a loaded matrix or a filename
+% Note: can define all numerical arguments as numerical workspace variables
+% or strings
+% E.g., edge_groups_file can be defined as 
+%     edge_groups_file='~/NBS_benchmarking/NBS_benchmarking_addon/SchizophreniaExample/Example_74node_map.mat';
+%     OR
+%     edge_groups_file=edge_groups;
+% Strings are permissible because the GUI-based NBS parses string data
+% entered by the user
 
 % Data
 data_file='/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/fmri/NBS1.2/SchizophreniaExample/matrices.mat';
@@ -23,7 +29,7 @@ nbs_test_stat='t-test'; % 't-test' | 'one-sample' | 'F-test'
 n_perms=1000; % recommend n_perms=5000 to appreciable reduce uncertainty of p-value estimation (https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/Randomise/Theory
 tthresh_first_level=3.1; % corresponds with p=0.005-0.001 (DOF=10-1000)
 pthresh_second_level=0.05;
-cluster_stat_type='Size'; % 'Size' | 'TFCE' | 'Constrained' | 'SEA'
+cluster_stat_type='Constrained'; % 'Size' | 'TFCE' | 'Constrained' | 'SEA'
 cluster_size_type='Extent'; % REQUIRED FOR STAT_TYPE=SIZE - 'Intensity' | 'Extent'
 
 
