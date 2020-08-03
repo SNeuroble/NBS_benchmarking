@@ -204,13 +204,22 @@ parfor (this_repetition=1:rep_params.n_repetitions)
     end
 
     % record everything
-    edge_stats_all(:,this_repetition)=nbs.NBS.edge_stats;
-    cluster_stats_all(:,:,this_repetition)=full(nbs.NBS.cluster_stats);
-    pvals_all(:,this_repetition)=nbs.NBS.pval(:); % TODO: had to vectorize for TFCE... should give all outputs in same format tho 
+    if strcmp(cluster_stat_type,'FDR')
+        edge_stats_all(:,this_repetition)=nbs.NBS.test_stat(trimask);
+        pvals_all(:,this_repetition)=nbs.NBS.con_mat{1}(:); % Note: this represents significant edges, not p-values
+        
+        edge_stats_all_neg(:,this_repetition)=nbs_neg.NBS.test_stat(trimask);
+        pvals_all_neg(:,this_repetition)=nbs_neg.NBS.con_mat{1}(:);  % Note: this represents significant edges, not p-values
+        
+    else
+        edge_stats_all(:,this_repetition)=nbs.NBS.edge_stats;
+        cluster_stats_all(:,:,this_repetition)=full(nbs.NBS.cluster_stats);
+        pvals_all(:,this_repetition)=nbs.NBS.pval(:); % TODO: had to vectorize for TFCE... should give all outputs in same format tho 
 
-    edge_stats_all_neg(:,this_repetition)=nbs_neg.NBS.edge_stats;
-    cluster_stats_all_neg(:,:,this_repetition)=full(nbs_neg.NBS.cluster_stats);
-    pvals_all_neg(:,this_repetition)=nbs_neg.NBS.pval(:); % TODO: same as above
+        edge_stats_all_neg(:,this_repetition)=nbs_neg.NBS.edge_stats;
+        cluster_stats_all_neg(:,:,this_repetition)=full(nbs_neg.NBS.cluster_stats);
+        pvals_all_neg(:,this_repetition)=nbs_neg.NBS.pval(:); % TODO: same as above
+    end
 
 end
 
