@@ -6,7 +6,7 @@ switch getenv('USER')
 case 'smn33'
     
     % data directory - input data is assumed to be n_nodes x n_nodes x n_subjects typically HCP toy data)
-    data_dir='/data15/mri_group/smn33_data/hcp_1200/matrices/';
+    data_dir='/data15/mri_group/smn33_data/hcp_1200/matrices/'; % a symlink to '/mnt/dustin/data/S1200/matrices/S1200/matrices/'
     %data_path='/mnt/store1/mridata2/mri_group/smn33_data/hcp/data_01ffd_v7_3.mat';
     
     % results directory
@@ -26,7 +26,7 @@ case 'steph'
     %data_path='/Users/steph/Steph-Lab/Misc/ConstableLab/MRRC Neuroinformatics/resources/scripts/cpm_hackathon/test_data/HCP900_rest_n50.mat'; % HCP toy data
     
     % results directory
-    output_dir='/Users/steph/Documents/data/mnt/NBS_benchmarking_results/';
+    output_dir='/Users/steph/Documents/data/mnt/NBS_benchmarking_results/testing/';
     %output_dir='/Users/steph/Steph-Lab/NBS_benchmarking/results_benchmarking/'; % local results
 %     output_dir='/Users/steph/Documents/data/mnt/NBS_benchmarking_results/'; % server results
     
@@ -52,7 +52,11 @@ case 'ubuntu'
 
     % misc scripts used for cNBS and for summarization - structure_data, draw_atlas_boundaries, summarize_matrix_by_atlas
     other_scripts_dir='/home/ubuntu/scripts/NBS_benchmarking/support_scripts/';
+    
+otherwise
 
+    error('Specified to use system-dependent paths but paths undefined.');
+    
 end
 
 
