@@ -11,7 +11,7 @@ NBS toolbox: https://sites.google.com/site/bctnet/comparison/nbs
 
 ### Usage
 
-#### 1. Minimal command line usage (available on devel branch)
+#### 1. Minimal command line usage
 
 1. Set files and parameters in setparams.m
 2. Run run_NBS_cl.m
