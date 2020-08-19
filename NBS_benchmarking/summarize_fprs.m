@@ -45,12 +45,12 @@ fprintf('* Summarizing false positive benchmarking results.\n');
 for s=1:length(stat_types)
     
     % stat-specific setup
-    task='REST';
+    task='REST_v_REST2';
     stat_type=stat_types{s};
-    fprintf(['Summarizing FPRS - ',task,'::',stat_type,'\n'])
+    fprintf(['Summarizing FPRs - ',task,'::',stat_type,'\n'])
     setparams_summary;
 
-    fpr_results_basename_prefix=['nbs_benchmark_results__',task,'_',stat_type,'_','grsize',num2str(grsize),'_',date_time_str_results.(task)];
+    bench_results_basename_prefix=['results__',task,'_',stat_type,'_','grsize',num2str(grsize),'_',date_time_str_results.(task)];
 
     % set results files
     results_filename=[output_dir,bench_results_basename_prefix,'.mat'];
@@ -59,7 +59,7 @@ for s=1:length(stat_types)
     % set summary prefixes
     summary_output_dir=[output_dir,task,'_',stat_type,'_summary/'];
     summary_output_dir_gt=[output_dir,task,'_',stat_type_gt,'_summary/'];
-    summary_prefix=[summary_output_dir,'nbs_benchmark_results__',task,'_',stat_type,'_',date_time_str_results.(task)];
+    summary_prefix=[summary_output_dir,'results__',task,'_',stat_type,'_',date_time_str_results.(task)];
 
     % define a few output files to save for testing already created
     fpr_by_edges_file=[summary_prefix,'_fpr_by_edges.png'];
@@ -177,9 +177,9 @@ for s=1:length(stat_types)
 
         % count stuff
         n_subs=rep_params.n_subs_subset;
-        n_subs_total=rep_params.n_subs;
-        n_edges=length(edge_stats);
-        n_nodes=size(cluster_stats,1);
+        %n_subs_total=rep_params.n_subs;
+        n_edges=size(edge_stats_all,1); %TODO: find right dim
+        n_nodes=size(cluster_stats_all,1);
 
         % re-create upper triangular mask
         triu_msk=triu(true(n_nodes),1);
@@ -240,12 +240,12 @@ for s=1:length(stat_types)
 
         save(benchmarking_summary_filename,'edge_stats_summary','edge_stats_summary_neg','cluster_stats_summary','cluster_stats_summary_neg','positives','positives_neg','positives_total','positives_total_neg','FWER_manual','FWER_manual_neg','n_repetitions','n_subs_subset','run_time_h','n_perms','-v7.3');
     else
-        load(benchmarking_summary_filename,'positives_total','positives_total_neg','n_repetitions','n_subs_subset','run_time_h','n_perms')
+        load(benchmarking_summary_filename,'positives_total','positives_total_neg','n_repetitions','n_subs_subset','run_time_h','n_perms','FWER_manual')
         if strcmp(stat_type,'Constrained') || strcmp(stat_type,'SEA') % need for summary in edge_groups
             load(results_filename,'UI');
         end
     end
-
+%{
     %% Calculate TPR
 
     ids_pos_vec=dcoeff>0;
@@ -450,20 +450,24 @@ for s=1:length(stat_types)
 
 
     end
-
+%}
     %% Log percent esz and TP at thresholds
 
     if save_log
         fprintf('Saving log in %s.\n',logfile);
 
         fid=fopen(logfile,'w');
+        fprintf(fid,'Manual FWER %1.4f\n',FWER_manual);
+        %{
         fprintf(fid,'Mean TPR between d=+/-%1.1f: %1.3f\n',[thresholds; tpr_lt_thr]);
         fprintf(fid,'Mean TPR between d=%1.1f and %1.1f: %1.3f\n',[thresholds(2:end); thresholds(1:end-1); tpr_btw_thr_and_thr_below]);
         fprintf(fid,'Mean TPR at d=+/-%1.1f: %f (+), %f (-), %f (mean)\n',[thresholds; reshape(tpr_at_thr,3,length(thresholds))]);
         fprintf(fid,'%d total repetitions',n_repetitions);
         fprintf(fid,'\n%s total permutations',n_perms);
-        fprintf(fid,'\n%d subjects sampled out of %d total subjects',n_subs_subset,n_subs_total);
+        % fprintf(fid,'\n%d subjects sampled out of %d total subjects',n_subs_subset,n_subs_total);
+        fprintf(fid,'\n%d subjects sampled out of %d total subjects',n_subs_subset);
         fprintf(fid,'\nRun time: %1.2f hours',run_time_h); % toc is in sec
+        %}
         fclose(fid);
     end
     
