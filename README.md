@@ -33,4 +33,3 @@ NBS toolbox: https://sites.google.com/site/bctnet/comparison/nbs
 
 - Noble, S., and Scheinost, D., 2020. The constrained network-based statistic: a new level of inference for neuroimaging. MICCAI. (Full reference forthcoming)
 
-
