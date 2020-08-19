@@ -423,10 +423,12 @@ elseif strcmp(UI.method.ui,'Run FDR')
     catch;  fprintf([str,'\n']); end 
     %Show waitbar if test statistics have not been precomputed
     if isempty(nbs.STATS.test_stat)
-        try S.OUT.waitbar=uiwaitbar(WaitbarPos,S.fh); drawnow; 
-        catch; S.OUT.waitbar=[]; end
-        [nbs.NBS.n,nbs.NBS.con_mat,nbs.NBS.pval]=NBSfdr(nbs.STATS,S.OUT.waitbar,nbs.GLM);
-        delete(S.OUT.waitbar); 
+        % SMN - no waitbar for cl version
+        %try S.OUT.waitbar=uiwaitbar(WaitbarPos,S.fh); drawnow; 
+        %catch; S.OUT.waitbar=[]; end
+        %[nbs.NBS.n,nbs.NBS.con_mat,nbs.NBS.pval]=NBSfdr(nbs.STATS,S.OUT.waitbar,nbs.GLM);
+        [nbs.NBS.n,nbs.NBS.con_mat,nbs.NBS.pval]=NBSfdr(nbs.STATS,1,nbs.GLM);
+        %delete(S.OUT.waitbar); 
     else
         [nbs.NBS.n,nbs.NBS.con_mat,nbs.NBS.pval]=NBSfdr(nbs.STATS);
     end
