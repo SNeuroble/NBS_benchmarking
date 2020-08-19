@@ -4,12 +4,13 @@ function summarize_tprs(varargin)
 % This script summarizes and visualizes true positive rates
 % Summarization: fits spline to effect size vs. mean TPR
 % Plot: d v. TPR spline, d v. TPR residual map
-% Usage: summarize_tprs('LANGUAGE','Size_Extent','02102020_1759',40);
+% Usage: summarize_tprs('tasks',{'SOCIAL_v_REST'},'stat_types',{'Size_Extent'},'grsize',40,'make_figs',0);
 %   Task choices: SOCIAL; WM; GAMBLING; RELATIONAL; EMOTION; MOTOR; GAMBLING
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Variables
-all_tasks={'EMOTION','GAMBLING','LANGUAGE','MOTOR','RELATIONAL','SOCIAL','WM'};
+all_tasks={'EMOTION_v_REST','GAMBLING_v_REST','LANGUAGE_v_REST','MOTOR_v_REST','RELATIONAL_v_REST','SOCIAL_v_REST','WM_v_REST'};
+%all_tasks={'EMOTION','GAMBLING','LANGUAGE','MOTOR','RELATIONAL','SOCIAL','WM'};
 stat_types_default={'Size_Extent','TFCE','Constrained'};
 combine_all_tasks_default=0;
 grsize_default=40;
@@ -60,8 +61,11 @@ for t=1:length(tasks)
         fprintf(['Summarizing TPRs - ',task,'::',stat_type,'\n'])
         setparams_summary;
         
-        ground_truth_results_basename_prefix=['nbs_ground_truth__',task,'_',stat_type_gt,'_',date_time_str_ground_truth.(task)];
-        bench_results_basename_prefix=['nbs_benchmark_results__',task,'_',stat_type,'_','grsize',num2str(grsize),'_',date_time_str_results.(task)];
+        ground_truth_results_basename_prefix=['ground_truth__',task,'_',stat_type_gt,'_',date_time_str_ground_truth.(task)];
+        bench_results_basename_prefix=['results__',task,'_',stat_type,'_','grsize',num2str(grsize),'_',date_time_str_results.(task)];
+        
+        %ground_truth_results_basename_prefix=['nbs_ground_truth__',task,'_',stat_type_gt,'_',date_time_str_ground_truth.(task)];
+        %bench_results_basename_prefix=['nbs_benchmark_results__',task,'_',stat_type,'_','grsize',num2str(grsize),'_',date_time_str_results.(task)];
         
         % set results files
         ground_truth_filename=[output_dir,ground_truth_results_basename_prefix,'.mat'];
@@ -71,8 +75,10 @@ for t=1:length(tasks)
         % set summary prefixes
         summary_output_dir=[output_dir,task,'_',stat_type,'_summary/'];
         summary_output_dir_gt=[output_dir,task,'_',stat_type_gt,'_summary/'];
-        ground_truth_summary_prefix=[summary_output_dir_gt,'nbs_ground_truth__',task,'_',stat_type_gt,'_',date_time_str_ground_truth.(task)];
-        summary_prefix=[summary_output_dir,'nbs_benchmark_results__',task,'_',stat_type,'_',date_time_str_results.(task)];
+        ground_truth_summary_prefix=[summary_output_dir_gt,'ground_truth__',task,'_',stat_type_gt,'_',date_time_str_ground_truth.(task)];
+        summary_prefix=[summary_output_dir,'results__',task,'_',stat_type,'_',date_time_str_results.(task)];
+        % ground_truth_summary_prefix=[summary_output_dir_gt,'nbs_ground_truth__',task,'_',stat_type_gt,'_',date_time_str_ground_truth.(task)];
+        %summary_prefix=[summary_output_dir,'nbs_benchmark_results__',task,'_',stat_type,'_',date_time_str_results.(task)];
         
         % setup summary output dir
         if ~exist(summary_output_dir,'dir'); mkdir(summary_output_dir); end
@@ -283,12 +289,13 @@ for t=1:length(tasks)
             [tpr_fit{1},res_scaled{1},dcoeff_windowed{1},tpr_windowed{1},tpr_windowed_std{1},~]=fit_spline(dcoeff_scaled{1},tpr_scaled{1},spline_smoothing,[summary_prefix,'_esz_v_TPR_pos']);
             [tpr_fit{2},res_scaled{2},dcoeff_windowed{2},tpr_windowed{2},tpr_windowed_std{2},~]=fit_spline(dcoeff_scaled{2},tpr_scaled{2},spline_smoothing_set,[summary_prefix,'_esz_v_TPR_summat_pos']);
         else
-            warning('Curve fitting toolbox required for fitting spline but not installed - you won''t be able to plot residuals.');
+            warning('Curve fitting toolbox required for fitting spline but not installed - you won''t be able to plot TPR or residuals.');
         end
         
         
         
         %% Prepare for combining tasks by average across tasks so far
+        if curve_toolbox_exists
         if combine_all_tasks
             if t==1
                 dcoeff_scaled_all{s}{1}=dcoeff_scaled{1};
@@ -525,7 +532,7 @@ for t=1:length(tasks)
                 fclose(fid);
             end
         end
-        
+    end 
         
     end
 end
@@ -585,12 +592,12 @@ if combine_all_tasks
             [tpr_fit{2},res_scaled{2},dcoeff_windowed{2},tpr_windowed{2},tpr_windowed_std{2},~]=fit_spline(dcoeff_scaled{2},tpr_scaled{2},spline_smoothing_set,[summary_prefix,'_esz_v_TPR_summat_pos']);
             
         else
-            warning('Curve fitting toolbox required for fitting spline but not installed - you won''t be able to plot residuals.');
+            warning('Curve fitting toolbox required for fitting spline but not installed - you won''t be able to plot TPR and residuals.');
         end
         
         
         %% VISUALIZATION - ALL: results from fitting spline
-        
+        if curve_toolbox_exists
         for scaling=1:length(dcoeff_windowed)
             
             %          % Setup
@@ -799,6 +806,7 @@ if combine_all_tasks
                 fprintf(fid,'\nRun time: %1.2f hours',run_time_h); % toc is in sec
                 fclose(fid);
             end
+        end
         end
     end
 end
