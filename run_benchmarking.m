@@ -18,7 +18,17 @@ for stat_id=1:length(all_cluster_stat_types)
 
 tic
 cluster_stat_type=all_cluster_stat_types{stat_id};
+
+% If omnibus, we'll loop through all the specified omnibus types
+if ~strcmp(cluster_stat_type,'Omnibus')
+    all_omnibus_types={NaN};
+end
+
+for omnibus_id=1:length(all_omnibus_types)
+omnibus_type=all_omnibus_types{omnibus_id};
+    
 setup_benchmarking;
+
 
 %% Initialize counters and pre-randomize data
 
@@ -91,9 +101,8 @@ fprintf('Starting benchmarking repetitions.\n');
 
 
 
-parfor (this_repetition=1:rep_params.n_repetitions)
-%parfor (this_repetition=(1+reps_completed_previously):rep_params.n_repetitions)
-%for this_repetition=(1+reps_completed_previously):rep_params.n_repetitions
+%parfor (this_repetition=1:rep_params.n_repetitions)
+for this_repetition=1:rep_params.n_repetitions
     fprintf('* Repetition %d - positive contrast\n',this_repetition)
 
     ids_thisrep=ids_sampled(:,this_repetition);
@@ -239,17 +248,20 @@ if strcmp(UI.statistic_type.ui,'Size'); size_str=['_',UI.size.ui];
 else; size_str='';
 end
 
+if ~isnan(omnibus_type); omnibus_str=['_',omnibus_type]; else omnibus_str=''; end
+
 if testing; test_str='_testing'; else test_str=''; end
 
 if use_both_tasks; condition_str=[rep_params.task1,'_v_',rep_params.task2];
 else; condition_str=rep_params.task1;
 end
 
-output_filename=[output_dir,'results__',condition_str,'_',UI.statistic_type.ui,size_str,'_grsize',num2str(rep_params.n_subs_subset),test_str,'_',datestr(now,'mmddyyyy_HHMM'),'.mat'];
+output_filename=[output_dir,'results__',condition_str,'_',UI.statistic_type.ui,size_str,omnibus_str,'_grsize',num2str(rep_params.n_subs_subset),test_str,'_',datestr(now,'mmddyyyy_HHMM'),'.mat'];
 fprintf('Saving results in %s\n',output_filename)
 save(output_filename,'edge_stats_all','cluster_stats_all','pvals_all','FWER','edge_stats_all_neg','cluster_stats_all_neg','pvals_all_neg','FWER_neg','UI','rep_params','run_time');
 
 % show that results are available in the workspace
 previous_results_filename__already_loaded=output_filename;
 
+end
 end

@@ -246,6 +246,7 @@ UI.thresh.ui=tthresh_first_level; % p=0.01
 UI.alpha.ui=pthresh_second_level;
 UI.statistic_type.ui=cluster_stat_type; % 'Size' | 'TFCE' | 'Constrained' | 'SEA'
 UI.size.ui=cluster_size_type; % 'Intensity' | 'Extent' - only relevant if stat type is 'Size'
+UI.omnibus_type.ui=omnibus_type;
 UI.edge_groups.ui=edge_groups; % smn
 UI.exchange.ui=nbs_exchange;
 

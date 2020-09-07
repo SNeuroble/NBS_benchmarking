@@ -17,16 +17,27 @@ function nbs=NBSrun_smn(varargin)
 %                       Statistical test to perform. 
 %                       See also NBSglm
 %
+%   UI.statistic_type.ui:    'Size' | 'TFCE' | 'Constrained' | 'SEA'
+%                       If 'Constrained', use pre-defined edge groups to define
+%                       network components
+%                       See also NBSstats
+%
 %   UI.size.ui:         'Extent' | 'Intensity'
 %                       Use intensity or extent to measure size of a 
 %                       network component?
 %                       [optional if UI.method.ui=='Run FDR']
 %                       See also NBSstats
 %
-%   UI.statistic_type.ui:    'Size' | 'TFCE' | 'Constrained' | 'SEA'
-%                       If 'Constrained', use pre-defined edge groups to define
-%                       network components
-%                       See also NBSstats
+%   UI.omnibus_type.ui: 'Threshold_Positive' | 'Threshold_Both_Dir' | 'Average_Positive' | 'Average_Both_Dir' | 'Multidimensional_cNBS'
+%                       Calculate statistic by combining values across all edges
+%                         'Threshold_Positive' : Threshold positive
+%                         'Threshold_Both_Dir' : Threshold positive and negative
+%                         'Average_Positive'   : Average positive
+%                         'Average_Both_Dir'   : Average absolute value of positive and negative
+%                         'Multidimensional_cNBS'      : Multidimensional null - uses network-level test stats to calculate Euclidean distance
+%                         'Between_minus_within_cNBS'  : Between-network (typically positive in ground truth) minus within-network (typically negative)
+%                         'Multidimensional_all_edges' : Multidimensional null - uses edge-level test stats to calculate Euclidean distance
+%                       
 %
 %   UI.thresh.ui:       Scalar 
 %                       Primary test statistic threshold. 
@@ -121,7 +132,9 @@ function nbs=NBSrun_smn(varargin)
 %   UI structure corresponding to the example data provided:
 %         UI.method.ui='Run NBS'; 
 %         UI.test.ui='t-test';
+%         UI.statistic_type.ui='Size';
 %         UI.size.ui='Extent';
+%         UI.omnibus_type.ui='Threshold';
 %         UI.thresh.ui='3.1';
 %         UI.perms.ui='5000';
 %         UI.alpha.ui='0.05';
@@ -131,6 +144,7 @@ function nbs=NBSrun_smn(varargin)
 %         UI.matrices.ui='SchizophreniaExample\matrices\subject01.txt';
 %         UI.node_coor.ui='SchizophreniaExample\COG.txt';                         
 %         UI.node_label.ui='SchizophreniaExample\nodeLabels.txt';
+
 %         UI.edge_groups.ui='edge_groups.txt'; % TBD
 %
 %   Remarks:
@@ -205,6 +219,7 @@ UI.matrices.ok=1;
 UI.node_coor.ok=1;
 UI.node_label.ok=1;
 UI.statistic_type.ok=1;
+UI.omnibus_type.ok=1;
 UI.edge_groups.ok=1;
 UI.perms.ok=1;
 UI.alpha.ok=1;
@@ -306,19 +321,27 @@ catch; UI.alpha.ok=0; end
 %Component size 
 try nbs.STATS.size=UI.size.ui; catch; UI.ok=0; end 
 %Statistic type [required to specify for now, but all should be optional w 'Size' as default]
+% if isfield(UI.statistic_type,'ui') ... ; elseif isfield(nbs,'NBS') ...; end
 try nbs.STATS.statistic_type=UI.statistic_type.ui; catch; UI.statistic_type.ok=0; end 
-%Edge groups for constrained [required if constrained]
-if isfield(UI.statistic_type,'ui')
-    if strcmp(UI.statistic_type.ui,'Constrained') || strcmp(UI.statistic_type.ui,'SEA')
-        try [nbs.STATS.edge_groups,UI.edge_groups.ok]=read_edge_groups(UI.edge_groups.ui,DIMS);
-        catch UI.edge_groups.ok=0;
+%Omnibus type [required if statistic_type is Omnibus]
+if strcmp(nbs.STATS.statistic_type,'Omnibus')
+    try nbs.STATS.omnibus_type=UI.omnibus_type.ui; catch; UI.omnibus_type.ok=0; end 
+end
+% Edge groups
+if strcmp(nbs.STATS.statistic_type,'Constrained') || strcmp(nbs.STATS.statistic_type,'SEA') || (strcmp(nbs.STATS.statistic_type,'Omnibus') && strcmp(nbs.STATS.omnibus_type,'Multidimensional_cNBS'))
+    nbs.STATS.use_edge_groups=1;
+    try [nbs.STATS.edge_groups,UI.edge_groups.ok]=read_edge_groups(UI.edge_groups.ui,DIMS);
+    catch UI.edge_groups.ok=0;
+    end
+else
+    nbs.STATS.use_edge_groups=0;
+    if isfield(nbs,'NBS')
+        if isfield(nbs.NBS,'edge_groups')
+            nbs.NBS=rmfield(nbs.NBS,'edge_groups');
         end
     end
-elseif isfield(nbs,'NBS')
-    if isfield(nbs.NBS,'edge_groups')
-        nbs.NBS=rmfield(nbs.NBS,'edge_groups');
-    end
 end
+
 
 %Number of nodes
 nbs.STATS.N=DIMS.nodes;
@@ -357,7 +380,7 @@ if repeat
     if (DIMS.nodes*(DIMS.nodes-1)/2)*(nbs.GLM.perms)<Limit
         %Precompute if the number of elements in test_stat is less than
         %Limit
-        str='Randomizing data...';
+        str='Pre-randomizing data...';
         try tmp=get(S.OUT.ls,'string'); set(S.OUT.ls,'string',[{str};tmp]); drawnow;
         catch;  fprintf([str,'\n']); end 
         %Present a waitbar on the GUI showing progress of the randomization process
@@ -411,14 +434,14 @@ end
 
 %Do NBS
 if strcmp(UI.method.ui,'Run NBS')
-    str='Computing network components...';
+    str=sprintf('Computing network components (%s)...',nbs.STATS.statistic_type);
     try tmp=get(S.OUT.ls,'string'); set(S.OUT.ls,'string',[{str};tmp]); drawnow;
     catch;  fprintf([str,'\n']); end 
     try [nbs.NBS.n,nbs.NBS.con_mat,nbs.NBS.pval,nbs.NBS.edge_stats,nbs.NBS.cluster_stats]=NBSstats_smn(nbs.STATS,S.OUT.ls,nbs.GLM); % SMN
     catch; [nbs.NBS.n,nbs.NBS.con_mat,nbs.NBS.pval,nbs.NBS.edge_stats,nbs.NBS.cluster_stats]=NBSstats_smn(nbs.STATS,-1,nbs.GLM); end % SMN
 %Do FDR
 elseif strcmp(UI.method.ui,'Run FDR')
-    str='False Discovery Rate...';
+    str='Computing edge-level False Discovery Rate...';
     try tmp=get(S.OUT.ls,'string'); set(S.OUT.ls,'string',[{str};tmp]); drawnow;
     catch;  fprintf([str,'\n']); end 
     %Show waitbar if test statistics have not been precomputed
@@ -748,6 +771,12 @@ function [msg,stop]=errorcheck(UI,DIMS,S)
     end
     if ~UI.statistic_type.ok
         msg={'Stop: Statistic type not found or inconsistent'};
+        try set(S.ADV.statistic_type.text,'ForegroundColor','red');
+        catch; end
+        return;
+    end
+    if ~UI.omnibus_type.ok
+        msg={'Stop: Omnibus type not found or inconsistent'};
         try set(S.ADV.statistic_type.text,'ForegroundColor','red');
         catch; end
         return;

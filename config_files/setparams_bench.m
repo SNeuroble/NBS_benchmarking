@@ -17,7 +17,7 @@ output_dir='/Users/steph/Documents/data/mnt/NBS_benchmarking_results/';
 do_TPR=1;
 use_both_tasks=1; % for a paired-sample test
 paired_design=1; % for now, if using both tasks must use a paired design
-task1='SOCIAL'; % for TPR
+task1='EMOTION'; % for TPR
 task_gt='SOCIAL'; % for ground truth 
 task2='REST'; % for FPR or TPR contrast
 subIDs_suffix='_subIDs.txt'; 
@@ -36,16 +36,19 @@ nbs_test_stat='t-test'; % alternatives are one-sample and F-test - don't change 
 n_perms='1000'; % previously: '5000'
 tthresh_first_level='3.1'; % corresponds with p=0.005-0.001 (DOF=10-1000)
 pthresh_second_level='0.05';
-all_cluster_stat_types={'Size','TFCE','Constrained','FDR'}; % NBS stats to be benchmarked: {'Size', 'TFCE', 'Constrained', 'SEA', 'FDR'} % note that FDR is EDGE-LEVEL
+all_cluster_stat_types={'Omnibus'}; % NBS stats to be benchmarked: {'Size', 'TFCE', 'Constrained', 'SEA', 'FDR', Omnibus} % note that FDR is EDGE-LEVEL
+%all_cluster_stat_types={'Size','TFCE','Constrained','FDR'}; % NBS stats to be benchmarked: {'Size', 'TFCE', 'Constrained', 'SEA', 'FDR'} % note that FDR is EDGE-LEVEL
 %cluster_stat_type='Constrained'; % 'Size' | 'TFCE' | 'Constrained' | 'SEA' % smn - commented out bc looping in script
-cluster_size_type='Extent'; % 'Intensity' | 'Extent' - only relevant if stat type is 'Size'
+cluster_size_type='Extent'; % 'Intensity' | 'Extent' - only relevant if stat_type is 'Size'
+all_omnibus_types={'Threshold_Both_Dir', 'Multidimensional_cNBS', 'Multidimensional_all_edges'}; % 'Threshold_Positive' | 'Threshold_Both_Dir' | 'Average_Positive' | 'Average_Both_Dir' | 'Multidimensional_cNBS' - only relevant if omnibus_type is 'Omnibus' 
 
+% Under development:  'Between_minus_within_cNBS' | 'Multidimensional_all_edges'
 
 %%%%% DEVELOPERS ONLY %%%%%
 % Use a small subset of perms for faster development - inappropriate for inference
 
 testing=1;
-test_n_perms=100;
+test_n_perms=10;
 test_n_repetitions=10;
-test_n_workers=1;
+test_n_workers=0;
 
