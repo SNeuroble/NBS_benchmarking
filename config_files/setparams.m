@@ -9,22 +9,20 @@
 % Strings are permissible because the GUI-based NBS parses string data
 % entered by the user
 
-% Data
-data_file='/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/fmri/NBS1.2/SchizophreniaExample/matrices.mat';
-
 % Scripts
 nbs_dir='/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/fmri/NBS1.2/'; % NBS toolbox
-% nbs_addon_dir='/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/myscripts/NBS_benchmarking/NBS_addon/';
 
-% Data
+% Data - edge matrix should be organized with dimensions n_nodes x n_nodes x n_subs or n_edges x n_subs
 data_file='/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/fmri/NBS1.2/SchizophreniaExample/matrices.mat';
 
 % Model
+% Provide a univariate design matrix - the first-level test statistic is calculated at the individual-edge level
 design_matrix_file='/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/fmri/NBS1.2/SchizophreniaExample/designMatrix.mat'; % 2D design matrix
 contrast=[-1,1];
 exchange=[];
 
 % Edge groups - REQUIRED FOR CNBS
+% Shen268 atlas: '/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/myscripts/NBS_benchmarking/NBS_addon/SchizophreniaExample/Shen268_map.mat'
 edge_groups_file='/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/myscripts/NBS_benchmarking/NBS_addon/SchizophreniaExample/Example_74node_map.mat'; % n_nodes x n_nodes edge matrix mask with nonzeros as follows: 1=subnetwork 1, 2=subnetwork 2, etc.
 
 % Parameters
