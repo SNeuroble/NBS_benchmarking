@@ -17,6 +17,7 @@ data_file='/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/
 
 % Model
 % Provide a univariate design matrix - the first-level test statistic is calculated at the individual-edge level
+% This may be helpful in building design matrices: http://mumford.fmripower.org/2010_summercourse/stat_modeling_2010.pdf
 design_matrix_file='/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/fmri/NBS1.2/SchizophreniaExample/designMatrix.mat'; % 2D design matrix
 contrast=[-1,1];
 exchange=[];
