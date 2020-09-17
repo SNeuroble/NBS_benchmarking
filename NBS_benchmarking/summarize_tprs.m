@@ -11,7 +11,8 @@ function summarize_tprs(varargin)
 %% Variables
 all_tasks={'EMOTION_v_REST','GAMBLING_v_REST','LANGUAGE_v_REST','MOTOR_v_REST','RELATIONAL_v_REST','SOCIAL_v_REST','WM_v_REST'};
 %all_tasks={'EMOTION','GAMBLING','LANGUAGE','MOTOR','RELATIONAL','SOCIAL','WM'};
-stat_types_default={'Size_Extent','TFCE','Constrained'};
+stat_types_default={'Size_Extent','TFCE','Constrained','Omnibus'};
+omnibus_types_default={''};
 combine_all_tasks_default=0;
 grsize_default=40;
 make_figs_default=1;
@@ -22,6 +23,7 @@ p = inputParser;
 % addRequired(p,'date_time_str_results',@ischar);
 addOptional(p,'tasks',all_tasks);
 addOptional(p,'stat_types',stat_types_default);
+addOptional(p,'omnibus_types',omnibus_types_default);
 addOptional(p,'combine_all_tasks',combine_all_tasks_default);
 addOptional(p,'grsize',grsize_default);
 addOptional(p,'make_figs',make_figs_default);
@@ -34,6 +36,7 @@ save_figs=p.Results.save_figs;
 save_log=p.Results.save_log;
 tasks=p.Results.tasks;
 stat_types=p.Results.stat_types;
+omnibus_types=p.Results.omnibus_types;
 combine_all_tasks=p.Results.combine_all_tasks;
 % date_time_str_results=p.Results.date_time_str_results;
 grsize=p.Results.grsize;
