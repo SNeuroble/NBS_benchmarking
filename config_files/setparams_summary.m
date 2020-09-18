@@ -4,7 +4,7 @@
 
 stat_type_gt='Size_Extent';
 
-date_time_str_ground_truth.EMOTION='03012020_1722';
+date_time_str_ground_truth.EMOTION_v_REST='03012020_1722';
 date_time_str_ground_truth.GAMBLING='03012020_1652';
 date_time_str_ground_truth.LANGUAGE='03012020_1704';
 date_time_str_ground_truth.MOTOR='03012020_1717';
@@ -45,6 +45,23 @@ switch stat_type
         %date_time_str_results.SOCIAL='03022020_0531';
         date_time_str_results.WM='02262020_0457';
         date_time_str_results.REST_v_REST2='08052020_2143';
+   case 'Omnibus'
+       switch omnibus_type
+           case 'Multidimensional_cNBS'
+            date_time_str_results.EMOTION_v_REST='testing_09082020_1425';
+%             date_time_str_results.GAMBLING='03032020_0332';
+%             date_time_str_results.LANGUAGE='02242020_0355';
+%             date_time_str_results.MOTOR='03012020_0417';
+%             date_time_str_results.RELATIONAL='02252020_1519';
+%             date_time_str_results.SOCIAL_v_REST='08042020_0504';
+%             %date_time_str_results.SOCIAL='03022020_0531';
+%             date_time_str_results.WM='02262020_0457';
+%             date_time_str_results.REST_v_REST2='08052020_2143';
+            case 'Threshold_Both_Dir'
+                date_time_str_results.EMOTION_v_REST='testing_09082020_1424';
+           otherwise
+                error('Omnibus type not defined');
+       end
     case 'NA'
         % okay, trusting that won't need to set a benchmarking stat_type, e.g., not needed for running ground truth
     otherwise

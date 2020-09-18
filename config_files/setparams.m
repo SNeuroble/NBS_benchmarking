@@ -33,8 +33,9 @@ nbs_test_stat='t-test'; % 't-test' | 'one-sample' | 'F-test'
 n_perms=1000; % recommend n_perms=5000 to appreciable reduce uncertainty of p-value estimation (https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/Randomise/Theory
 tthresh_first_level=3.1; % corresponds with p=0.005-0.001 (DOF=10-1000)
 pthresh_second_level=0.05;
-cluster_stat_type='Constrained'; % 'Size' | 'TFCE' | 'Constrained' | 'SEA'
+cluster_stat_type='Constrained'; % 'Size' | 'TFCE' | 'Constrained' | 'SEA' | 'Omnibus'
 cluster_size_type='Extent'; % REQUIRED FOR STAT_TYPE=SIZE - 'Intensity' | 'Extent'
+omnibus_type='Threshold'; % REQUIRED FOR CLUSTER_STAT_TYPE=OMNIBUS - 'Threshold' | 'Average' | 'Networks'
 
 
 %%%%% DEVELOPERS ONLY %%%%%
