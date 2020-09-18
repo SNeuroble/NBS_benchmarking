@@ -51,6 +51,11 @@ if strcmp(UI.statistic_type.ui,'Constrained') || strcmp(UI.statistic_type.ui,'SE
     cluster_stats_all_neg=zeros(length(unique(edge_groups))-1,1,rep_params.n_repetitions); % minus 1 to not count "zero"
     pvals_all=zeros(length(unique(UI.edge_groups.ui))-1,rep_params.n_repetitions); % minus 1 to not count "zero"
     pvals_all_neg=zeros(length(unique(UI.edge_groups.ui))-1,rep_params.n_repetitions); % minus 1 to not count "zero"
+elseif strcmp(UI.statistic_type.ui,'Omnibus')
+    cluster_stats_all=zeros(1,rep_params.n_repetitions);
+    cluster_stats_all_neg=zeros(1,rep_params.n_repetitions);
+    pvals_all=zeros(1,rep_params.n_repetitions);
+    pvals_all_neg=zeros(1,rep_params.n_repetitions);
 else
     cluster_stats_all=zeros(n_nodes,n_nodes,rep_params.n_repetitions); 
     cluster_stats_all_neg=zeros(n_nodes,n_nodes,rep_params.n_repetitions); 
@@ -219,15 +224,22 @@ for this_repetition=1:rep_params.n_repetitions
         
         edge_stats_all_neg(:,this_repetition)=nbs_neg.NBS.test_stat(trimask);
         pvals_all_neg(:,this_repetition)=nbs_neg.NBS.con_mat{1}(:);  % Note: this represents significant edges, not p-values
-        
+
     else
         edge_stats_all(:,this_repetition)=nbs.NBS.edge_stats;
-        cluster_stats_all(:,:,this_repetition)=full(nbs.NBS.cluster_stats);
         pvals_all(:,this_repetition)=nbs.NBS.pval(:); % TODO: had to vectorize for TFCE... should give all outputs in same format tho 
 
         edge_stats_all_neg(:,this_repetition)=nbs_neg.NBS.edge_stats;
-        cluster_stats_all_neg(:,:,this_repetition)=full(nbs_neg.NBS.cluster_stats);
         pvals_all_neg(:,this_repetition)=nbs_neg.NBS.pval(:); % TODO: same as above
+
+        if strcmp(UI.statistic_type.ui,'Omnibus') % single result for omnibus
+            cluster_stats_all(this_repetition)=full(nbs.NBS.cluster_stats);
+            cluster_stats_all_neg(this_repetition)=full(nbs_neg.NBS.cluster_stats);
+
+        else
+            cluster_stats_all(:,:,this_repetition)=full(nbs.NBS.cluster_stats);
+            cluster_stats_all_neg(:,:,this_repetition)=full(nbs_neg.NBS.cluster_stats);
+        else
     end
 
 end
