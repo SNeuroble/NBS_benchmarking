@@ -57,15 +57,26 @@ fprintf('* Summarizing true positive benchmarking results.\n');
 
 for t=1:length(tasks)
     for s=1:length(stat_types)
+        for omn=1:length(omnibus_types)
         
         % task-/stat-specific setup
         task=tasks{t};
         stat_type=stat_types{s};
+        if strcmp(stat_type,'Omnibus')
+            do_omnibus=1;
+            omnibus_type=omnibus_types{omn};
+            omnibus_str=['_',omnibus_type];
+        else
+            do_omnibus=0;
+            omnibus_type='';
+            omnibus_str='';
+        end
+        
         fprintf(['Summarizing TPRs - ',task,'::',stat_type,'\n'])
         setparams_summary;
         
         ground_truth_results_basename_prefix=['ground_truth__',task,'_',stat_type_gt,'_',date_time_str_ground_truth.(task)];
-        bench_results_basename_prefix=['results__',task,'_',stat_type,'_','grsize',num2str(grsize),'_',date_time_str_results.(task)];
+        bench_results_basename_prefix=['results__',task,'_',stat_type,omnibus_str,'_','grsize',num2str(grsize),'_',date_time_str_results.(task)];
         
         %ground_truth_results_basename_prefix=['nbs_ground_truth__',task,'_',stat_type_gt,'_',date_time_str_ground_truth.(task)];
         %bench_results_basename_prefix=['nbs_benchmark_results__',task,'_',stat_type,'_','grsize',num2str(grsize),'_',date_time_str_results.(task)];
@@ -128,7 +139,7 @@ for t=1:length(tasks)
         try
             load(ground_truth_filename,'edge_stats','cluster_stats','rep_params');
         catch
-            fprintf('Looks like ground truth data needed for calculating TPR does not exist for %s.\n',task);
+            error('Looks like ground truth data needed for calculating TPR does not exist for %s.\n',task);
         end
         
         % t-stat -> d-coefficient - transpose because need for fitting spline
@@ -181,6 +192,11 @@ for t=1:length(tasks)
                     positives=reshape(positives,n_nodes,n_nodes,n_repetitions);
                     positives_neg=reshape(positives_neg,n_nodes,n_nodes,n_repetitions);
                     
+                elseif strcmp(UI.statistic_type.ui,'Omnibus')
+                    
+                    warning('This is ONLY a temporary quick fix for the new omnibus.');
+                    cluster_stats_all=squeeze(cluster_stats_all(1,1,:))';
+                    
                 else
                     error('Cluster stats and p-value dimensions don''t match. We can only fix this in two ways and they must have failed.')
                 end
@@ -200,7 +216,7 @@ for t=1:length(tasks)
             cluster_stats_sig_summary_neg.std=std(cluster_stats_sig_all_neg,0,n_dim__cluster_stats_all);
             
             % double check FWER calculation
-            if strcmp(UI.statistic_type.ui,'Constrained') || strcmp(UI.statistic_type.ui,'SEA')
+            if strcmp(UI.statistic_type.ui,'Constrained') || strcmp(UI.statistic_type.ui,'SEA') || strcmp(UI.statistic_type.ui,'Omnibus')
                 FWER_manual=sum(+any(positives))/n_repetitions;
                 FWER_manual_neg=sum(+any(positives_neg))/n_repetitions;
             else
@@ -236,6 +252,9 @@ for t=1:length(tasks)
             edge_groups_vec=edge_groups_triu(ids_triu);
             ids_pos=edge_groups_vec(ids_pos_vec);
             ids_neg=edge_groups_vec(ids_neg_vec);
+        elseif strcmp(stat_type,'Omnibus')
+            ids_pos=1;
+            ids_neg=1;
         else
             ids_pos=ids_triu(ids_pos_vec);
             ids_neg=ids_triu(ids_neg_vec);
