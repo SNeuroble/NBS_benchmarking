@@ -50,7 +50,7 @@ if strcmp(cluster_stat_type,'Constrained')
             sig_edge_results(edge_groups==i)=sig_results(it);
             it=it+1;
         end
-        drawmatrix_atlas(sig_edge_results);
+        draw_atlas_boundaries(sig_edge_results);
     end
     trimask_summat=logical(triu(ones(10)));
     network_nbs_results=structure_data(nbs.NBS.cluster_stats,trimask_summat)';
