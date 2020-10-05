@@ -23,7 +23,7 @@ contrast=[-1,1];
 exchange=[];
 
 % Edge groups - REQUIRED FOR CNBS
-% Shen268 atlas: '/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/myscripts/NBS_benchmarking/NBS_addon/SchizophreniaExample/Shen268_map.mat'
+% Shen268 atlas: '/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/myscripts/NBS_benchmarking/NBS_addon/SchizophreniaExample/Shen268_map_original.mat'
 edge_groups_file='/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/myscripts/NBS_benchmarking/NBS_addon/SchizophreniaExample/Example_74node_map.mat'; % n_nodes x n_nodes edge matrix mask with nonzeros as follows: 1=subnetwork 1, 2=subnetwork 2, etc.
 
 % Parameters
