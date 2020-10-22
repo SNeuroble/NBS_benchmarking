@@ -8,16 +8,6 @@ addpath(genpath(current_path));
 do_ground_truth=1;
 setup_benchmarking; % temporary - TODO: merge
 
-% calculate subject measures for network and simple sum over full connectome
-m_reordered=reorder_matrix_by_atlas(m);
-m_net=zeros(10,10,nsubs);
-m_pool_all=zeros(1,nsubs);
-for i=1:nsubs
-    m_net(:,:,i)=summarize_matrix_by_atlas(m_reordered(:,:,i));
-    m_pool_all(i)=mean(tril(m(:,:,i),-1));
-end
-clearvars m_reordered
-
 %% Estimate statistics
 % Really just using NBS to solve GLM, except in the first case where we're also interested in recording any clusters
 

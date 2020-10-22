@@ -137,7 +137,7 @@ for t=1:length(tasks)
         %% GROUND TRUTH: estimate effect sizes
         
         try
-            load(ground_truth_filename,'edge_stats','cluster_stats','rep_params');
+            load(ground_truth_filename,'edge_stats','edge_stats_net','edge_stats_pool_all','cluster_stats','rep_params');
         catch
             error('Looks like ground truth data needed for calculating TPR does not exist for %s.\n',task);
         end
@@ -145,6 +145,8 @@ for t=1:length(tasks)
         % t-stat -> d-coefficient - transpose because need for fitting spline
         n_subs_total=rep_params.n_subs_subset;
         dcoeff=(edge_stats/sqrt(n_subs_total))';
+        dcoeff_net=(edge_stats_net/sqrt(n_subs_total))';
+        dcoeff_omnibus=(edge_stats_pool_all/sqrt(n_subs_total))';
         
         % get num nodes and edges
         n_edges=length(dcoeff);
@@ -153,8 +155,15 @@ for t=1:length(tasks)
         % re-create upper triangular mask
         triu_msk=triu(true(n_nodes),1);
         ids_triu=find(triu_msk);
+        triu_msk_net=triu(true(n_nodes)); 
         
-        
+        % convert ground truth network results from lower to upper triangle - this sad mismatch is an unfortunate consequence of my summat scripts using the lower tri but NBS using upper tri
+        t=tril(true(n_nodes));
+        dcoeff_net=structure_data(dcoeff_net,t);
+        dcoeff_net=dcoeff_net(triu_msk_net);
+       
+
+
         %% BENCHMARKING RESULTS
         
         % Load and summarize benchmarking results: 'edge_stats_summary','cluster_stats_summary','positives','positives_total','FWER_manual'
@@ -285,10 +294,11 @@ for t=1:length(tasks)
             dcoeff_mat(triu_msk)=dcoeff;
             
             dcoeff_scaled{1}=dcoeff;
-            dcoeff_scaled{2}=summarize_matrix_by_atlas(dcoeff_mat','suppressimg',1)';
-            
-            triu_msk_summat=logical(triu(ones(size(dcoeff_scaled{2}))));
-            dcoeff_scaled{2}=dcoeff_scaled{2}(triu_msk_summat);
+            dcoeff_scaled{2}=dcoeff_net;
+            %dcoeff_scaled{2}=summarize_matrix_by_atlas(dcoeff_mat','suppressimg',1)';
+            %
+            %triu_msk_summat=logical(triu(ones(size(dcoeff_scaled{2}))));
+            %dcoeff_scaled{2}=dcoeff_scaled{2}(triu_msk_summat);
             
             ids_pos_summat=dcoeff_scaled{2}>0;
             ids_neg_summat=dcoeff_scaled{2}<0;

@@ -17,8 +17,8 @@ output_dir='/Users/steph/Documents/data/mnt/NBS_benchmarking_results/';
 do_TPR=1;
 use_both_tasks=1; % for a paired-sample test
 paired_design=1; % for now, if using both tasks must use a paired design
-task1='EMOTION'; % for TPR
-task_gt='SOCIAL'; % for ground truth 
+task1='EMOTION'; % for TPR - EMOTION GAMBLING LANGUAGE MOTOR RELATIONAL SOCIAL WM
+task_gt='WM'; % for ground truth
 task2='REST'; % for FPR or TPR contrast
 subIDs_suffix='_subIDs.txt'; 
 data_type_suffix='_GSR_matrix.txt';
@@ -41,13 +41,14 @@ all_cluster_stat_types={'Omnibus'}; % NBS stats to be benchmarked: {'Size', 'TFC
 %cluster_stat_type='Constrained'; % 'Size' | 'TFCE' | 'Constrained' | 'SEA' % smn - commented out bc looping in script
 cluster_size_type='Extent'; % 'Intensity' | 'Extent' - only relevant if stat_type is 'Size'
 all_omnibus_types={'Threshold_Both_Dir', 'Multidimensional_cNBS', 'Multidimensional_all_edges'}; % 'Threshold_Positive' | 'Threshold_Both_Dir' | 'Average_Positive' | 'Average_Both_Dir' | 'Multidimensional_cNBS' - only relevant if omnibus_type is 'Omnibus' 
+omnibus_type_gt='Multidimensional_all_edges';
 
 % Under development:  'Between_minus_within_cNBS' | 'Multidimensional_all_edges'
 
 %%%%% DEVELOPERS ONLY %%%%%
 % Use a small subset of perms for faster development - inappropriate for inference
 
-testing=1;
+testing=0;
 test_n_perms=10;
 test_n_repetitions=10;
 test_n_workers=0;

@@ -25,8 +25,9 @@ if exist('do_ground_truth')
         do_TPR=1;
         use_both_tasks=1;
         cluster_stat_type='Size';
+        omnibus_type=omnibus_type_gt;
         n_perms='1';
-
+      
         fprintf('Setting params for ground truth.\nDoing standard NBS for %s vs REST (1 perm) - will preload data.\n',task1);
     end
 else
@@ -88,13 +89,17 @@ if do_ground_truth
 end
 
 
-% Load one example matrix to get number of nodes
+% Load one example matrix to get number of nodes and nets
 
 template_file=[data_dir,task1,'/',subIDs{1},'_',task1,data_type_suffix];
 fprintf('Template file is: %s.\n',template_file);
 template=importdata(template_file);
 n_nodes=size(template,1); % assuming square
-trimask=logical(triu(ones(size(template)),1));
+triumask=triu(true(size(template)),1);
+
+template_net=summarize_matrix_by_atlas(template(:,:,1),'suppressimg',1);
+n_node_nets=size(template_net,1); % square
+trilmask_net=tril(true(n_node_nets)); % I know it's annoying to switch to tril here instead of triu, but summarize_matrix_by_atlas gives results in lower triangle (tril is my habit) while NBS uses triu...
 
 
 %% GROUND TRUTH ONLY: Pre-load and reorder data unless already specified to be loaded
@@ -117,15 +122,31 @@ if do_ground_truth
             if paired_design
                 
                 m=zeros(n_nodes*(n_nodes-1)/2,n_subs*2);
+                m_net=zeros(n_node_nets*(n_node_nets-1)/2+n_node_nets,n_subs*2);
+                m_pool_all=zeros(1,n_subs*2);
                 for i = 1:n_subs
+                    
+                    % task 1
                     this_file_task1 = [data_dir,task1,'/',subIDs{i},'_',task1,data_type_suffix];
                     d=importdata(this_file_task1);
                     d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
-                    m(:,i) = d(trimask);
+                    m(:,i) = d(triumask);
+
+                    d_net=summarize_matrix_by_atlas(d,'suppressimg',1);
+                    m_net(:,i)=d_net(trilmask_net);
+                  
+                    m_pool_all(i)=mean(d(triumask));
+
+                    % task 2
                     this_file_task2 = [data_dir,task2,'/',subIDs{i},'_',task2,data_type_suffix];
                     d=importdata(this_file_task2);
-                    d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
-                    m(:,n_subs+i) = d(trimask);
+                    d=reorder_matrix_by_atlas(d,mapping_category);
+                    m(:,n_subs+i) = d(triumask);
+                    
+                    d_net=summarize_matrix_by_atlas(d,'suppressimg',1);
+                    m_net(:,n_subs+i)=d_net(trilmask_net);
+                    
+                    m_pool_all(n_subs+i)=mean(d(triumask));
 
                     % print every 50 subs x 2 tasks
                     if mod(i,50)==0; fprintf('%d/%d  (x2 tasks)\n',i,n_subs); end
@@ -137,11 +158,15 @@ if do_ground_truth
         else % for one-sample
 
             m=zeros(n_nodes*(n_nodes-1)/2,n_subs);
+            m_net=zeros(10,10,n_subs);
+            m_pool_all=zeros(1,n_subs);
             for i = 1:n_subs
                 this_file_task1 = [data_dir,task1,'/',subIDs{i},'_',task1,data_type_suffix];
                 d=importdata(this_file_task1);
                 d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
-                m(:,i) = d(trimask);
+                m(:,i) = d(triumask);
+                m_net(:,:,i)=summarize_matrix_by_atlas(d,'suppressimg',1);
+                m_pool_all(i)=mean(d(triumask));
                 % print every 100
                 if mod(i,100)==0; fprintf('%d/%d\n',i,n_subs); end
             end
