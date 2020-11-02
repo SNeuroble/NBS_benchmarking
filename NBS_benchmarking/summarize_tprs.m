@@ -87,10 +87,10 @@ for t=1:length(tasks)
         benchmarking_summary_filename=[output_dir,bench_results_basename_prefix,'_summary.mat'];
         
         % set summary prefixes
-        summary_output_dir=[output_dir,task,'_',stat_type,'_summary/'];
+        summary_output_dir=[output_dir,task,'_',stat_type,omnibus_str,'_summary/'];
+        summary_prefix=[summary_output_dir,'results__',task,'_',stat_type,omnibus_str,'_',date_time_str_results.(task)];
         summary_output_dir_gt=[output_dir,task,'_',stat_type_gt,'_summary/'];
         ground_truth_summary_prefix=[summary_output_dir_gt,'ground_truth__',task,'_',stat_type_gt,'_',date_time_str_ground_truth.(task)];
-        summary_prefix=[summary_output_dir,'results__',task,'_',stat_type,'_',date_time_str_results.(task)];
         % ground_truth_summary_prefix=[summary_output_dir_gt,'nbs_ground_truth__',task,'_',stat_type_gt,'_',date_time_str_ground_truth.(task)];
         %summary_prefix=[summary_output_dir,'nbs_benchmark_results__',task,'_',stat_type,'_',date_time_str_results.(task)];
         
@@ -139,7 +139,7 @@ for t=1:length(tasks)
         try
             load(ground_truth_filename,'edge_stats','edge_stats_net','edge_stats_pool_all','cluster_stats','rep_params');
         catch
-            error('Looks like ground truth data needed for calculating TPR does not exist for %s.\n',task);
+            error('Looks like ground truth data needed for calculating TPR does not exist for %s. Try running calculate_ground_truth.m\n',task);
         end
         
         % t-stat -> d-coefficient - transpose because need for fitting spline
@@ -155,11 +155,14 @@ for t=1:length(tasks)
         % re-create upper triangular mask
         triu_msk=triu(true(n_nodes),1);
         ids_triu=find(triu_msk);
-        triu_msk_net=triu(true(n_nodes)); 
+        
+        n_nets=sort(roots([1 1 -2*length(dcoeff_net)])); % x = n*(n+1)/2 , 0 = n^2 + n - 2x; (n+2sqrt(x))(n-sqrt(x))
+        n_nets=n_nets(end);
+        triu_msk_net=triu(true(n_nets)); 
         
         % convert ground truth network results from lower to upper triangle - this sad mismatch is an unfortunate consequence of my summat scripts using the lower tri but NBS using upper tri
-        t=tril(true(n_nodes));
-        dcoeff_net=structure_data(dcoeff_net,t);
+        t=tril(true(n_nets));
+        dcoeff_net=structure_data(dcoeff_net,'mask',t);
         dcoeff_net=dcoeff_net(triu_msk_net);
        
 
@@ -310,7 +313,7 @@ for t=1:length(tasks)
             else
                 true_positives_summat=summarize_matrix_by_atlas(true_positives,'suppressimg',1,'do_std',1)';
                 %             [true_positives_summat,true_positives_summat_std]=summarize_matrix_by_atlas(true_positives,'suppressimg',1,'do_std',1)';
-                true_positives_summat=true_positives_summat(triu_msk_summat)';
+                true_positives_summat=true_positives_summat(triu_msk_net)';
                 %             true_positives_summat_std=true_positives_summat_std(triu_msk_summat)';
             end
             
