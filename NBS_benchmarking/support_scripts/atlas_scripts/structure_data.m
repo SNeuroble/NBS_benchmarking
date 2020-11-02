@@ -32,9 +32,10 @@ defaultmask=0;
 defaultismatrix=1;
 defaulttriangleside='lower';
 
+validMaskTypes = @(x) isnumeric(x) || islogical(x);
 addParameter(p,'ismatrix',defaultismatrix,@isnumeric);
 addParameter(p,'triangleside',defaulttriangleside,@ischar);
-addParameter(p,'mask',defaultmask,@isnumeric);
+addParameter(p,'mask',defaultmask,validMaskTypes);
 
 parse(p,varargin{:});
 
