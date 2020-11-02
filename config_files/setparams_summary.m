@@ -4,7 +4,8 @@
 
 stat_type_gt='Size_Extent';
 
-date_time_str_ground_truth.EMOTION_v_REST='03012020_1722';
+%date_time_str_ground_truth.EMOTION_v_REST='03012020_1722';
+date_time_str_ground_truth.EMOTION_v_REST='09222020_2337'; % with new networks
 date_time_str_ground_truth.GAMBLING='03012020_1652';
 date_time_str_ground_truth.LANGUAGE='03012020_1704';
 date_time_str_ground_truth.MOTOR='03012020_1717';

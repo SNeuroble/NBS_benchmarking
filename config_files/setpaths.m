@@ -26,7 +26,7 @@ case 'steph'
     %data_path='/Users/steph/Steph-Lab/Misc/ConstableLab/MRRC Neuroinformatics/resources/scripts/cpm_hackathon/test_data/HCP900_rest_n50.mat'; % HCP toy data
     
     % results directory
-    output_dir='/Users/steph/Documents/data/mnt/NBS_benchmarking_results/testing/';
+    output_dir='/Users/steph/Documents/data/mnt/NBS_benchmarking_results/';
     %output_dir='/Users/steph/Steph-Lab/NBS_benchmarking/results_benchmarking/'; % local results
 %     output_dir='/Users/steph/Documents/data/mnt/NBS_benchmarking_results/'; % server results
     
