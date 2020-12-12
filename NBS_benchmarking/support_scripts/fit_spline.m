@@ -1,14 +1,13 @@
-function [y_predict,residuals,x_windowed,y_windowed,y_windowed_std,SSE,residual_r,residual_p]=fit_spline(x,y,smoothing,plot_filename)  
+function [y_predict,residuals,x_windowed,y_windowed,y_windowed_std,SSE,residual_r,residual_p]=fit_spline(x,y,smoothing,window_sz)  
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This function fits a cubic spline for the "Cluster Failure or Power
 % Failure" project. Fits a cubic spline to a sliding window avg with 50% 
 % overlap.
-% Usage: called from main.m
+% Usage: called from summarize_tprs.m
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % sliding window to get smooth model
-window_sz=0.01;
 percent_overlap=0.5; % percent overlap (0.5=50%)
 overlap=window_sz*percent_overlap;
 nwindows=ceil( (max(x) - min(x) - overlap) / (window_sz - overlap) );

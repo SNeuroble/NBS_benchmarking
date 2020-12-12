@@ -4,52 +4,101 @@
 
 stat_type_gt='Size_Extent';
 
-%date_time_str_ground_truth.EMOTION_v_REST='03012020_1722';
-date_time_str_ground_truth.EMOTION_v_REST='09222020_2337'; % with new networks
-date_time_str_ground_truth.GAMBLING='03012020_1652';
-date_time_str_ground_truth.LANGUAGE='03012020_1704';
-date_time_str_ground_truth.MOTOR='03012020_1717';
-date_time_str_ground_truth.RELATIONAL='03012020_1736';
-date_time_str_ground_truth.SOCIAL_v_REST='08052020_1304';
-%date_time_str_ground_truth.SOCIAL='03012020_1733';
-date_time_str_ground_truth.WM='03012020_1709';
+date_time_str_ground_truth.EMOTION_v_REST='10192020_1537'; % with new networks
+date_time_str_ground_truth.GAMBLING_v_REST='10192020_1631';
+date_time_str_ground_truth.LANGUAGE_v_REST='10192020_1642';
+date_time_str_ground_truth.MOTOR_v_REST='10192020_1649';
+date_time_str_ground_truth.RELATIONAL_v_REST='11112020_1345';
+% date_time_str_ground_truth.RELATIONAL_v_REST='09232020_0036';
+date_time_str_ground_truth.SOCIAL_v_REST='10192020_1656';
+date_time_str_ground_truth.WM_v_REST='10192020_1714';
 date_time_str_ground_truth.REST_v_REST2='03012020_1709';
 
+% these are old ground truth without updated net/all summaries
+% %date_time_str_ground_truth.EMOTION_v_REST='03012020_1722';
+% date_time_str_ground_truth.EMOTION_v_REST='09222020_2337'; % with new networks
+% date_time_str_ground_truth.GAMBLING_v_REST='03012020_1652';
+% date_time_str_ground_truth.LANGUAGE_v_REST='03012020_1704';
+% date_time_str_ground_truth.MOTOR_v_REST='03012020_1717';
+% date_time_str_ground_truth.RELATIONAL_v_REST='03012020_1736';
+% date_time_str_ground_truth.SOCIAL_v_REST='10192020_1656';
+% % date_time_str_ground_truth.SOCIAL_v_REST='08052020_1304';
+% %date_time_str_ground_truth.SOCIAL='03012020_1733';
+% date_time_str_ground_truth.WM_v_REST='03012020_1709';
+% date_time_str_ground_truth.REST_v_REST2='03012020_1709';
+
 switch stat_type
+    case 'FDR'
+        
+        date_time_str_results.EMOTION_v_REST='03032020_1816'; % differences in edges too, plus sub nums
+        date_time_str_results.GAMBLING_v_REST='03022020_1739';
+%         date_time_str_results.LANGUAGE_v_REST='02232020_0317';
+%         date_time_str_results.MOTOR_v_REST='02292020_1853';
+%         date_time_str_results.RELATIONAL_v_REST='02242020_1715';
+%         date_time_str_results.SOCIAL_v_REST='03012020_1942';
+%         date_time_str_results.WM_v_REST='02252020_1931';
     case 'Size_Extent'
-        date_time_str_results.EMOTION='03032020_1816';
-        date_time_str_results.GAMBLING='03022020_1739';
-        date_time_str_results.LANGUAGE='02232020_0317';
-        date_time_str_results.MOTOR='02292020_1853';
-        date_time_str_results.RELATIONAL='02242020_1715';
-        date_time_str_results.SOCIAL_v_REST='08032020_1807';
-        %date_time_str_results.SOCIAL='03012020_1942';
-        date_time_str_results.WM='02252020_1931';
+        
+        % IMPORTANT: these are all just copies of the originally named
+        % summaries, just with _v_REST appended (e.g., EMOTION ->
+        % EMOTION_v_REST)
+        date_time_str_results.EMOTION_v_REST='03032020_1816'; % differences in edges too, plus sub nums
+        date_time_str_results.GAMBLING_v_REST='03022020_1739';
+        date_time_str_results.LANGUAGE_v_REST='02232020_0317';
+        date_time_str_results.MOTOR_v_REST='02292020_1853';
+        date_time_str_results.RELATIONAL_v_REST='02242020_1715';
+        date_time_str_results.SOCIAL_v_REST='03012020_1942';
+        date_time_str_results.WM_v_REST='02252020_1931';
+        
+%         date_time_str_results.EMOTION='03032020_1816';
+%         date_time_str_results.GAMBLING='03022020_1739';
+%         date_time_str_results.LANGUAGE='02232020_0317';
+%         date_time_str_results.MOTOR='02292020_1853';
+%         date_time_str_results.RELATIONAL='02242020_1715';
+%         date_time_str_results.SOCIAL_v_REST='08032020_1807'; % only for 80 subs, no summary yet
+%         %date_time_str_results.SOCIAL='03012020_1942';
+%         date_time_str_results.WM='02252020_1931';
         date_time_str_results.REST_v_REST2='08062020_0932';
     case 'TFCE'
-        date_time_str_results.EMOTION='03042020_0355';
-        date_time_str_results.GAMBLING='03032020_0007';
-        date_time_str_results.LANGUAGE='02242020_1327';
-        date_time_str_results.MOTOR='03012020_0101';
-        date_time_str_results.RELATIONAL='02252020_0829';
-        date_time_str_results.SOCIAL_v_REST='08042020_0119';
-        %date_time_str_results.SOCIAL='03022020_0203';
-        date_time_str_results.WM='02262020_0139';
-        date_time_str_results.REST_v_REST2='08062020_0519';
+        date_time_str_results.EMOTION_v_REST='03042020_0355';
+        date_time_str_results.GAMBLING_v_REST='03032020_0007';
+        date_time_str_results.LANGUAGE_v_REST='02242020_1327';
+        date_time_str_results.MOTOR_v_REST='03012020_0101';
+        date_time_str_results.RELATIONAL_v_REST='02252020_0829';
+        date_time_str_results.SOCIAL_v_REST='03022020_0203';
+        date_time_str_results.WM_v_REST='02262020_0139';
+        
+%         date_time_str_results.EMOTION='03042020_0355';
+%         date_time_str_results.GAMBLING='03032020_0007';
+%         date_time_str_results.LANGUAGE='02242020_1327';
+%         date_time_str_results.MOTOR='03012020_0101';
+%         date_time_str_results.RELATIONAL='02252020_0829';
+%         date_time_str_results.SOCIAL_v_REST='08042020_0119'; <- grsize 80
+%         %date_time_str_results.SOCIAL='03022020_0203';
+%         date_time_str_results.WM='02262020_0139';
+%         date_time_str_results.REST_v_REST2='08062020_0519'; % I don't think this exists...
     case 'Constrained'
-        date_time_str_results.EMOTION='03042020_0724';
-        date_time_str_results.GAMBLING='03032020_0332';
-        date_time_str_results.LANGUAGE='02242020_0355';
-        date_time_str_results.MOTOR='03012020_0417';
-        date_time_str_results.RELATIONAL='02252020_1519';
-        date_time_str_results.SOCIAL_v_REST='08042020_0504';
-        %date_time_str_results.SOCIAL='03022020_0531';
-        date_time_str_results.WM='02262020_0457';
-        date_time_str_results.REST_v_REST2='08052020_2143';
+        date_time_str_results.EMOTION_v_REST='03042020_0724';
+        date_time_str_results.GAMBLING_v_REST='03032020_0332';
+        date_time_str_results.LANGUAGE_v_REST='02242020_0355';
+        date_time_str_results.MOTOR_v_REST='03012020_0417';
+        date_time_str_results.RELATIONAL_v_REST='02252020_1519';
+        date_time_str_results.SOCIAL_v_REST='03022020_0531';
+        date_time_str_results.WM_v_REST='02262020_0457';
+%         date_time_str_results.EMOTION='03042020_0724';
+%         date_time_str_results.GAMBLING='03032020_0332';
+%         date_time_str_results.LANGUAGE='02242020_0355';
+%         date_time_str_results.MOTOR='03012020_0417';
+%         date_time_str_results.RELATIONAL='02252020_1519';
+%         date_time_str_results.SOCIAL_v_REST='08042020_0504'; % this is for grsize 80
+%         %date_time_str_results.SOCIAL='03022020_0531';
+%         date_time_str_results.WM='02262020_0457';
+         date_time_str_results.REST_v_REST2='08052020_2143';
    case 'Omnibus'
        switch omnibus_type
            case 'Multidimensional_cNBS'
-            date_time_str_results.EMOTION_v_REST='testing_09082020_1425';
+              date_time_str_results.EMOTION_v_REST='09112020_1539';
+              %date_time_str_results.EMOTION_v_REST='testing_09082020_1425';
 %             date_time_str_results.GAMBLING='03032020_0332';
 %             date_time_str_results.LANGUAGE='02242020_0355';
 %             date_time_str_results.MOTOR='03012020_0417';
@@ -58,8 +107,11 @@ switch stat_type
 %             %date_time_str_results.SOCIAL='03022020_0531';
 %             date_time_str_results.WM='02262020_0457';
 %             date_time_str_results.REST_v_REST2='08052020_2143';
-            case 'Threshold_Both_Dir'
-                date_time_str_results.EMOTION_v_REST='testing_09082020_1424';
+           case 'Multidimensional_all_edges'
+                date_time_str_results.EMOTION_v_REST='09132020_0021'; 
+           case 'Threshold_Both_Dir'
+                date_time_str_results.EMOTION_v_REST='09102020_0244';
+                %date_time_str_results.EMOTION_v_REST='testing_09082020_1424';
            otherwise
                 error('Omnibus type not defined');
        end
@@ -71,48 +123,127 @@ end
 
 %% Plot params
 
-% x and y axis limits for esz and tpr plots
-ax_xmin=-2; ax_xmax=2;
-ax_ymin=0; ax_ymax_esz=0.1; ax_ymax_tp=100;
-ax_xmin_delta=-1.5; ax_xmax_delta=1.5; ax_ymax_esz_delta=0.25; % special for delta
-% ax_xmin=-2.5; ax_xmax=2.5;
-% ax_ymin=0; ax_ymax_esz=0.15; ax_ymax_tp=100; 
+% descrip for levels of summary
+pp.scaling_str{1}='_by_edges';
+pp.scaling_str{2}='_by_networks';
 
 % font
-fontsz=25;
+pp.fontsz=25;
 
-% smoothing factor for spline
-spline_smoothing=0.995;
-spline_smoothing_set=0.99995;
+% spline parameters
+pp.window_sz{1}=0.01;
+pp.spline_smoothing{1}=0.995;
+pp.window_sz{2}=0.5;
+pp.spline_smoothing{2}=0.999995;
 
-% histograms params (keep an eye out for NAN/empty bins)
-bin_width=0.07;
-nbins=ceil((ax_xmax-ax_xmin)/bin_width);
-% nbins=75; % this fits for the narrower x-axis, 60 for larger axis
-bin_width_at_summary_thresh=0.1;
-bin_width_at_summary_thresh__network=0.1;
-% half_bin_width=bin_width/2; % ad hoc bin size for 
-
-% effect size thresholds
-thresh_small=0.2; thresh_med=0.5; thresh_large=0.8;
-
-% for visualizing residuals
-n_std_residual_outlier=2;
-
-% color limits
-
-clim=[-thresh_med, thresh_med];
+% axis limits (used for histogram counting too)
+pp.ax_ymin=0;
+pp.ax_ymax_tp=100;
+pp.ax_xmin_delta=-1.5; pp.ax_xmax_delta=1.5; pp.ax_ymax_esz_hist_delta=0.25; % special for delta
+%   - edges
+pp.ax_xmin{1}=-2; pp.ax_xmax{1}=2;
+pp.ax_ymax_esz_hist{1}=0.1;
+% ax_xmin=-2.5; ax_xmax=2.5;
+% ax_ymin=0; ax_ymax_esz_hist=0.15; ax_ymax_tp=100; 
+%   - nets
+pp.ax_xmin{2}=-4; pp.ax_xmax{2}=4;
+pp.ax_ymax_esz_hist{2}=0.5;
 
 if exist('stat_type') % stat_type reserved for benchmarking and stat_type_gt for ground truth - sometimes both are used in one script
     if strcmp(stat_type,'Constrained') || strcmp(stat_type,'SEA')
-        clim_res=[-10,10]; % for N=40
-        clim_res_detailed=[-60,60]; % for N=40
-    else
-        %clim_res=[-0.001,0.001]; % for N=20
-        clim_res=[-0.5,0.5]; % for N=40
-        clim_res_detailed=[-3,3]; % for N=40
+        pp.spline_smoothing{2}=0.99995;
+        pp.window_sz{2}=0.2;
     end
 end
 
-clim_all_tasks=[-0.3,0.3]; % for N=40
-clim_all_tasks_detailed=[-0.5,0.5]; % for N=40
+% histograms params (keep an eye out for NAN/empty bins)
+%   - edges
+pp.bin_width{1}=0.07;
+pp.bin_width_at_summary_thresh{1}=0.1;
+pp.tpr_bin_width{1}=0.2;
+%   - nets
+pp.bin_width{2}=0.9;
+pp.bin_width_at_summary_thresh{2}=1;
+pp.tpr_bin_width{2}=3;
+
+
+% effect size thresholds
+pp.thresh_small=0.2; pp.thresh_med=0.5; pp.thresh_large=0.8;
+
+% for visualizing residuals
+pp.n_std_residual_outlier=2;
+
+% color limits
+pp.clim=[-pp.thresh_med, pp.thresh_med];
+if exist('stat_type') % stat_type reserved for benchmarking and stat_type_gt for ground truth - sometimes both are used in one script
+    if strcmp(stat_type,'Constrained') || strcmp(stat_type,'SEA')
+        pp.clim_res{1}=[-60,60]; % for N=40
+        pp.clim_res{2}=[-10,10]; % for N=40
+    else
+        %clim_res{2}=[-0.001,0.001]; % for N=20
+        pp.clim_res{1}=[-3,3]; % for N=40
+        pp.clim_res{2}=[-0.5,0.5]; % for N=40
+    end
+end
+% clim_all_tasks=[-0.3,0.3]; % for N=40
+% clim_all_tasks_detailed=[-0.5,0.5]; % for N=40
+
+
+
+
+
+
+
+% scaling_str{1}='_by_edges';
+% scaling_str{2}='_by_networks';
+% 
+% % font
+% fontsz=25;
+% 
+% % spline parameters
+% window_sz{1}=0.01;
+% spline_smoothing{1}=0.995;
+% window_sz{2}=1;
+% spline_smoothing{2}=0.99995;
+% 
+% % axis limits (used for histogram counting too)
+% ax_ymin=0;
+% ax_ymax_tp=100;
+% ax_xmin_delta=-1.5; ax_xmax_delta=1.5; ax_ymax_esz_hist_delta=0.25; % special for delta
+% %   - edges
+% ax_xmin{1}=-2; ax_xmax{1}=2;
+% ax_ymax_esz_hist{1}=0.1; % todo: consider renaming?-technically this is counts for each esz
+% % ax_xmin=-2.5; ax_xmax=2.5;
+% % ax_ymin=0; ax_ymax_esz_hist=0.15; ax_ymax_tp=100; 
+% %   - nets
+% ax_xmin{2}=-4; ax_xmax{2}=4;
+% ax_ymax_esz_hist{2}=0.25;
+% 
+% % histograms params (keep an eye out for NAN/empty bins)
+% %   - edges
+% bin_width{1}=0.07;
+% bin_width_at_summary_thresh=0.1;
+% bin_width_at_summary_thresh__network=0.1;
+% %   - nets
+% bin_width{2}=1;
+% 
+% % effect size thresholds
+% thresh_small=0.2; thresh_med=0.5; thresh_large=0.8;
+% 
+% % for visualizing residuals
+% n_std_residual_outlier=2;
+% 
+% % color limits
+% clim=[-thresh_med, thresh_med];
+% if exist('stat_type') % stat_type reserved for benchmarking and stat_type_gt for ground truth - sometimes both are used in one script
+%     if strcmp(stat_type,'Constrained') || strcmp(stat_type,'SEA')
+%         clim_res{1}=[-60,60]; % for N=40
+%         clim_res{2}=[-10,10]; % for N=40
+%     else
+%         %clim_res{2}=[-0.001,0.001]; % for N=20
+%         clim_res{1}=[-3,3]; % for N=40
+%         clim_res{2}=[-0.5,0.5]; % for N=40
+%     end
+% end
+% % clim_all_tasks=[-0.3,0.3]; % for N=40
+% % clim_all_tasks_detailed=[-0.5,0.5]; % for N=40
