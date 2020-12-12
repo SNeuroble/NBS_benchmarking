@@ -322,18 +322,20 @@ for t=1:length(tasks)
             % Do figures and logs for both levels of scaling (edge and network)
             for scaling=1:2
                 
-                % Fit curves for TPR v effect size to all available task data - needed for both visualization and log
-                [tpr_fit{scaling},res_scaled{scaling},dcoeff_windowed{scaling},tpr_windowed{scaling},tpr_windowed_std{scaling},~]=...
-                fit_spline(dcoeff_scaled{scaling},tpr_scaled{scaling},pp.spline_smoothing{scaling},pp.window_sz{scaling});
+                if make_figs || save_log
+                    % Fit curves for TPR v effect size to all available task data - needed for both visualization and log
+                    [tpr_fit{scaling},res_scaled{scaling},dcoeff_windowed{scaling},tpr_windowed{scaling},tpr_windowed_std{scaling},~]=...
+                    fit_spline(dcoeff_scaled{scaling},tpr_scaled{scaling},pp.spline_smoothing{scaling},pp.window_sz{scaling});
                            
-                % Make figs and log
-                if make_figs
-                    save_settings_for_all=visualize_tprs(dcoeff_scaled{scaling},tpr_scaled{scaling},dcoeff_windowed{scaling},tpr_windowed{scaling},tpr_windowed_std{scaling},tpr_fit{scaling},res_scaled{scaling},triu_msk,summary_prefix,pp,scaling,save_figs,save_settings_for_all);
-%                     save_settings_for_all=visualize_tprs(dcoeff_scaled{scaling},tpr_scaled{scaling},dcoeff_windowed{scaling},tpr_windowed{scaling},tpr_windowed_std{scaling},dcoeff_scaled{scaling},tpr_fit{scaling},res_scaled{scaling},res_mat,summary_prefix,pp,scaling,save_figs,save_settings_for_all);
-                end
-                
-                if save_log
-                    save_settings_for_all=write_summary_to_log(dcoeff_windowed{scaling},tpr_windowed{scaling},log_data,summary_prefix,pp,scaling,save_log,save_settings_for_all);
+                    % Make figs and log
+                    if make_figs
+                        save_settings_for_all=visualize_tprs(dcoeff_scaled{scaling},tpr_scaled{scaling},dcoeff_windowed{scaling},tpr_windowed{scaling},tpr_windowed_std{scaling},tpr_fit{scaling},res_scaled{scaling},triu_msk,summary_prefix,pp,scaling,save_figs,save_settings_for_all);
+    %                     save_settings_for_all=visualize_tprs(dcoeff_scaled{scaling},tpr_scaled{scaling},dcoeff_windowed{scaling},tpr_windowed{scaling},tpr_windowed_std{scaling},dcoeff_scaled{scaling},tpr_fit{scaling},res_scaled{scaling},res_mat,summary_prefix,pp,scaling,save_figs,save_settings_for_all);
+                    end
+
+                    if save_log
+                        save_settings_for_all=write_summary_to_log(dcoeff_windowed{scaling},tpr_windowed{scaling},log_data,summary_prefix,pp,scaling,save_log,save_settings_for_all);
+                    end
                 end
                 
 
@@ -429,9 +431,11 @@ if combine_all_tasks
 %             dcoeff_scaled{scaling}=dcoeff_scaled_all{s}{scaling}(:);
 %             tpr_scaled{scaling}=tpr_scaled_all{s}{scaling}(:);
 
-            % Fit curves for TPR v effect size to all available task data - needed for both visualization and log
-            [tpr_fit{scaling},res_scaled{scaling},dcoeff_windowed{scaling},tpr_windowed{scaling},tpr_windowed_std{scaling},~]=...
-            fit_spline(dcoeff_scaled_all{s}{scaling}(:),tpr_scaled_all{s}{scaling}(:),pp.spline_smoothing{scaling},pp.window_sz{scaling});
+            if make_figs || save_log
+                % Fit curves for TPR v effect size to all available task data - needed for both visualization and log
+                [tpr_fit{scaling},res_scaled{scaling},dcoeff_windowed{scaling},tpr_windowed{scaling},tpr_windowed_std{scaling},~]=...
+                fit_spline(dcoeff_scaled_all{s}{scaling}(:),tpr_scaled_all{s}{scaling}(:),pp.spline_smoothing{scaling},pp.window_sz{scaling});
+            end
             
             % Make figs and log
              if make_figs || make_figs__only_combined
