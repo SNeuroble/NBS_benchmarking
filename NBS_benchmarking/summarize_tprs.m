@@ -204,29 +204,30 @@ for t=1:length(tasks)
                 positives=+(pvals_all<str2double(UI.alpha.ui));
                 positives_neg=+(pvals_all_neg<str2double(UI.alpha.ui));
                 
-                % before significance masking, make sure positives are in same space as cluster-level stats
-                if ~isequal(size(positives),size(cluster_stats_all))
-                    if strcmp(UI.statistic_type.ui,'Constrained') || strcmp(UI.statistic_type.ui,'SEA')
-                        error('Something went wrong - this shouldn''t happen anymore, only in old summaries created by old script.')
-                    elseif numel(positives)==numel(cluster_stats_all)
-                        
-                        % reshape positives to matrix to match cluster_stats_all
-                        positives=reshape(positives,n_nodes,n_nodes,n_repetitions);
-                        positives_neg=reshape(positives_neg,n_nodes,n_nodes,n_repetitions);
-                        
-                    elseif strcmp(UI.statistic_type.ui,'Omnibus')
-                        warning('This is ONLY a temporary quick fix for the new omnibus.');
-                        cluster_stats_all=squeeze(cluster_stats_all(1,1,:))';
-                    else
-                        error('Cluster stats and p-value dimensions don''t match. We can only fix this in two ways and they must have failed.')
-                    end
-                end
+                % removed this and cluster_stats_sig* calculation below since not used for now (why weight the positives by the effect size? don't we just care about the positives?)
+%                 % before significance masking, make sure positives are in same space as cluster-level stats
+%                 if ~isequal(size(positives),size(cluster_stats_all))
+%                     if strcmp(UI.statistic_type.ui,'Constrained') || strcmp(UI.statistic_type.ui,'SEA')
+%                         error('Something went wrong - this shouldn''t happen anymore, only in old summaries created by old script.')
+%                     elseif numel(positives)==numel(cluster_stats_all)
+%                         
+%                         % reshape positives to matrix to match cluster_stats_all
+%                         positives=reshape(positives,n_nodes,n_nodes,n_repetitions);
+%                         positives_neg=reshape(positives_neg,n_nodes,n_nodes,n_repetitions);
+%                         
+%                     elseif strcmp(UI.statistic_type.ui,'Omnibus')
+%                         warning('This is ONLY a temporary quick fix for the new omnibus.');
+%                         cluster_stats_all=squeeze(cluster_stats_all(1,1,:))';
+%                     else
+%                         error('Cluster stats and p-value dimensions don''t match. We can only fix this in two ways and they must have failed.')
+%                     end
+%                 end
                 
                 % summarize positives, and mask with cluster_stats (all and significant-only)
                 positives_total=sum(positives,length(size(positives)));
                 positives_total_neg=sum(positives_neg,length(size(positives)));
 
-                % removed bc this doesn't seem useful for now (why weight the positives by the effect size? don't we just care about the positives?)
+                % again, removed bc not used for now (see above)
 %                 cluster_stats_sig_all=cluster_stats_all.*positives;
 %                 cluster_stats_sig_summary.mean=mean(cluster_stats_sig_all,n_dim__cluster_stats_all);
 %                 cluster_stats_sig_summary.std=std(cluster_stats_sig_all,0,n_dim__cluster_stats_all);
