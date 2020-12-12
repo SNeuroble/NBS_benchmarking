@@ -185,11 +185,15 @@ for t=1:length(tasks)
             if summarize_benchmarking
                 
                 load(results_filename);
-                size_cluster_stats_all=size(cluster_stats_all);
                 n_repetitions=rep_params.n_repetitions;
-                n_dim__cluster_stats_all=length(size_cluster_stats_all); %note that matrices may have different sizes, so we summarize over the last dimension)
+                                
+                % get positives and summarize
+                positives=+(pvals_all<str2double(UI.alpha.ui));
+                positives_neg=+(pvals_all_neg<str2double(UI.alpha.ui));
+                positives_total=sum(positives,length(size(positives)));
+                positives_total_neg=sum(positives_neg,length(size(positives)));
                 
-                % summarize edge and cluster stats
+                % summarize edge and cluster stats (saved but not currently used in visualization/log)
                 edge_stats_summary.mean=mean(edge_stats_all,length(size(edge_stats_all)));
                 edge_stats_summary.std=std(edge_stats_all,0,length(size(edge_stats_all)));
                 edge_stats_summary_neg.mean=mean(edge_stats_all_neg,length(size(edge_stats_all_neg)));
@@ -200,34 +204,25 @@ for t=1:length(tasks)
                 cluster_stats_summary_neg.mean=mean(cluster_stats_all_neg,length(size(cluster_stats_all_neg)));
                 cluster_stats_summary_neg.std=std(cluster_stats_all_neg,0,length(size(cluster_stats_all_neg)));
                 
-                % get positives
-                positives=+(pvals_all<str2double(UI.alpha.ui));
-                positives_neg=+(pvals_all_neg<str2double(UI.alpha.ui));
-                
-                % removed this and cluster_stats_sig* calculation below since not used for now (why weight the positives by the effect size? don't we just care about the positives?)
-%                 % before significance masking, make sure positives are in same space as cluster-level stats
+                % REMOVED for now since not used yet: get positive statistic values at every repetition
+%                 % make sure positives are in same space as cluster-level stats
+%                 size_cluster_stats_all=size(cluster_stats_all);
+%                 n_dim__cluster_stats_all=length(size_cluster_stats_all); %note that matrices may have different sizes, so we summarize over the last dimension)
 %                 if ~isequal(size(positives),size(cluster_stats_all))
 %                     if strcmp(UI.statistic_type.ui,'Constrained') || strcmp(UI.statistic_type.ui,'SEA')
 %                         error('Something went wrong - this shouldn''t happen anymore, only in old summaries created by old script.')
 %                     elseif numel(positives)==numel(cluster_stats_all)
-%                         
 %                         % reshape positives to matrix to match cluster_stats_all
 %                         positives=reshape(positives,n_nodes,n_nodes,n_repetitions);
 %                         positives_neg=reshape(positives_neg,n_nodes,n_nodes,n_repetitions);
-%                         
 %                     elseif strcmp(UI.statistic_type.ui,'Omnibus')
 %                         warning('This is ONLY a temporary quick fix for the new omnibus.');
 %                         cluster_stats_all=squeeze(cluster_stats_all(1,1,:))';
-%                     else
-%                         error('Cluster stats and p-value dimensions don''t match. We can only fix this in two ways and they must have failed.')
+%                     else; error('Cluster stats and p-value dimensions don''t match. We can only fix this in two ways and they must have failed.')
 %                     end
-%                 end
-                
-                % summarize positives, and mask with cluster_stats (all and significant-only)
-                positives_total=sum(positives,length(size(positives)));
-                positives_total_neg=sum(positives_neg,length(size(positives)));
-
-                % again, removed bc not used for now (see above)
+%                 end 
+% 
+%                 % mask stats at every repetition by whether positivs 
 %                 cluster_stats_sig_all=cluster_stats_all.*positives;
 %                 cluster_stats_sig_summary.mean=mean(cluster_stats_sig_all,n_dim__cluster_stats_all);
 %                 cluster_stats_sig_summary.std=std(cluster_stats_sig_all,0,n_dim__cluster_stats_all);
