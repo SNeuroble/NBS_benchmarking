@@ -225,14 +225,15 @@ for t=1:length(tasks)
                 % summarize positives, and mask with cluster_stats (all and significant-only)
                 positives_total=sum(positives,length(size(positives)));
                 positives_total_neg=sum(positives_neg,length(size(positives)));
-                
-                cluster_stats_sig_all=cluster_stats_all.*positives; % why weight the positives by the effect size? don't we just care about the positives?
-                cluster_stats_sig_summary.mean=mean(cluster_stats_sig_all,n_dim__cluster_stats_all);
-                cluster_stats_sig_summary.std=std(cluster_stats_sig_all,0,n_dim__cluster_stats_all);
-                
-                cluster_stats_sig_all_neg=cluster_stats_all_neg.*positives_neg;
-                cluster_stats_sig_summary_neg.mean=mean(cluster_stats_sig_all_neg,n_dim__cluster_stats_all);
-                cluster_stats_sig_summary_neg.std=std(cluster_stats_sig_all_neg,0,n_dim__cluster_stats_all);
+
+                % removed bc this doesn't seem useful for now (why weight the positives by the effect size? don't we just care about the positives?)
+%                 cluster_stats_sig_all=cluster_stats_all.*positives;
+%                 cluster_stats_sig_summary.mean=mean(cluster_stats_sig_all,n_dim__cluster_stats_all);
+%                 cluster_stats_sig_summary.std=std(cluster_stats_sig_all,0,n_dim__cluster_stats_all);
+%                 
+%                 cluster_stats_sig_all_neg=cluster_stats_all_neg.*positives_neg;
+%                 cluster_stats_sig_summary_neg.mean=mean(cluster_stats_sig_all_neg,n_dim__cluster_stats_all);
+%                 cluster_stats_sig_summary_neg.std=std(cluster_stats_sig_all_neg,0,n_dim__cluster_stats_all);
                 
                 % double check FWER calculation
                 if strcmp(UI.statistic_type.ui,'Constrained') || strcmp(UI.statistic_type.ui,'SEA') || strcmp(UI.statistic_type.ui,'Omnibus')
