@@ -44,8 +44,8 @@ omnibus_type_gt='Multidimensional_all_edges';
 %%%%% DEVELOPERS ONLY %%%%%
 % Use a small subset of perms for faster development - inappropriate for inference
 
-testing=0;
+testing=1;
 test_n_perms=10;
-test_n_repetitions=10;
-test_n_workers=0;
+test_n_repetitions=2;
+test_n_workers=2;
 
