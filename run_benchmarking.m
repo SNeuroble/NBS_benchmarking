@@ -132,11 +132,11 @@ for this_repetition=1:rep_params.n_repetitions
                 this_file_task1 = [data_dir,this_task1,'/',subIDs{ids_thisrep(i)},'_',this_task1,'_GSR_matrix.txt'];
                 d=importdata(this_file_task1);
                 d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
-                m_test(:,i) = d(trimask);
+                m_test(:,i) = d(triumask);
                 this_file_task2 = [data_dir,this_task2,'/',subIDs{ids_thisrep(i)},'_',this_task2,'_GSR_matrix.txt'];
                 d=importdata(this_file_task2);
                 d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
-                m_test(:,n_subs_subset+i) = d(trimask);
+                m_test(:,n_subs_subset+i) = d(triumask);
                 
             end
             
@@ -157,13 +157,13 @@ for this_repetition=1:rep_params.n_repetitions
                 this_file_task1 = [data_dir,this_task1,'/',subIDs{ids_thisrep(i)},'_',this_task1,'_GSR_matrix.txt'];
                 d=importdata(this_file_task1);
                 d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
-                m_test(:,i) = d(trimask);
+                m_test(:,i) = d(triumask);
             end
             for i = n_subs_subset+1:n_subs_subset*2
                 this_file_task2 = [data_dir,this_task2,'/',subIDs{ids_thisrep(i)},'_',this_task2,'_GSR_matrix.txt'];
                 d=importdata(this_file_task2);
                 d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
-                m_test(:,i) = d(trimask);
+                m_test(:,i) = d(triumask);
             end
         end
     else
@@ -181,7 +181,7 @@ for this_repetition=1:rep_params.n_repetitions
             this_file_task1 = [data_dir,task1,'/',subIDs{ids_thisrep(i)},'_',task1,'_GSR_matrix.txt'];
             d=importdata(this_file_task1);
             d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
-            m_test(:,i) = task_flipper * d(trimask);
+            m_test(:,i) = task_flipper * d(triumask);
         end
     end
     %m_test=m(:,ids_sampled(:,this_repetition)); % TEST
@@ -219,10 +219,10 @@ for this_repetition=1:rep_params.n_repetitions
 
     % record everything
     if strcmp(cluster_stat_type,'FDR')
-        edge_stats_all(:,this_repetition)=nbs.NBS.test_stat(trimask);
+        edge_stats_all(:,this_repetition)=nbs.NBS.test_stat(triumask);
         pvals_all(:,this_repetition)=nbs.NBS.con_mat{1}(:); % Note: this represents significant edges, not p-values
         
-        edge_stats_all_neg(:,this_repetition)=nbs_neg.NBS.test_stat(trimask);
+        edge_stats_all_neg(:,this_repetition)=nbs_neg.NBS.test_stat(triumask);
         pvals_all_neg(:,this_repetition)=nbs_neg.NBS.con_mat{1}(:);  % Note: this represents significant edges, not p-values
 
     else
