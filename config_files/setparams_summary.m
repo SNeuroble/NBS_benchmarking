@@ -29,7 +29,7 @@ date_time_str_ground_truth.REST_v_REST2='03012020_1709';
 % date_time_str_ground_truth.WM_v_REST='03012020_1709';
 % date_time_str_ground_truth.REST_v_REST2='03012020_1709';
 
-switch mount_origin
+switch data_origin
 case 'mrrc'
     switch stat_type
         case 'FDR'
@@ -128,11 +128,11 @@ case 'farnam'
         case 'FDR'
         case 'Size_Extent'
             if grsize==80
-                date_time_str_results.EMOTION_v_REST='03032020_1816';
+                date_time_str_results.EMOTION_v_REST='12172020_0752';
             end
         case 'TFCE'
             if grsize==80
-                date_time_str_results.EMOTION_v_REST='03032020_1816';
+                date_time_str_results.EMOTION_v_REST='12172020_1731';
             end
         case 'Constrained'
             if grsize==80
