@@ -239,7 +239,7 @@ for this_repetition=1:rep_params.n_repetitions
         else
             cluster_stats_all(:,:,this_repetition)=full(nbs.NBS.cluster_stats);
             cluster_stats_all_neg(:,:,this_repetition)=full(nbs_neg.NBS.cluster_stats);
-        else
+        end
     end
 
 end
