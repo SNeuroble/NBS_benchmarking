@@ -1,4 +1,6 @@
-% set params for summary
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Set parameters for summary
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Task params
 
@@ -9,7 +11,6 @@ date_time_str_ground_truth.GAMBLING_v_REST='10192020_1631';
 date_time_str_ground_truth.LANGUAGE_v_REST='10192020_1642';
 date_time_str_ground_truth.MOTOR_v_REST='10192020_1649';
 date_time_str_ground_truth.RELATIONAL_v_REST='11112020_1345';
-% date_time_str_ground_truth.RELATIONAL_v_REST='09232020_0036';
 date_time_str_ground_truth.SOCIAL_v_REST='10192020_1656';
 date_time_str_ground_truth.WM_v_REST='10192020_1714';
 date_time_str_ground_truth.REST_v_REST2='03012020_1709';
@@ -21,104 +22,125 @@ date_time_str_ground_truth.REST_v_REST2='03012020_1709';
 % date_time_str_ground_truth.LANGUAGE_v_REST='03012020_1704';
 % date_time_str_ground_truth.MOTOR_v_REST='03012020_1717';
 % date_time_str_ground_truth.RELATIONAL_v_REST='03012020_1736';
+% date_time_str_ground_truth.RELATIONAL_v_REST='09232020_0036';
 % date_time_str_ground_truth.SOCIAL_v_REST='10192020_1656';
 % % date_time_str_ground_truth.SOCIAL_v_REST='08052020_1304';
 % %date_time_str_ground_truth.SOCIAL='03012020_1733';
 % date_time_str_ground_truth.WM_v_REST='03012020_1709';
 % date_time_str_ground_truth.REST_v_REST2='03012020_1709';
 
-switch stat_type
-    case 'FDR'
+switch mount_origin
+case 'mrrc'
+    switch stat_type
+        case 'FDR'
+            if grsize==80
+                date_time_str_results.LANGUAGE_v_REST='12102020_1655';
+                date_time_str_results.EMOTION_v_REST='03032020_1816'; % differences in edges too, plus sub nums
+                date_time_str_results.GAMBLING_v_REST='03022020_1739';
+            end
+%             date_time_str_results.LANGUAGE_v_REST='02232020_0317';
+%             date_time_str_results.MOTOR_v_REST='02292020_1853';
+%             date_time_str_results.RELATIONAL_v_REST='02242020_1715';
+%             date_time_str_results.SOCIAL_v_REST='03012020_1942';
+%             date_time_str_results.WM_v_REST='02252020_1931';
+    
+        case 'Size_Extent'
+
+            % IMPORTANT: these are all just copies of the originally named
+            % summaries, just with _v_REST appended (e.g., EMOTION ->
+            % EMOTION_v_REST)
+            if grsize==40
+                date_time_str_results.EMOTION_v_REST='03032020_1816'; % differences in edges too, plus sub nums
+                date_time_str_results.GAMBLING_v_REST='03022020_1739';
+                date_time_str_results.LANGUAGE_v_REST='02232020_0317';
+                date_time_str_results.MOTOR_v_REST='02292020_1853';
+                date_time_str_results.RELATIONAL_v_REST='02242020_1715';
+                date_time_str_results.SOCIAL_v_REST='03012020_1942';
+                date_time_str_results.WM_v_REST='02252020_1931';
+                date_time_str_results.REST_v_REST2='08062020_0932';
+            elseif grsize==80
+                date_time_str_results.SOCIAL_v_REST='08032020_1807'; % no summary yet
+            end
+
+        case 'TFCE'
+            if grsize==40
+                date_time_str_results.EMOTION_v_REST='03042020_0355';
+                date_time_str_results.GAMBLING_v_REST='03032020_0007';
+                date_time_str_results.LANGUAGE_v_REST='02242020_1327';
+                date_time_str_results.MOTOR_v_REST='03012020_0101';
+                date_time_str_results.RELATIONAL_v_REST='02252020_0829';
+                date_time_str_results.SOCIAL_v_REST='03022020_0203';
+                date_time_str_results.WM_v_REST='02262020_0139';
+%                 date_time_str_results.REST_v_REST2='08062020_0519'; % I don't think this exists...
         
-        date_time_str_results.EMOTION_v_REST='03032020_1816'; % differences in edges too, plus sub nums
-        date_time_str_results.GAMBLING_v_REST='03022020_1739';
-%         date_time_str_results.LANGUAGE_v_REST='02232020_0317';
-%         date_time_str_results.MOTOR_v_REST='02292020_1853';
-%         date_time_str_results.RELATIONAL_v_REST='02242020_1715';
-%         date_time_str_results.SOCIAL_v_REST='03012020_1942';
-%         date_time_str_results.WM_v_REST='02252020_1931';
-    case 'Size_Extent'
-        
-        % IMPORTANT: these are all just copies of the originally named
-        % summaries, just with _v_REST appended (e.g., EMOTION ->
-        % EMOTION_v_REST)
-        date_time_str_results.EMOTION_v_REST='03032020_1816'; % differences in edges too, plus sub nums
-        date_time_str_results.GAMBLING_v_REST='03022020_1739';
-        date_time_str_results.LANGUAGE_v_REST='02232020_0317';
-        date_time_str_results.MOTOR_v_REST='02292020_1853';
-        date_time_str_results.RELATIONAL_v_REST='02242020_1715';
-        date_time_str_results.SOCIAL_v_REST='03012020_1942';
-        date_time_str_results.WM_v_REST='02252020_1931';
-        
-%         date_time_str_results.EMOTION='03032020_1816';
-%         date_time_str_results.GAMBLING='03022020_1739';
-%         date_time_str_results.LANGUAGE='02232020_0317';
-%         date_time_str_results.MOTOR='02292020_1853';
-%         date_time_str_results.RELATIONAL='02242020_1715';
-%         date_time_str_results.SOCIAL_v_REST='08032020_1807'; % only for 80 subs, no summary yet
-%         %date_time_str_results.SOCIAL='03012020_1942';
-%         date_time_str_results.WM='02252020_1931';
-        date_time_str_results.REST_v_REST2='08062020_0932';
-    case 'TFCE'
-        date_time_str_results.EMOTION_v_REST='03042020_0355';
-        date_time_str_results.GAMBLING_v_REST='03032020_0007';
-        date_time_str_results.LANGUAGE_v_REST='02242020_1327';
-        date_time_str_results.MOTOR_v_REST='03012020_0101';
-        date_time_str_results.RELATIONAL_v_REST='02252020_0829';
-        date_time_str_results.SOCIAL_v_REST='03022020_0203';
-        date_time_str_results.WM_v_REST='02262020_0139';
-        
-%         date_time_str_results.EMOTION='03042020_0355';
-%         date_time_str_results.GAMBLING='03032020_0007';
-%         date_time_str_results.LANGUAGE='02242020_1327';
-%         date_time_str_results.MOTOR='03012020_0101';
-%         date_time_str_results.RELATIONAL='02252020_0829';
-%         date_time_str_results.SOCIAL_v_REST='08042020_0119'; <- grsize 80
-%         %date_time_str_results.SOCIAL='03022020_0203';
-%         date_time_str_results.WM='02262020_0139';
-%         date_time_str_results.REST_v_REST2='08062020_0519'; % I don't think this exists...
-    case 'Constrained'
-        date_time_str_results.EMOTION_v_REST='03042020_0724';
-        date_time_str_results.GAMBLING_v_REST='03032020_0332';
-        date_time_str_results.LANGUAGE_v_REST='02242020_0355';
-        date_time_str_results.MOTOR_v_REST='03012020_0417';
-        date_time_str_results.RELATIONAL_v_REST='02252020_1519';
-        date_time_str_results.SOCIAL_v_REST='03022020_0531';
-        date_time_str_results.WM_v_REST='02262020_0457';
-%         date_time_str_results.EMOTION='03042020_0724';
-%         date_time_str_results.GAMBLING='03032020_0332';
-%         date_time_str_results.LANGUAGE='02242020_0355';
-%         date_time_str_results.MOTOR='03012020_0417';
-%         date_time_str_results.RELATIONAL='02252020_1519';
-%         date_time_str_results.SOCIAL_v_REST='08042020_0504'; % this is for grsize 80
-%         %date_time_str_results.SOCIAL='03022020_0531';
-%         date_time_str_results.WM='02262020_0457';
-         date_time_str_results.REST_v_REST2='08052020_2143';
-   case 'Omnibus'
-       switch omnibus_type
-           case 'Multidimensional_cNBS'
-              date_time_str_results.EMOTION_v_REST='09112020_1539';
-              %date_time_str_results.EMOTION_v_REST='testing_09082020_1425';
-%             date_time_str_results.GAMBLING='03032020_0332';
-%             date_time_str_results.LANGUAGE='02242020_0355';
-%             date_time_str_results.MOTOR='03012020_0417';
-%             date_time_str_results.RELATIONAL='02252020_1519';
-%             date_time_str_results.SOCIAL_v_REST='08042020_0504';
-%             %date_time_str_results.SOCIAL='03022020_0531';
-%             date_time_str_results.WM='02262020_0457';
-%             date_time_str_results.REST_v_REST2='08052020_2143';
-           case 'Multidimensional_all_edges'
-                date_time_str_results.EMOTION_v_REST='09132020_0021'; 
-           case 'Threshold_Both_Dir'
-                date_time_str_results.EMOTION_v_REST='09102020_0244';
-                %date_time_str_results.EMOTION_v_REST='testing_09082020_1424';
-           otherwise
-                error('Omnibus type not defined');
-       end
-    case 'NA'
-        % okay, trusting that won't need to set a benchmarking stat_type, e.g., not needed for running ground truth
-    otherwise
-        error('Stat type not defined');
+            elseif grsize==80
+                date_time_str_results.SOCIAL_v_REST='08042020_0119';
+            end
+
+        case 'Constrained'
+            if grsize==40
+                date_time_str_results.EMOTION_v_REST='03042020_0724';
+                date_time_str_results.GAMBLING_v_REST='03032020_0332';
+                date_time_str_results.LANGUAGE_v_REST='02242020_0355';
+                date_time_str_results.MOTOR_v_REST='03012020_0417';
+                date_time_str_results.RELATIONAL_v_REST='02252020_1519';
+                date_time_str_results.SOCIAL_v_REST='03022020_0531';
+                date_time_str_results.WM_v_REST='02262020_0457';
+                date_time_str_results.REST_v_REST2='08052020_2143';
+            elseif grsize==80
+                date_time_str_results.SOCIAL_v_REST='08042020_0504';
+            end
+
+       case 'Omnibus'
+           switch omnibus_type
+               case 'Multidimensional_cNBS'
+                  if grsize==80
+                    date_time_str_results.EMOTION_v_REST='09112020_1539';
+%                     date_time_str_results.GAMBLING='03032020_0332';
+%                     date_time_str_results.LANGUAGE='02242020_0355';
+%                     date_time_str_results.MOTOR='03012020_0417';
+%                     date_time_str_results.RELATIONAL='02252020_1519';
+%                     date_time_str_results.SOCIAL_v_REST='08042020_0504';
+%                     %date_time_str_results.SOCIAL='03022020_0531';
+%                     date_time_str_results.WM='02262020_0457';
+%                     date_time_str_results.REST_v_REST2='08052020_2143';
+                  end
+                  
+               case 'Multidimensional_all_edges'
+                   if grsize==80
+                       date_time_str_results.EMOTION_v_REST='09132020_0021';
+                   end
+               case 'Threshold_Both_Dir'
+                   if grsize==80
+                       date_time_str_results.EMOTION_v_REST='09102020_0244';
+                   end
+               otherwise
+                    error('Omnibus type not defined');
+           end
+        case 'NA'
+            % okay, trusting that won't need to set a benchmarking stat_type, e.g., not needed for running ground truth
+        otherwise
+            error('Stat type not defined');
+    end
+    
+case 'farnam'
+    switch stat_type
+        case 'FDR'
+        case 'Size_Extent'
+            if grsize==80
+                date_time_str_results.EMOTION_v_REST='03032020_1816';
+            end
+        case 'TFCE'
+            if grsize==80
+                date_time_str_results.EMOTION_v_REST='03032020_1816';
+            end
+        case 'Constrained'
+            if grsize==80
+                date_time_str_results.EMOTION_v_REST='03032020_1816';
+            end
+        case 'Omnibus'
+    end
+                    
 end
 
 %% Plot params
