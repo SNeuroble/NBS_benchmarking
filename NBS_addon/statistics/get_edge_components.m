@@ -12,7 +12,7 @@ end
 if bgl==1 % check for graphics library
     [node_assignments,sz_components_in_nodes]=components(adj);
 else
-    [node_assignments,sz_components_in_nodes]=get_components(adj);
+    [node_assignments,sz_components_in_nodes]=get_components2(adj);
 end
 
 % Get component size in number of edges and find max copmonent size

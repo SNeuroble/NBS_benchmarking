@@ -61,7 +61,7 @@ n_elements = length(img(:));
 %   cc.NumObjects = number of components (for each dh)
 if is_graph
     % network components - ONLY works for upper triangular input
-    [comps,comp_sizes] = arrayfun(@(x) get_components(bsxfun(@ge,img,x),1), threshs);
+    [comps,comp_sizes] = arrayfun(@(x) get_components2(bsxfun(@ge,img,x),1), threshs);
     cc = arrayfun(@(x) get_component_IDs(bsxfun(@ge,img,threshs(x)),comps{x},comp_sizes{x}), [1:ndh]);
 else
     % image components
