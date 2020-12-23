@@ -20,13 +20,16 @@ case 'smn33'
     case 'mrrc'
         data_dir='/data15/mri_group/smn33_data/hcp_1200/matrices/'; % symlink to '/mnt/dustin/data/S1200/matrices/S1200/matrices/'
         output_dir='/data15/mri_group/smn33_data/NBS_benchmarking_results/';
-    case 'farnam'
-        data_dir='/home/smn33/project/';
-        output_dir='/home/smn33/data_tmp/';
-    end
-    nbs_dir='/mridata2/home2/smn33/scripts/NBS1.2';
-    other_scripts_dir='/mridata2/home2/smn33/scripts/matlab/myscripts/general_mri_new/general_mri'; 
+	nbs_dir='/mridata2/home2/smn33/scripts/NBS1.2';
+    	other_scripts_dir='/mridata2/home2/smn33/scripts/matlab/myscripts/general_mri_new/general_mri'; 
 
+    case 'farnam'
+        data_dir='/home/smn33/project/HCP_S1200/';
+        output_dir='/home/smn33/project/benchmarking_results/';
+        nbs_dir='/home/smn33/scripts/NBS1.2';
+   	other_scripts_dir='/home/smn33/scripts/NBS_benchmarking/NBS_benchmarking/support_scripts/'; 
+
+ end
 case 'steph'
     
     switch data_origin
@@ -35,12 +38,12 @@ case 'steph'
         output_dir='/Users/steph/Documents/data/mnt/NBS_benchmarking_results/';
         %output_dir='/Users/steph/Steph-Lab/NBS_benchmarking/results_benchmarking/'; % local results
     case 'farnam'
-        data_dir='/Users/steph/Documents/data/mnt/project/'; % mounted
-        output_dir='/Users/steph/Documents/data/mnt/data_tmp/';
+        data_dir='/Users/steph/Documents/data/mnt/project/HCP_S1200/'; % mounted
+        output_dir='/Users/steph/Documents/data/mnt/project/benchmarking_results/';
     end
     
     nbs_dir='/Users/steph/Steph-Lab/Misc/Software/scripts/Matlab/fmri/NBS1.2';
-    other_scripts_dir='/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/myscripts/NBS_benchmarking/support_scripts/';
+    other_scripts_dir='/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/myscripts/NBS_benchmarking/NBS_benchmarking/support_scripts/';
 
 case 'ubuntu'
     

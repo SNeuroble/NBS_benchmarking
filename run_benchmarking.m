@@ -18,17 +18,7 @@ for stat_id=1:length(all_cluster_stat_types)
 
 tic
 cluster_stat_type=all_cluster_stat_types{stat_id};
-
-% If omnibus, we'll loop through all the specified omnibus types
-if ~strcmp(cluster_stat_type,'Omnibus')
-    all_omnibus_types={NaN};
-end
-
-for omnibus_id=1:length(all_omnibus_types)
-omnibus_type=all_omnibus_types{omnibus_id};
-    
 setup_benchmarking;
-
 
 %% Initialize counters and pre-randomize data
 
@@ -51,11 +41,6 @@ if strcmp(UI.statistic_type.ui,'Constrained') || strcmp(UI.statistic_type.ui,'SE
     cluster_stats_all_neg=zeros(length(unique(edge_groups))-1,1,rep_params.n_repetitions); % minus 1 to not count "zero"
     pvals_all=zeros(length(unique(UI.edge_groups.ui))-1,rep_params.n_repetitions); % minus 1 to not count "zero"
     pvals_all_neg=zeros(length(unique(UI.edge_groups.ui))-1,rep_params.n_repetitions); % minus 1 to not count "zero"
-elseif strcmp(UI.statistic_type.ui,'Omnibus')
-    cluster_stats_all=zeros(1,rep_params.n_repetitions);
-    cluster_stats_all_neg=zeros(1,rep_params.n_repetitions);
-    pvals_all=zeros(1,rep_params.n_repetitions);
-    pvals_all_neg=zeros(1,rep_params.n_repetitions);
 else
     cluster_stats_all=zeros(n_nodes,n_nodes,rep_params.n_repetitions); 
     cluster_stats_all_neg=zeros(n_nodes,n_nodes,rep_params.n_repetitions); 
@@ -106,8 +91,9 @@ fprintf('Starting benchmarking repetitions.\n');
 
 
 
-%parfor (this_repetition=1:rep_params.n_repetitions)
-for this_repetition=1:rep_params.n_repetitions
+parfor (this_repetition=1:rep_params.n_repetitions)
+%parfor (this_repetition=(1+reps_completed_previously):rep_params.n_repetitions)
+%for this_repetition=(1+reps_completed_previously):rep_params.n_repetitions
     fprintf('* Repetition %d - positive contrast\n',this_repetition)
 
     ids_thisrep=ids_sampled(:,this_repetition);
@@ -132,11 +118,11 @@ for this_repetition=1:rep_params.n_repetitions
                 this_file_task1 = [data_dir,this_task1,'/',subIDs{ids_thisrep(i)},'_',this_task1,'_GSR_matrix.txt'];
                 d=importdata(this_file_task1);
                 d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
-                m_test(:,i) = d(triumask);
+                m_test(:,i) = d(trimask);
                 this_file_task2 = [data_dir,this_task2,'/',subIDs{ids_thisrep(i)},'_',this_task2,'_GSR_matrix.txt'];
                 d=importdata(this_file_task2);
                 d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
-                m_test(:,n_subs_subset+i) = d(triumask);
+                m_test(:,n_subs_subset+i) = d(trimask);
                 
             end
             
@@ -157,13 +143,13 @@ for this_repetition=1:rep_params.n_repetitions
                 this_file_task1 = [data_dir,this_task1,'/',subIDs{ids_thisrep(i)},'_',this_task1,'_GSR_matrix.txt'];
                 d=importdata(this_file_task1);
                 d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
-                m_test(:,i) = d(triumask);
+                m_test(:,i) = d(trimask);
             end
             for i = n_subs_subset+1:n_subs_subset*2
                 this_file_task2 = [data_dir,this_task2,'/',subIDs{ids_thisrep(i)},'_',this_task2,'_GSR_matrix.txt'];
                 d=importdata(this_file_task2);
                 d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
-                m_test(:,i) = d(triumask);
+                m_test(:,i) = d(trimask);
             end
         end
     else
@@ -181,7 +167,7 @@ for this_repetition=1:rep_params.n_repetitions
             this_file_task1 = [data_dir,task1,'/',subIDs{ids_thisrep(i)},'_',task1,'_GSR_matrix.txt'];
             d=importdata(this_file_task1);
             d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
-            m_test(:,i) = task_flipper * d(triumask);
+            m_test(:,i) = task_flipper * d(trimask);
         end
     end
     %m_test=m(:,ids_sampled(:,this_repetition)); % TEST
@@ -219,27 +205,20 @@ for this_repetition=1:rep_params.n_repetitions
 
     % record everything
     if strcmp(cluster_stat_type,'FDR')
-        edge_stats_all(:,this_repetition)=nbs.NBS.test_stat(triumask);
+        edge_stats_all(:,this_repetition)=nbs.NBS.test_stat(trimask);
         pvals_all(:,this_repetition)=nbs.NBS.con_mat{1}(:); % Note: this represents significant edges, not p-values
         
-        edge_stats_all_neg(:,this_repetition)=nbs_neg.NBS.test_stat(triumask);
+        edge_stats_all_neg(:,this_repetition)=nbs_neg.NBS.test_stat(trimask);
         pvals_all_neg(:,this_repetition)=nbs_neg.NBS.con_mat{1}(:);  % Note: this represents significant edges, not p-values
-
+        
     else
         edge_stats_all(:,this_repetition)=nbs.NBS.edge_stats;
+        cluster_stats_all(:,:,this_repetition)=full(nbs.NBS.cluster_stats);
         pvals_all(:,this_repetition)=nbs.NBS.pval(:); % TODO: had to vectorize for TFCE... should give all outputs in same format tho 
 
         edge_stats_all_neg(:,this_repetition)=nbs_neg.NBS.edge_stats;
+        cluster_stats_all_neg(:,:,this_repetition)=full(nbs_neg.NBS.cluster_stats);
         pvals_all_neg(:,this_repetition)=nbs_neg.NBS.pval(:); % TODO: same as above
-
-        if strcmp(UI.statistic_type.ui,'Omnibus') % single result for omnibus
-            cluster_stats_all(this_repetition)=full(nbs.NBS.cluster_stats);
-            cluster_stats_all_neg(this_repetition)=full(nbs_neg.NBS.cluster_stats);
-
-        else
-            cluster_stats_all(:,:,this_repetition)=full(nbs.NBS.cluster_stats);
-            cluster_stats_all_neg(:,:,this_repetition)=full(nbs_neg.NBS.cluster_stats);
-        end
     end
 
 end
@@ -260,20 +239,17 @@ if strcmp(UI.statistic_type.ui,'Size'); size_str=['_',UI.size.ui];
 else; size_str='';
 end
 
-if ~isnan(omnibus_type); omnibus_str=['_',omnibus_type]; else omnibus_str=''; end
-
 if testing; test_str='_testing'; else test_str=''; end
 
 if use_both_tasks; condition_str=[rep_params.task1,'_v_',rep_params.task2];
 else; condition_str=rep_params.task1;
 end
 
-output_filename=[output_dir,'results__',condition_str,'_',UI.statistic_type.ui,size_str,omnibus_str,'_grsize',num2str(rep_params.n_subs_subset),test_str,'_',datestr(now,'mmddyyyy_HHMM'),'.mat'];
+output_filename=[output_dir,'results__',condition_str,'_',UI.statistic_type.ui,size_str,'_grsize',num2str(rep_params.n_subs_subset),test_str,'_',datestr(now,'mmddyyyy_HHMM'),'.mat'];
 fprintf('Saving results in %s\n',output_filename)
 save(output_filename,'edge_stats_all','cluster_stats_all','pvals_all','FWER','edge_stats_all_neg','cluster_stats_all_neg','pvals_all_neg','FWER_neg','UI','rep_params','run_time');
 
 % show that results are available in the workspace
 previous_results_filename__already_loaded=output_filename;
 
-end
 end
