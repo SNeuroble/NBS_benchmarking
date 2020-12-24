@@ -354,7 +354,8 @@ switch STATS.statistic_type_numeric
         
             case 7 % Multidimensional null
                 % Calculate Euclidean distance for each permutation from null centroid (assumed zeros)
-                null_stat=sqrt(sum((test_stat).^2));
+                cluster_stats=sqrt(sum((test_stat).^2));
+		null_stat=cluster_stats;
                 
         end
         
