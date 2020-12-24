@@ -22,8 +22,9 @@ function summarize_tprs(varargin)
 
 all_tasks={'EMOTION_v_REST','GAMBLING_v_REST','LANGUAGE_v_REST','MOTOR_v_REST','RELATIONAL_v_REST','SOCIAL_v_REST','WM_v_REST'};
 %all_tasks={'EMOTION','GAMBLING','LANGUAGE','MOTOR','RELATIONAL','SOCIAL','WM'};
-stat_types_default={'Size_Extent','TFCE','Constrained','Omnibus_Threshold_Both_Dir'};
-% omnibus_types_default={''};
+stat_types_default={'Size_Extent','TFCE','Constrained','Omnibus_Multidimensional_cNBS'};
+%stat_types_default={'Size_Extent','TFCE','Constrained','Omnibus_Threshold_Both_Dir','Omnibus_cNBS'};
+omnibus_types_default={''};
 combine_all_tasks_default=0;
 grsize_default=40;
 make_figs_default=1;
@@ -36,7 +37,7 @@ p = inputParser;
 % addRequired(p,'date_time_str_results',@ischar);
 addOptional(p,'tasks',all_tasks);
 addOptional(p,'stat_types',stat_types_default);
-% addOptional(p,'omnibus_types',omnibus_types_default);
+addOptional(p,'omnibus_types',omnibus_types_default);
 addOptional(p,'combine_all_tasks',combine_all_tasks_default);
 addOptional(p,'grsize',grsize_default);
 addOptional(p,'make_figs',make_figs_default);
@@ -53,7 +54,7 @@ save_log=p.Results.save_log;
 save_combined=p.Results.save_combined;
 tasks=p.Results.tasks;
 stat_types=p.Results.stat_types;
-% omnibus_types=p.Results.omnibus_types;
+omnibus_types=p.Results.omnibus_types;
 combine_all_tasks=p.Results.combine_all_tasks;
 % date_time_str_results=p.Results.date_time_str_results;
 grsize=p.Results.grsize;
@@ -91,27 +92,27 @@ fprintf('* Summarizing true positive benchmarking results.\n');
 
 for t=1:length(tasks)
     for s=1:length(stat_types)
-%         for omn=1:length(omnibus_types)
-            
-            % task-/stat-specific setup
-            task=tasks{t};
-            stat_type=stat_types{s};
-%             if contains(stat_type,'Omnibus')
-% %                 omnibus_type=omnibus_types{omn};
-%                 omnibus_str=['_',omnibus_type];
-%             else
-% %                 omnibus_type='';
-%                 omnibus_str='';
-%             end
-            
-            fprintf(['Summarizing TPRs - ',task,'::',stat_type,'\n'])
+
+   
+      % task-/stat-specific setup
+      task=tasks{t};
+      stat_type=stat_types{s};
+
+	 % If omnibus, we'll loop through all the specified omnibus types
+	 if ~strcmp(stat_type,'Omnibus')
+	    omnibus_types={NaN};
+	 end
+
+
+         for omnibus_id=1:length(omnibus_types)
+            omnibus_type=omnibus_types{omnibus_id};
+            if ~isnan(omnibus_type); omnibus_str=['_',omnibus_type]; else omnibus_str=''; end
+         
+            fprintf(['Summarizing TPRs - ',task,'::',stat_type,omnibus_str,'\n'])
             setparams_summary;
             
             ground_truth_results_basename_prefix=['ground_truth__',task,'_',stat_type_gt,'_',date_time_str_ground_truth.(task)];
-            bench_results_basename_prefix=['results__',task,'_',stat_type,'_','grsize',num2str(grsize),'_',date_time_str_results.(task)];
-%             bench_results_basename_prefix=['results__',task,'_',stat_type,omnibus_str,'_','grsize',num2str(grsize),'_',date_time_str_results.(task)];
-            %ground_truth_results_basename_prefix=['nbs_ground_truth__',task,'_',stat_type_gt,'_',date_time_str_ground_truth.(task)];
-            %bench_results_basename_prefix=['nbs_benchmark_results__',task,'_',stat_type,'_','grsize',num2str(grsize),'_',date_time_str_results.(task)];
+            bench_results_basename_prefix=['results__',task,'_',stat_type,omnibus_str,'_','grsize',num2str(grsize),'_',date_time_str_results.(task)];
             
             % set results filenames
             ground_truth_filename=[output_dir,ground_truth_results_basename_prefix,'.mat'];
@@ -119,18 +120,11 @@ for t=1:length(tasks)
             benchmarking_summary_filename=[output_dir,bench_results_basename_prefix,'_summary.mat'];
             
             % set summary prefixes
-            summary_output_dir=[output_dir,task,'_',stat_type,'_summary/'];
-            summary_prefix=[summary_output_dir,'results__',task,'_',stat_type,'_',date_time_str_results.(task)];
-%             summary_output_dir=[output_dir,task,'_',stat_type,omnibus_str,'_summary/'];
-%             summary_prefix=[summary_output_dir,'results__',task,'_',stat_type,omnibus_str,'_',date_time_str_results.(task)];
-            summary_output_dir_gt=[output_dir,task,'_',stat_type_gt,'_summary/'];
-            % ground_truth_summary_prefix=[summary_output_dir_gt,'ground_truth__',task,'_',stat_type_gt,'_',date_time_str_ground_truth.(task)];
-            % ground_truth_summary_prefix=[summary_output_dir_gt,'nbs_ground_truth__',task,'_',stat_type_gt,'_',date_time_str_ground_truth.(task)];
-            %summary_prefix=[summary_output_dir,'nbs_benchmark_results__',task,'_',stat_type,'_',date_time_str_results.(task)];
+            summary_output_dir=[output_dir,task,'_',stat_type,omnibus_str,'_summary/'];
+            summary_prefix=[summary_output_dir,'results__',task,'_',stat_type,omnibus_str,'_','grsize',num2str(grsize),'_',date_time_str_results.(task)];
             
             % make summary output dir
             if ~exist(summary_output_dir,'dir'); mkdir(summary_output_dir); end
-            if ~exist(summary_output_dir_gt,'dir'); mkdir(summary_output_dir_gt); end
             
             % check whether to save, incl overwriting existing
             summarize_benchmarking=1;
@@ -255,7 +249,7 @@ for t=1:length(tasks)
                 load(benchmarking_summary_filename,'positives_total','positives_total_neg','n_repetitions','n_subs_subset','run_time_h','n_perms')
                 [warnmsg,~] = lastwarn;
                 if contains(warnmsg,'Variable ') && contains(warnmsg,'not found.')
-                    error(['Unable to load all necessary variables from ',benchmarking_summary_filename,'.\nPlease check these exist and try again.']);
+                    error(['Unable to load all necessary variables from ',benchmarking_summary_filename,'.\nPlease check these exist and try again. (Recently added grsize to the filename string--check that this is included.)']);
                 end
                 if strcmp(stat_type,'Constrained') || strcmp(stat_type,'SEA') % need for summary in edge_groups
                     load(results_filename,'UI');
@@ -363,12 +357,9 @@ for t=1:length(tasks)
                         end
                     end
                 end
-                
-                
-            
+	    end
         end
     end
-    
 end
 
 
@@ -411,11 +402,9 @@ if combine_all_tasks
 %         bench_results_basename_prefix=['results__',task,'_',stat_type,omnibus_str,'_','grsize',num2str(grsize),'_',date_time_str_now];
         benchmarking_summary_filename=[output_dir,bench_results_basename_prefix,'_summary.mat'];
         
-        % set summary prefixes
+        % set summary prefixes for combined tasks
         summary_output_dir=[output_dir,task,'_',stat_type,'_summary/'];
         summary_prefix=[summary_output_dir,'results__',task,'_',stat_type,'_',date_time_str_now];
-%         summary_output_dir=[output_dir,task,'_',stat_type,omnibus_str,'_summary/'];
-%         summary_prefix=[summary_output_dir,'results__',task,'_',stat_type,omnibus_str,'_',date_time_str_now];
         
         % make summary output dir
         if ~exist(summary_output_dir,'dir'); mkdir(summary_output_dir); end
@@ -686,7 +675,7 @@ if save_log
     fprintf(fid,'Mean TPR between d=%1.1f and %1.1f: %1.3f\n',[thresholds(2:end); thresholds(1:end-1); tpr_btw_thr_and_thr_below]);
     fprintf(fid,'Mean TPR at d=+/-%1.1f: %f (+), %f (-), %f (mean)\n',[thresholds; reshape(tpr_at_thr,3,length(thresholds))]);
     fprintf(fid,'%d total repetitions',log_data.n_repetitions);
-    fprintf(fid,'\n%s total permutations',log_data.n_perms);
+    fprintf(fid,'\n%d total permutations',log_data.n_perms);
     fprintf(fid,'\n%d subjects sampled out of %d total subjects',log_data.n_subs_subset,round(log_data.n_subs_total));
     fprintf(fid,'\nRun time: %1.2f hours',log_data.run_time_h); % toc is in sec
     fclose(fid);

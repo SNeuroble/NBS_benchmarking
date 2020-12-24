@@ -129,16 +129,25 @@ case 'farnam'
         case 'Size_Extent'
             if grsize==80
                 date_time_str_results.EMOTION_v_REST='12172020_0752';
+                date_time_str_results.GAMBLING_v_REST='12182020_0617';
             end
         case 'TFCE'
             if grsize==80
                 date_time_str_results.EMOTION_v_REST='12172020_1731';
+                date_time_str_results.GAMBLING_v_REST='12182020_1501';
             end
         case 'Constrained'
             if grsize==80
-                date_time_str_results.EMOTION_v_REST='03032020_1816';
+                date_time_str_results.EMOTION_v_REST='testing_12172020_2334';
+                date_time_str_results.GAMBLING_v_REST='12182020_2202';
             end
         case 'Omnibus'
+           switch omnibus_type
+               case 'Multidimensional_cNBS'
+		    if grsize==80
+			date_time_str_results.EMOTION_v_REST='testing_12232020_1934';
+		    end
+	   end
     end
                     
 end

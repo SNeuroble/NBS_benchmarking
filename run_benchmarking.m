@@ -26,6 +26,7 @@ end
 
 for omnibus_id=1:length(all_omnibus_types)
 omnibus_type=all_omnibus_types{omnibus_id};
+if ~isnan(omnibus_type); omnibus_str=['_',omnibus_type]; else omnibus_str=''; end
 
 setup_benchmarking;
 
@@ -106,7 +107,7 @@ end
 if isempty(gcp('nocreate')); my_pool = parpool(n_workers); end % set from here bc doesn't limit to the specified n streams on server
 if rep_params.testing; fprintf('*** TESTING MODE ***\n'); end
 %if rep_params.do_simulated_effect; fprintf('*** SYNTHETIC EFFECT ADDED ***\n'); end
-fprintf('Starting benchmarking repetitions.\n');
+fprintf(['Starting benchmarking - ',task,'::',stat_type,omnibus_str,'.\n']);
 
 
 
@@ -265,8 +266,6 @@ mkdir(output_dir)
 if strcmp(UI.statistic_type.ui,'Size'); size_str=['_',UI.size.ui];
 else; size_str='';
 end
-
-if ~isnan(omnibus_type); omnibus_str=['_',omnibus_type]; else omnibus_str=''; end
 
 if testing; test_str='_testing'; else test_str=''; end
 
