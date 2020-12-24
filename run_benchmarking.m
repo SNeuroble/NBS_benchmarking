@@ -107,7 +107,7 @@ end
 if isempty(gcp('nocreate')); my_pool = parpool(n_workers); end % set from here bc doesn't limit to the specified n streams on server
 if rep_params.testing; fprintf('*** TESTING MODE ***\n'); end
 %if rep_params.do_simulated_effect; fprintf('*** SYNTHETIC EFFECT ADDED ***\n'); end
-fprintf(['Starting benchmarking - ',task,'::',stat_type,omnibus_str,'.\n']);
+fprintf(['Starting benchmarking - ',task1,'_v_',task2,'::',UI.statistic_type.ui,omnibus_str,'.\n']);
 
 
 
