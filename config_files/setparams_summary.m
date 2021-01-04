@@ -126,26 +126,48 @@ case 'mrrc'
 case 'farnam'
     switch stat_type
         case 'FDR'
+                date_time_str_results.EMOTION_v_REST='testing_12232020_2201';
         case 'Size_Extent'
             if grsize==80
                 date_time_str_results.EMOTION_v_REST='12172020_0752';
                 date_time_str_results.GAMBLING_v_REST='12182020_0617';
+                date_time_str_results.LANGUAGE_v_REST='12202020_0453';
+                date_time_str_results.MOTOR_v_REST='12202020_0348';
+                date_time_str_results.RELATIONAL_v_REST='12202020_0356';
+                date_time_str_results.SOCIAL_v_REST='12202020_0436';
+                date_time_str_results.WM_v_REST='12202020_0436';
             end
         case 'TFCE'
             if grsize==80
                 date_time_str_results.EMOTION_v_REST='12172020_1731';
                 date_time_str_results.GAMBLING_v_REST='12182020_1501';
+		date_time_str_results.LANGUAGE_v_REST='12202020_1501';
+                date_time_str_results.MOTOR_v_REST='12202020_1215';
+                date_time_str_results.RELATIONAL_v_REST='12202020_1217';
+                date_time_str_results.SOCIAL_v_REST='12202020_1308';
+                date_time_str_results.WM_v_REST='12202020_1259';
             end
         case 'Constrained'
             if grsize==80
-                date_time_str_results.EMOTION_v_REST='testing_12172020_2334';
+                date_time_str_results.EMOTION_v_REST='12252020_0030';
                 date_time_str_results.GAMBLING_v_REST='12182020_2202';
-            end
+            	date_time_str_results.LANGUAGE_v_REST='12202020_2342';
+                date_time_str_results.MOTOR_v_REST='12202020_1848';
+                date_time_str_results.RELATIONAL_v_REST='12202020_1845';
+                date_time_str_results.SOCIAL_v_REST='12202020_1940';
+                date_time_str_results.WM_v_REST='12202020_1928';
+	    end
         case 'Omnibus'
            switch omnibus_type
                case 'Multidimensional_cNBS'
 		    if grsize==80
-			date_time_str_results.EMOTION_v_REST='testing_12232020_1934';
+			date_time_str_results.EMOTION_v_REST='12242020_2038';
+                	date_time_str_results.GAMBLING_v_REST='12242020_2301';
+			date_time_str_results.LANGUAGE_v_REST='12252020_0030';
+                	date_time_str_results.MOTOR_v_REST='12242020_2323';
+                	date_time_str_results.RELATIONAL_v_REST='12242020_2354';
+                	date_time_str_results.SOCIAL_v_REST='12242020_2347';
+                	date_time_str_results.WM_v_REST='12252020_0007';
 		    end
 	   end
     end
@@ -216,65 +238,4 @@ if exist('stat_type') % stat_type reserved for benchmarking and stat_type_gt for
         pp.clim_res{2}=[-0.5,0.5]; % for N=40
     end
 end
-% clim_all_tasks=[-0.3,0.3]; % for N=40
-% clim_all_tasks_detailed=[-0.5,0.5]; % for N=40
 
-
-
-
-
-
-
-% scaling_str{1}='_by_edges';
-% scaling_str{2}='_by_networks';
-% 
-% % font
-% fontsz=25;
-% 
-% % spline parameters
-% window_sz{1}=0.01;
-% spline_smoothing{1}=0.995;
-% window_sz{2}=1;
-% spline_smoothing{2}=0.99995;
-% 
-% % axis limits (used for histogram counting too)
-% ax_ymin=0;
-% ax_ymax_tp=100;
-% ax_xmin_delta=-1.5; ax_xmax_delta=1.5; ax_ymax_esz_hist_delta=0.25; % special for delta
-% %   - edges
-% ax_xmin{1}=-2; ax_xmax{1}=2;
-% ax_ymax_esz_hist{1}=0.1; % todo: consider renaming?-technically this is counts for each esz
-% % ax_xmin=-2.5; ax_xmax=2.5;
-% % ax_ymin=0; ax_ymax_esz_hist=0.15; ax_ymax_tp=100; 
-% %   - nets
-% ax_xmin{2}=-4; ax_xmax{2}=4;
-% ax_ymax_esz_hist{2}=0.25;
-% 
-% % histograms params (keep an eye out for NAN/empty bins)
-% %   - edges
-% bin_width{1}=0.07;
-% bin_width_at_summary_thresh=0.1;
-% bin_width_at_summary_thresh__network=0.1;
-% %   - nets
-% bin_width{2}=1;
-% 
-% % effect size thresholds
-% thresh_small=0.2; thresh_med=0.5; thresh_large=0.8;
-% 
-% % for visualizing residuals
-% n_std_residual_outlier=2;
-% 
-% % color limits
-% clim=[-thresh_med, thresh_med];
-% if exist('stat_type') % stat_type reserved for benchmarking and stat_type_gt for ground truth - sometimes both are used in one script
-%     if strcmp(stat_type,'Constrained') || strcmp(stat_type,'SEA')
-%         clim_res{1}=[-60,60]; % for N=40
-%         clim_res{2}=[-10,10]; % for N=40
-%     else
-%         %clim_res{2}=[-0.001,0.001]; % for N=20
-%         clim_res{1}=[-3,3]; % for N=40
-%         clim_res{2}=[-0.5,0.5]; % for N=40
-%     end
-% end
-% % clim_all_tasks=[-0.3,0.3]; % for N=40
-% % clim_all_tasks_detailed=[-0.5,0.5]; % for N=40
