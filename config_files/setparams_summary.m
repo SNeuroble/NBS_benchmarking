@@ -141,7 +141,7 @@ case 'farnam'
             if grsize==80
                 date_time_str_results.EMOTION_v_REST='12172020_1731';
                 date_time_str_results.GAMBLING_v_REST='12182020_1501';
-		date_time_str_results.LANGUAGE_v_REST='12202020_1501';
+                date_time_str_results.LANGUAGE_v_REST='12202020_1501';
                 date_time_str_results.MOTOR_v_REST='12202020_1215';
                 date_time_str_results.RELATIONAL_v_REST='12202020_1217';
                 date_time_str_results.SOCIAL_v_REST='12202020_1308';
@@ -157,21 +157,17 @@ case 'farnam'
                 date_time_str_results.SOCIAL_v_REST='12202020_1940';
                 date_time_str_results.WM_v_REST='12202020_1928';
 	    end
-        case 'Omnibus'
-           switch omnibus_type
-               case 'Multidimensional_cNBS'
+        case 'Omnibus_Multidimensional_cNBS'
 		    if grsize==80
-			date_time_str_results.EMOTION_v_REST='12242020_2038';
-                	date_time_str_results.GAMBLING_v_REST='12242020_2301';
-			date_time_str_results.LANGUAGE_v_REST='12252020_0030';
-                	date_time_str_results.MOTOR_v_REST='12242020_2323';
-                	date_time_str_results.RELATIONAL_v_REST='12242020_2354';
-                	date_time_str_results.SOCIAL_v_REST='12242020_2347';
-                	date_time_str_results.WM_v_REST='12252020_0007';
+                date_time_str_results.EMOTION_v_REST='12242020_2038';
+                date_time_str_results.GAMBLING_v_REST='12242020_2301';
+                date_time_str_results.LANGUAGE_v_REST='12252020_0030';
+                date_time_str_results.MOTOR_v_REST='12242020_2323';
+                date_time_str_results.RELATIONAL_v_REST='12242020_2354';
+                date_time_str_results.SOCIAL_v_REST='12242020_2347';
+                date_time_str_results.WM_v_REST='12252020_0007';
 		    end
-	   end
     end
-                    
 end
 
 %% Plot params
