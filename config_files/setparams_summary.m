@@ -131,16 +131,20 @@ case 'farnam'
             if grsize==80
                 date_time_str_results.EMOTION_v_REST='12172020_0752';
                 date_time_str_results.GAMBLING_v_REST='12182020_0617';
+<<<<<<< Updated upstream
                 date_time_str_results.LANGUAGE_v_REST='12202020_0453';
                 date_time_str_results.MOTOR_v_REST='12202020_0348';
                 date_time_str_results.RELATIONAL_v_REST='12202020_0356';
                 date_time_str_results.SOCIAL_v_REST='12202020_0436';
                 date_time_str_results.WM_v_REST='12202020_0436';
+=======
+>>>>>>> Stashed changes
             end
         case 'TFCE'
             if grsize==80
                 date_time_str_results.EMOTION_v_REST='12172020_1731';
                 date_time_str_results.GAMBLING_v_REST='12182020_1501';
+<<<<<<< Updated upstream
                 date_time_str_results.LANGUAGE_v_REST='12202020_1501';
                 date_time_str_results.MOTOR_v_REST='12202020_1215';
                 date_time_str_results.RELATIONAL_v_REST='12202020_1217';
@@ -167,6 +171,15 @@ case 'farnam'
                 date_time_str_results.SOCIAL_v_REST='12242020_2347';
                 date_time_str_results.WM_v_REST='12252020_0007';
 		    end
+=======
+            end
+        case 'Constrained'
+            if grsize==80
+                date_time_str_results.EMOTION_v_REST='testing_12172020_2334';
+                date_time_str_results.GAMBLING_v_REST='12182020_2202';
+            end
+        case 'Omnibus'
+>>>>>>> Stashed changes
     end
 end
 
