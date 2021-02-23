@@ -31,5 +31,4 @@ NBS toolbox: https://sites.google.com/site/bctnet/comparison/nbs
 
 - Smith, S.M. and Nichols, T.E., 2009. Threshold-free cluster enhancement: addressing problems of smoothing, threshold dependence and localisation in cluster inference. Neuroimage, 44(1), pp.83-98.
 
-- Noble, S., and Scheinost, D., 2020. The constrained network-based statistic: a new level of inference for neuroimaging. MICCAI. (Full reference forthcoming)
-
+- Noble, S. and Scheinost, D., 2020. The Constrained Network-Based Statistic: A New Level of Inference for Neuroimaging. In International Conference on Medical Image Computing and Computer-Assisted Intervention (pp. 458-468). Springer, Cham.
