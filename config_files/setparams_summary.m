@@ -1,250 +1,159 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Set parameters for summary
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% set params for summarization - comparing all methods, with each method
+% representing a combination of all tasks
 
-%% Task params
 
+%% Defaults
+
+%default summary type
+% summary_type_default='compare_all';
+
+% default tasks, stats, and grsize
+all_tasks={'EMOTION_v_REST','GAMBLING_v_REST','LANGUAGE_v_REST','MOTOR_v_REST','RELATIONAL_v_REST','SOCIAL_v_REST','WM_v_REST'};
+all_stat_types={'Parametric_FDR','Size_Extent','TFCE','Constrained','Omnibus_Multidimensional_cNBS'};
+grsize_default=80;
+
+% saving defaults
+save_settings.defaults.save_benchmarking_summary=1;
+save_settings.defaults.save_dcoeff=1; % ground truth-specific
+save_settings.defaults.save_figs=1;
+save_settings.defaults.save_logs=1;
+save_settings.defaults.save_summarized_data=1; % combined-specific % TODO: may have to partition for saving combined summary v combined visualization
+
+% plotting defaults
+% combine_all_tasks_default=0;
+make_figs_default=1;
+do_combined_default=0; % combined-specific
+
+% combined-specific strings
+task_combined='all_tasks'; % TODO: gotta rename for combined
+stat_type_combined='all_stats'; % TODO: gotta rename
+
+%% Mapping from stats to level of inference to ground truth level of pooling
+
+% For combined: stat-to-level mapping for plots (first column can be partial strings - using pattern matching for first column)
+stats_levelstr_map =    {'FDR','edge';
+                        'Size','cluster (size)';
+                        'TFCE','cluster (tfce)';
+                        'Constrained','network';
+                        'Omnibus','whole_brain'};
+                    
+% For combined: stat-to-ground truth level (first column can be partial strings - using pattern matching for first column)
+statlevel_gtlevel_map =  {'edge', 'edge', 1;
+                        'cluster', 'edge', 1;
+                        'network', 'network', 2;
+                        'whole_brain', 'whole_brain', 3};
+
+% ground truth "stat_type" for filename (although it actually contains edge, network, and wb results)
 stat_type_gt='Size_Extent';
 
-date_time_str_ground_truth.EMOTION_v_REST='10192020_1537'; % with new networks
-date_time_str_ground_truth.GAMBLING_v_REST='10192020_1631';
-date_time_str_ground_truth.LANGUAGE_v_REST='10192020_1642';
-date_time_str_ground_truth.MOTOR_v_REST='10192020_1649';
-date_time_str_ground_truth.RELATIONAL_v_REST='11112020_1345';
-date_time_str_ground_truth.SOCIAL_v_REST='10192020_1656';
-date_time_str_ground_truth.WM_v_REST='10192020_1714';
-date_time_str_ground_truth.REST_v_REST2='03012020_1709';
 
-% these are old ground truth without updated net/all summaries
-% %date_time_str_ground_truth.EMOTION_v_REST='03012020_1722';
-% date_time_str_ground_truth.EMOTION_v_REST='09222020_2337'; % with new networks
-% date_time_str_ground_truth.GAMBLING_v_REST='03012020_1652';
-% date_time_str_ground_truth.LANGUAGE_v_REST='03012020_1704';
-% date_time_str_ground_truth.MOTOR_v_REST='03012020_1717';
-% date_time_str_ground_truth.RELATIONAL_v_REST='03012020_1736';
-% date_time_str_ground_truth.RELATIONAL_v_REST='09232020_0036';
-% date_time_str_ground_truth.SOCIAL_v_REST='10192020_1656';
-% % date_time_str_ground_truth.SOCIAL_v_REST='08052020_1304';
-% %date_time_str_ground_truth.SOCIAL='03012020_1733';
-% date_time_str_ground_truth.WM_v_REST='03012020_1709';
-% date_time_str_ground_truth.REST_v_REST2='03012020_1709';
+%% Plot parameters (pp)
+% indices correspond with ground truth levels (e.g., 1 = edge, 2=network, 3=whole_brain, often undefined)
 
-switch data_origin
-case 'mrrc'
-    switch stat_type
-        case 'FDR'
-            if grsize==80
-                date_time_str_results.LANGUAGE_v_REST='12102020_1655';
-                date_time_str_results.EMOTION_v_REST='03032020_1816'; % differences in edges too, plus sub nums
-                date_time_str_results.GAMBLING_v_REST='03022020_1739';
-            end
-%             date_time_str_results.LANGUAGE_v_REST='02232020_0317';
-%             date_time_str_results.MOTOR_v_REST='02292020_1853';
-%             date_time_str_results.RELATIONAL_v_REST='02242020_1715';
-%             date_time_str_results.SOCIAL_v_REST='03012020_1942';
-%             date_time_str_results.WM_v_REST='02252020_1931';
-    
-        case 'Size_Extent'
+% whether to combine all tasks to compare across stats
+pp.do_combined=0;
 
-            % IMPORTANT: these are all just copies of the originally named
-            % summaries, just with _v_REST appended (e.g., EMOTION ->
-            % EMOTION_v_REST)
-            if grsize==40
-                date_time_str_results.EMOTION_v_REST='03032020_1816'; % differences in edges too, plus sub nums
-                date_time_str_results.GAMBLING_v_REST='03022020_1739';
-                date_time_str_results.LANGUAGE_v_REST='02232020_0317';
-                date_time_str_results.MOTOR_v_REST='02292020_1853';
-                date_time_str_results.RELATIONAL_v_REST='02242020_1715';
-                date_time_str_results.SOCIAL_v_REST='03012020_1942';
-                date_time_str_results.WM_v_REST='02252020_1931';
-                date_time_str_results.REST_v_REST2='08062020_0932';
-            elseif grsize==80
-                date_time_str_results.SOCIAL_v_REST='08032020_1807'; % no summary yet
-            end
+% whether to use diag in making triu mask for spatial plots
+pp.remove_matrix_diag.edge=1;
+pp.remove_matrix_diag.network=0;
+pp.remove_matrix_diag.whole_brain=0;
 
-        case 'TFCE'
-            if grsize==40
-                date_time_str_results.EMOTION_v_REST='03042020_0355';
-                date_time_str_results.GAMBLING_v_REST='03032020_0007';
-                date_time_str_results.LANGUAGE_v_REST='02242020_1327';
-                date_time_str_results.MOTOR_v_REST='03012020_0101';
-                date_time_str_results.RELATIONAL_v_REST='02252020_0829';
-                date_time_str_results.SOCIAL_v_REST='03022020_0203';
-                date_time_str_results.WM_v_REST='02262020_0139';
-%                 date_time_str_results.REST_v_REST2='08062020_0519'; % I don't think this exists...
-        
-            elseif grsize==80
-                date_time_str_results.SOCIAL_v_REST='08042020_0119';
-            end
+% bins for ground truth histograms
+pp.dcoeff_hist_nbins.edge=40;
+pp.dcoeff_hist_nbins.network=20;
+pp.dcoeff_hist_nbins.whole_brain=2;
 
-        case 'Constrained'
-            if grsize==40
-                date_time_str_results.EMOTION_v_REST='03042020_0724';
-                date_time_str_results.GAMBLING_v_REST='03032020_0332';
-                date_time_str_results.LANGUAGE_v_REST='02242020_0355';
-                date_time_str_results.MOTOR_v_REST='03012020_0417';
-                date_time_str_results.RELATIONAL_v_REST='02252020_1519';
-                date_time_str_results.SOCIAL_v_REST='03022020_0531';
-                date_time_str_results.WM_v_REST='02262020_0457';
-                date_time_str_results.REST_v_REST2='08052020_2143';
-            elseif grsize==80
-                date_time_str_results.SOCIAL_v_REST='08042020_0504';
-            end
-
-       case 'Omnibus'
-           switch omnibus_type
-               case 'Multidimensional_cNBS'
-                  if grsize==80
-                    date_time_str_results.EMOTION_v_REST='09112020_1539';
-%                     date_time_str_results.GAMBLING='03032020_0332';
-%                     date_time_str_results.LANGUAGE='02242020_0355';
-%                     date_time_str_results.MOTOR='03012020_0417';
-%                     date_time_str_results.RELATIONAL='02252020_1519';
-%                     date_time_str_results.SOCIAL_v_REST='08042020_0504';
-%                     %date_time_str_results.SOCIAL='03022020_0531';
-%                     date_time_str_results.WM='02262020_0457';
-%                     date_time_str_results.REST_v_REST2='08052020_2143';
-                  end
-                  
-               case 'Multidimensional_all_edges'
-                   if grsize==80
-                       date_time_str_results.EMOTION_v_REST='09132020_0021';
-                   end
-               case 'Threshold_Both_Dir'
-                   if grsize==80
-                       date_time_str_results.EMOTION_v_REST='09102020_0244';
-                   end
-               otherwise
-                    error('Omnibus type not defined');
-           end
-        case 'NA'
-            % okay, trusting that won't need to set a benchmarking stat_type, e.g., not needed for running ground truth
-        otherwise
-            error('Stat type not defined');
-    end
-    
-case 'farnam'
-    switch stat_type
-        case 'FDR'
-                date_time_str_results.EMOTION_v_REST='testing_12232020_2201';
-        case 'Size_Extent'
-            if grsize==80
-                date_time_str_results.EMOTION_v_REST='12172020_0752';
-                date_time_str_results.GAMBLING_v_REST='12182020_0617';
-<<<<<<< Updated upstream
-                date_time_str_results.LANGUAGE_v_REST='12202020_0453';
-                date_time_str_results.MOTOR_v_REST='12202020_0348';
-                date_time_str_results.RELATIONAL_v_REST='12202020_0356';
-                date_time_str_results.SOCIAL_v_REST='12202020_0436';
-                date_time_str_results.WM_v_REST='12202020_0436';
-=======
->>>>>>> Stashed changes
-            end
-        case 'TFCE'
-            if grsize==80
-                date_time_str_results.EMOTION_v_REST='12172020_1731';
-                date_time_str_results.GAMBLING_v_REST='12182020_1501';
-<<<<<<< Updated upstream
-                date_time_str_results.LANGUAGE_v_REST='12202020_1501';
-                date_time_str_results.MOTOR_v_REST='12202020_1215';
-                date_time_str_results.RELATIONAL_v_REST='12202020_1217';
-                date_time_str_results.SOCIAL_v_REST='12202020_1308';
-                date_time_str_results.WM_v_REST='12202020_1259';
-            end
-        case 'Constrained'
-            if grsize==80
-                date_time_str_results.EMOTION_v_REST='12252020_0030';
-                date_time_str_results.GAMBLING_v_REST='12182020_2202';
-            	date_time_str_results.LANGUAGE_v_REST='12202020_2342';
-                date_time_str_results.MOTOR_v_REST='12202020_1848';
-                date_time_str_results.RELATIONAL_v_REST='12202020_1845';
-                date_time_str_results.SOCIAL_v_REST='12202020_1940';
-                date_time_str_results.WM_v_REST='12202020_1928';
-	    end
-        case 'Omnibus_Multidimensional_cNBS'
-		    if grsize==80
-                date_time_str_results.EMOTION_v_REST='12242020_2038';
-                date_time_str_results.GAMBLING_v_REST='12242020_2301';
-                date_time_str_results.LANGUAGE_v_REST='12252020_0030';
-                date_time_str_results.MOTOR_v_REST='12242020_2323';
-                date_time_str_results.RELATIONAL_v_REST='12242020_2354';
-                date_time_str_results.SOCIAL_v_REST='12242020_2347';
-                date_time_str_results.WM_v_REST='12252020_0007';
-		    end
-=======
-            end
-        case 'Constrained'
-            if grsize==80
-                date_time_str_results.EMOTION_v_REST='testing_12172020_2334';
-                date_time_str_results.GAMBLING_v_REST='12182020_2202';
-            end
-        case 'Omnibus'
->>>>>>> Stashed changes
-    end
-end
-
-%% Plot params
-
-% descrip for levels of summary
-pp.scaling_str{1}='_by_edges';
-pp.scaling_str{2}='_by_networks';
-
-% font
-pp.fontsz=25;
-
-% spline parameters
+% for spline
 pp.window_sz{1}=0.01;
-pp.spline_smoothing{1}=0.995;
-pp.window_sz{2}=0.5;
-pp.spline_smoothing{2}=0.999995;
+pp.window_sz{2}=0.08; % pp.window_sz{2}=0.17; % 0.5 % 0.2
+pp.spline_smoothing{1}=0.9999; %0.995;
+pp.spline_smoothing{2}=0.99999; % 0.99995
 
 % axis limits (used for histogram counting too)
-pp.ax_ymin=0;
-pp.ax_ymax_tp=100;
-pp.ax_xmin_delta=-1.5; pp.ax_xmax_delta=1.5; pp.ax_ymax_esz_hist_delta=0.25; % special for delta
-%   - edges
-pp.ax_xmin{1}=-2; pp.ax_xmax{1}=2;
-pp.ax_ymax_esz_hist{1}=0.1;
-% ax_xmin=-2.5; ax_xmax=2.5;
-% ax_ymin=0; ax_ymax_esz_hist=0.15; ax_ymax_tp=100; 
-%   - nets
-pp.ax_xmin{2}=-4; pp.ax_xmax{2}=4;
-pp.ax_ymax_esz_hist{2}=0.5;
+pp.ax_ylim_tpr=[0,100];
+pp.ax_xlim_dcoeff_v_tpr=[-1.5,1.5]; % for dcoeff v tpr, also works for edge-level dcoeff hist
+pp.ax_xlim_dcoeff_hist=[-3.5,3.5];
+pp.ax_ylim_dcoeff_hist=[0,0.15];
+pp.ax_ylim_revcumhist=[0,1];
+pp.ax_ylim_res=[-15,15];
 
-if exist('stat_type') % stat_type reserved for benchmarking and stat_type_gt for ground truth - sometimes both are used in one script
-    if strcmp(stat_type,'Constrained') || strcmp(stat_type,'SEA')
-        pp.spline_smoothing{2}=0.99995;
-        pp.window_sz{2}=0.2;
-    end
-end
-
-% histograms params (keep an eye out for NAN/empty bins)
-%   - edges
-pp.bin_width{1}=0.07;
-pp.bin_width_at_summary_thresh{1}=0.1;
-pp.tpr_bin_width{1}=0.2;
-%   - nets
-pp.bin_width{2}=0.9;
-pp.bin_width_at_summary_thresh{2}=1;
-pp.tpr_bin_width{2}=3;
-
-
-% effect size thresholds
-pp.thresh_small=0.2; pp.thresh_med=0.5; pp.thresh_large=0.8;
-
-% for visualizing residuals
+% std thresholds visualizing residuals
 pp.n_std_residual_outlier=2;
 
-% color limits
-pp.clim=[-pp.thresh_med, pp.thresh_med];
-if exist('stat_type') % stat_type reserved for benchmarking and stat_type_gt for ground truth - sometimes both are used in one script
-    if strcmp(stat_type,'Constrained') || strcmp(stat_type,'SEA')
-        pp.clim_res{1}=[-60,60]; % for N=40
-        pp.clim_res{2}=[-10,10]; % for N=40
-    else
-        %clim_res{2}=[-0.001,0.001]; % for N=20
-        pp.clim_res{1}=[-3,3]; % for N=40
-        pp.clim_res{2}=[-0.5,0.5]; % for N=40
-    end
-end
+% color limits for spatial maps
+% pp.clim=[-pp.thresh_med, pp.thresh_med];
+pp.clim_dcoeff.edge=[-0.9,0.9];
+pp.clim_dcoeff.network=[-2,2];
+pp.clim_dcoeff.whole_brain=[-2,2];
+% pp.clim_res=[-6,6];
+pp.clim_res.edge=[-.5,.5];
+pp.clim_res.network=[-.2,.2];
+pp.clim_res.whole_brain=[-.2,.2];
 
+% Color order for subsequent statistic types
+pp.stat_color_order =   [ 0       0.4470    0.7410
+                        0.8500    0.3250    0.0980
+                        0.9290    0.6940    0.1250
+                        0.4940    0.1840    0.5560
+                        0.4660    0.6740    0.1880
+                        0.3010    0.7450    0.9330
+                        0.6350    0.0780    0.1840];
+
+
+
+% atlas line width for plotting single tasks
+pp.atlas_line_width_single_tasks=0.4;
+                    
+% font
+pp.fontsz_sm=4;
+pp.fontsz_lg=20;
+pp.fontsz=pp.fontsz_lg; % set default to the larger
+% pp.fontsz_single_task_scaling=0.2;
+
+% figure sizes for saving (single tasks),lnih9
+pp.fig_width_single_tasks=30;
+pp.fig_height_single_tasks=3;
+pp.fig_width_single_tasks_stats=20;
+pp.fig_height_single_tasks_stats=30;
+pp.fig_width_combined=30;
+pp.fig_height_combined=20;
+% pp.res=300; %300 dpi
+
+% log params: binning and thresholding
+pp.bin_width_at_summary_thresh{1}=0.1;
+pp.bin_width_at_summary_thresh{2}=1;
+pp.bin_width_at_summary_thresh{3}=1.5;
+pp.tpr_bin_width.edge=0.2;
+pp.tpr_bin_width.network=3; % TODO: 2
+pp.tpr_bin_width.whole_brain=3;
+pp.thresh_small=0.2; pp.thresh_med=0.5; pp.thresh_large=0.8; % effect size thresholds for summarizing tpr
+
+
+
+% OLD
+
+% pp.clim_single_task_scaling=0.5;
+% pp.clim_res{1}=[-0.9,0.9];
+% pp.clim_res{2}=[-2,2];
+%         pp.clim_res{1}=[-60,60]; % for N=40
+%         pp.clim_res{2}=[-10,10]; % for N=40
+%         %clim_res{2}=[-0.001,0.001]; % for N=20
+%         pp.clim_res{1}=[-3,3]; % for N=40 net
+%         pp.clim_res{2}=[-0.5,0.5]; % for N=40 net
+
+
+% % descrip for levels of summary
+% pp.level_str{1}='_by_edges';
+% pp.level_str{2}='_by_networks';
+% pp.level_str{3}='_by_whole_brain';
+
+% pp.ax_xmin_dcoeff{2}=-4; pp.ax_xmax_dcoeff{2}=4; % works for network-level dcoeff hist
+% pp.ax_ymax_esz_hist{1}=0.1;
+% pp.ax_ymax_esz_hist{2}=0.5;
+
+% OLD histograms params (keep an eye out for NAN/empty bins)
+% pp.bin_width{1}=0.07;
+% pp.bin_width{2}=0.9;
+% pp.bin_width{3}=1.5;
+
+% pp.ax_xmin_delta=-1.5; pp.ax_xmax_delta=1.5;pp.ax_ymax_esz_hist_delta=0.25; % special for delta
