@@ -95,13 +95,13 @@ cmap='parula';
 setcolors;
 
 %% draw image and lines
-figure
-colormap(cmap)
+
 if strcmp(datacategory,'none')
     imagesc(mat)
 elseif strcmp(datacategory,'ICC') || strcmp(datacategory,'icc')
     image((mat-minthresh)*imscale)
 end
+colormap(cmap)
 hold on
 
 if ~usingsummary
