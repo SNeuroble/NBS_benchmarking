@@ -50,7 +50,7 @@ for s=1:length(stat_types)
     fprintf(['Summarizing FPRs - ',task,'::',stat_type,'\n'])
     setparams_summary;
 
-    bench_results_basename_prefix=['results__',task,'_',stat_type,'_','grsize',num2str(grsize),'_',date_time_str_results.(task)];
+    bench_results_basename_prefix=['results__',task,'_shuffled_for_FPR_',stat_type,'_','grsize',num2str(grsize),'_',date_time_str_results.(task)];
 
     % set results files
     results_filename=[output_dir,bench_results_basename_prefix,'.mat'];
@@ -59,7 +59,7 @@ for s=1:length(stat_types)
     % set summary prefixes
     summary_output_dir=[output_dir,task,'_',stat_type,'_summary/'];
     summary_output_dir_gt=[output_dir,task,'_',stat_type_gt,'_summary/'];
-    summary_prefix=[summary_output_dir,'results__',task,'_',stat_type,'_',date_time_str_results.(task)];
+    summary_prefix=[summary_output_dir,'results__',task,'_shuffled_for_FPR_',stat_type,'_',date_time_str_results.(task)];
 
     % define a few output files to save for testing already created
     fpr_by_edges_file=[summary_prefix,'_fpr_by_edges.png'];
@@ -205,7 +205,7 @@ for s=1:length(stat_types)
         positives_neg=+(pvals_all_neg<str2double(UI.alpha.ui));
 
         % before significance masking, make sure positives are in same space as cluster-level stats
-        if ~isequal(size(positives),size(cluster_stats_all))
+        if ~isequal(size(positives),size(cluster_stats_all)) && ~(contains(UI.statistic_type.ui,'FDR') || contains(UI.statistic_type.ui,'Bonferroni'))
             if numel(positives)==numel(cluster_stats_all)
                 % reshape positives to matrix to match cluster_stats_all
                 positives=reshape(positives,n_nodes,n_nodes,n_repetitions);
@@ -220,7 +220,7 @@ for s=1:length(stat_types)
         positives_total_neg=sum(positives_neg,length(size(positives)));
         
         % double check FWER calculation
-        if strcmp(UI.statistic_type.ui,'Constrained') || strcmp(UI.statistic_type.ui,'SEA')
+        if strcmp(UI.statistic_type.ui,'Constrained') || strcmp(UI.statistic_type.ui,'SEA') || strcmp(UI.statistic_type.ui,'Parametric_FDR') || strcmp(UI.statistic_type.ui,'Parametric_Bonferroni')
             FWER_manual=sum(+any(positives))/n_repetitions;
             FWER_manual_neg=sum(+any(positives_neg))/n_repetitions;
         else

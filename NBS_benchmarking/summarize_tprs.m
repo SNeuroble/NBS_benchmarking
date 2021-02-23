@@ -22,7 +22,7 @@ function summarize_tprs(varargin)
 
 all_tasks={'EMOTION_v_REST','GAMBLING_v_REST','LANGUAGE_v_REST','MOTOR_v_REST','RELATIONAL_v_REST','SOCIAL_v_REST','WM_v_REST'};
 %all_tasks={'EMOTION','GAMBLING','LANGUAGE','MOTOR','RELATIONAL','SOCIAL','WM'};
-stat_types_default={'Size_Extent','TFCE','Constrained','Omnibus_Multidimensional_cNBS'};
+stat_types_default={'Parametric_FDR','Size_Extent','TFCE','Constrained','Omnibus_Multidimensional_cNBS'};
 combine_all_tasks_default=0;
 grsize_default=40;
 make_figs_default=1;
@@ -177,11 +177,17 @@ for t=1:length(tasks)
             edge_stats_summary_neg.mean=mean(edge_stats_all_neg,length(size(edge_stats_all_neg)));
             edge_stats_summary_neg.std=std(edge_stats_all_neg,0,length(size(edge_stats_all_neg)));
             
-            cluster_stats_summary.mean=mean(cluster_stats_all,length(size(cluster_stats_all)));
-            cluster_stats_summary.std=std(cluster_stats_all,0,length(size(cluster_stats_all)));
-            cluster_stats_summary_neg.mean=mean(cluster_stats_all_neg,length(size(cluster_stats_all_neg)));
-            cluster_stats_summary_neg.std=std(cluster_stats_all_neg,0,length(size(cluster_stats_all_neg)));
-            
+            if strcmp(UI.statistic_type.ui,'FDR')
+                cluster_stats_summary.mean=0;
+                cluster_stats_summary.std=0;
+                cluster_stats_summary_neg.mean=0;
+                cluster_stats_summary_neg.std=0;
+            else
+                cluster_stats_summary.mean=mean(cluster_stats_all,length(size(cluster_stats_all)));
+                cluster_stats_summary.std=std(cluster_stats_all,0,length(size(cluster_stats_all)));
+                cluster_stats_summary_neg.mean=mean(cluster_stats_all_neg,length(size(cluster_stats_all_neg)));
+                cluster_stats_summary_neg.std=std(cluster_stats_all_neg,0,length(size(cluster_stats_all_neg)));
+            end
             % REMOVED for now since not used yet: get positive statistic values at every repetition
 %                 % make sure positives are in same space as cluster-level stats
 %                 size_cluster_stats_all=size(cluster_stats_all);
@@ -210,7 +216,7 @@ for t=1:length(tasks)
 %                 cluster_stats_sig_summary_neg.std=std(cluster_stats_sig_all_neg,0,n_dim__cluster_stats_all);
             
             % double check FWER calculation
-            if strcmp(UI.statistic_type.ui,'Constrained') || strcmp(UI.statistic_type.ui,'SEA') || strcmp(UI.statistic_type.ui,'Omnibus')
+            if strcmp(UI.statistic_type.ui,'Constrained') || strcmp(UI.statistic_type.ui,'SEA') || strcmp(UI.statistic_type.ui,'Omnibus') || strcmp(UI.statistic_type.ui,'Parametric_FDR') || strcmp(UI.statistic_type.ui,'Parametric_Bonferroni')
                 FWER_manual=sum(+any(positives))/n_repetitions;
                 FWER_manual_neg=sum(+any(positives_neg))/n_repetitions;
             else
@@ -259,8 +265,14 @@ for t=1:length(tasks)
         end
         
         true_positives=zeros(size(dcoeff));
-        true_positives(ids_pos_vec)=positives_total(ids_pos);
-        true_positives(ids_neg_vec)=positives_total_neg(ids_neg);
+        if strcmp(stat_type,'Parametric_FDR') || strcmp(stat_type,'Parametric_Bonferroni')
+            % already upper triangle
+            true_positives(ids_pos_vec)=positives_total(ids_pos_vec);
+            true_positives(ids_neg_vec)=positives_total_neg(ids_neg_vec);
+        else
+            true_positives(ids_pos_vec)=positives_total(ids_pos);
+            true_positives(ids_neg_vec)=positives_total_neg(ids_neg);
+        end
         tpr=true_positives*100/n_repetitions;
         
         
@@ -387,7 +399,7 @@ if combine_all_tasks
         
         % set summary prefixes for combined tasks
         summary_output_dir=[output_dir,task,'_',stat_type,'_summary/'];
-        summary_prefix=[summary_output_dir,'results__',task,'_',stat_type,'_',date_time_str_now];
+        summary_prefix=[summary_output_dir,'results__',task,'_',stat_type,'_','grsize',num2str(grsize),'_',date_time_str_now];
         
         % make summary output dir
         if ~exist(summary_output_dir,'dir'); mkdir(summary_output_dir); end
@@ -395,7 +407,7 @@ if combine_all_tasks
         % save intermediate data
         [save_settings_for_all,save_combined] = check_whether_to_save(save_settings_for_all,save_combined,'combined','Combined summary data',benchmarking_summary_filename);
         if save_combined
-            save(benchmarking_summary_filename,'dcoeff_scaled_all','tpr_scaled_all','log_data_combined','-v7.3');
+            save(benchmarking_summary_filename,'dcoeff_scaled_all','tpr_scaled_all','log_data_combined','-v7.3'); % TODO: change here and above *_all -> *_combined_tasks to match naming needed for "compare_methods"
         end
         
         for scaling=1:length(dcoeff_windowed)            

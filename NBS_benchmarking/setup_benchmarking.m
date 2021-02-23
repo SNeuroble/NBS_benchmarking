@@ -34,9 +34,11 @@ else
     do_ground_truth=0;
 end
 
-% special setup for FDR since can't run it using cluster_stat_type
+% special setup for nonparametric FDR (part of classic NBS toolbox) and parametric FDR and Bonferroni (newly added here)  since can't run it using cluster_stat_type
 if strcmp(cluster_stat_type,'FDR')
     nbs_method='Run FDR';
+elseif strcmp(cluster_stat_type,'Parametric_FDR') || strcmp(cluster_stat_type,'Parametric_Bonferroni')
+    nbs_method='Run Parametric Edge-Level Correction';
 end
 
 %% Check expected inclusion of resting tasks
@@ -262,7 +264,7 @@ rep_params.task1=task1;
 if use_both_tasks; rep_params.task2=task2; end
 
 % assign NBS parameters to UI (see NBS.m)
-UI.method.ui=nbs_method; % TODO: revise to include vanilla FDR
+UI.method.ui=nbs_method;
 UI.design.ui=dmat;
 UI.contrast.ui=nbs_contrast;
 UI.test.ui=nbs_test_stat; % alternatives are one-sample and F-test

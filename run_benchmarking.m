@@ -61,6 +61,11 @@ elseif strcmp(UI.statistic_type.ui,'Omnibus')
     cluster_stats_all_neg=zeros(1,n_nulls,rep_params.n_repetitions);
     pvals_all=zeros(1,rep_params.n_repetitions);
     pvals_all_neg=zeros(1,rep_params.n_repetitions); 
+elseif contains(UI.statistic_type.ui,'Parametric')
+    cluster_stats_all=zeros(1,1,rep_params.n_repetitions);
+    cluster_stats_all_neg=zeros(1,1,rep_params.n_repetitions);
+    pvals_all=zeros(n_nodes*(n_nodes-1)/2,rep_params.n_repetitions);
+    pvals_all_neg=zeros(n_nodes*(n_nodes-1)/2,rep_params.n_repetitions); 
 else
     cluster_stats_all=zeros(n_nodes,n_nodes,rep_params.n_repetitions); 
     cluster_stats_all_neg=zeros(n_nodes,n_nodes,rep_params.n_repetitions); 
@@ -105,14 +110,14 @@ if n_workers>c.NumWorkers
      n_workers=c.NumWorkers;
 end
 if isempty(gcp('nocreate')); my_pool = parpool(n_workers); end % set from here bc doesn't limit to the specified n streams on server
-if rep_params.testing; fprintf('*** TESTING MODE ***\n'); end
+
+if rep_params.testing; fprintf('\n*** TESTING MODE ***\n\n'); end
 %if rep_params.do_simulated_effect; fprintf('*** SYNTHETIC EFFECT ADDED ***\n'); end
 fprintf(['Starting benchmarking - ',task1,'_v_',task2,'::',UI.statistic_type.ui,omnibus_str,'.\n']);
 
 
-
-%parfor (this_repetition=1:rep_params.n_repetitions)
-for this_repetition=1:rep_params.n_repetitions
+parfor (this_repetition=1:rep_params.n_repetitions)
+%for this_repetition=1:rep_params.n_repetitions
 %for (this_repetition=(1+reps_completed_previously):rep_params.n_repetitions)
     fprintf('* Repetition %d - positive contrast\n',this_repetition)
 
@@ -135,11 +140,11 @@ for this_repetition=1:rep_params.n_repetitions
                     this_task2=task2;
                 end
                 
-                this_file_task1 = [data_dir,this_task1,'/',subIDs{ids_thisrep(i)},'_',this_task1,'_GSR_matrix.txt'];
+                this_file_task1 = [data_dir,this_task1,'/',subIDs{ids_thisrep(i)},'_',this_task1,data_type_suffix];
                 d=importdata(this_file_task1);
                 d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
                 m_test(:,i) = d(triumask);
-                this_file_task2 = [data_dir,this_task2,'/',subIDs{ids_thisrep(i)},'_',this_task2,'_GSR_matrix.txt'];
+                this_file_task2 = [data_dir,this_task2,'/',subIDs{ids_thisrep(i)},'_',this_task2,data_type_suffix];
                 d=importdata(this_file_task2);
                 d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
                 m_test(:,n_subs_subset+i) = d(triumask);
@@ -160,13 +165,13 @@ for this_repetition=1:rep_params.n_repetitions
             end
             
             for i = 1:n_subs_subset
-                this_file_task1 = [data_dir,this_task1,'/',subIDs{ids_thisrep(i)},'_',this_task1,'_GSR_matrix.txt'];
+                this_file_task1 = [data_dir,this_task1,'/',subIDs{ids_thisrep(i)},'_',this_task1,data_type_suffix];
                 d=importdata(this_file_task1);
                 d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
                 m_test(:,i) = d(triumask);
             end
             for i = n_subs_subset+1:n_subs_subset*2
-                this_file_task2 = [data_dir,this_task2,'/',subIDs{ids_thisrep(i)},'_',this_task2,'_GSR_matrix.txt'];
+                this_file_task2 = [data_dir,this_task2,'/',subIDs{ids_thisrep(i)},'_',this_task2,data_type_suffix];
                 d=importdata(this_file_task2);
                 d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
                 m_test(:,i) = d(triumask);
@@ -184,7 +189,7 @@ for this_repetition=1:rep_params.n_repetitions
         end
         
         for i = 1:n_subs_subset
-            this_file_task1 = [data_dir,task1,'/',subIDs{ids_thisrep(i)},'_',task1,'_GSR_matrix.txt'];
+            this_file_task1 = [data_dir,task1,'/',subIDs{ids_thisrep(i)},'_',task1,data_type_suffix];
             d=importdata(this_file_task1);
             d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
             m_test(:,i) = task_flipper * d(triumask);
@@ -224,14 +229,17 @@ for this_repetition=1:rep_params.n_repetitions
     end
 
     % record everything
-    if strcmp(cluster_stat_type,'FDR')
+    if strcmp(cluster_stat_type,'FDR') || contains(cluster_stat_type,'Parametric')
+
+    	% Note: NBS's FDR does not return corrected p-values, only significant edges (con_mat)--assigning significant edges to a pvalue of "0" and non-significant to pvalue "1" JUST for summarization purposes
         edge_stats_all(:,this_repetition)=nbs.NBS.test_stat(triumask);
-        pvals_all(:,this_repetition)=nbs.NBS.con_mat{1}(:); % Note: this represents significant edges, not p-values
+        pvals_all(:,this_repetition)=~nbs.NBS.con_mat{1}(:); % see above note 
         
         edge_stats_all_neg(:,this_repetition)=nbs_neg.NBS.test_stat(triumask);
-        pvals_all_neg(:,this_repetition)=nbs_neg.NBS.con_mat{1}(:);  % Note: this represents significant edges, not p-values
+        pvals_all_neg(:,this_repetition)=~nbs_neg.NBS.con_mat{1}(:);  % see above note
         
     else
+	
         edge_stats_all(:,this_repetition)=nbs.NBS.edge_stats;
         pvals_all(:,this_repetition)=nbs.NBS.pval(:); % TODO: had to vectorize for TFCE... should give all outputs in same format tho 
 
@@ -268,12 +276,13 @@ else; size_str='';
 end
 
 if testing; test_str='_testing'; else test_str=''; end
+if do_TPR; TPR_str=''; else TPR_str='_shuffled_for_FPR'; end
 
 if use_both_tasks; condition_str=[rep_params.task1,'_v_',rep_params.task2];
 else; condition_str=rep_params.task1;
 end
 
-output_filename=[output_dir,'results__',condition_str,'_',UI.statistic_type.ui,size_str,omnibus_str,'_grsize',num2str(rep_params.n_subs_subset),test_str,'_',datestr(now,'mmddyyyy_HHMM'),'.mat'];
+output_filename=[output_dir,'results__',condition_str,TPR_str,'_',UI.statistic_type.ui,size_str,omnibus_str,'_grsize',num2str(rep_params.n_subs_subset),test_str,'_',datestr(now,'mmddyyyy_HHMM'),'.mat'];
 fprintf('Saving results in %s\n',output_filename)
 save(output_filename,'edge_stats_all','cluster_stats_all','pvals_all','FWER','edge_stats_all_neg','cluster_stats_all_neg','pvals_all_neg','FWER_neg','UI','rep_params','run_time');
 
