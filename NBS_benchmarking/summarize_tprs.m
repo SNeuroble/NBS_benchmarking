@@ -99,7 +99,7 @@ end
 warning('off', 'STRUCTURE_DATA:ASSUME_LOWER_TRI');
 warning('off', 'SPLINES:CHCKXYWP:NaNs');
 
-% FOR COMBINED: set up naming/indexing vars based on levels of inference and ground truth
+% set up naming/indexing vars based on levels of inference and ground truth
 % stat_level_map.do_overlay=1; %TODO: set as user-defined param
 
 stat_level_map.stat_types=all_stat_types;
