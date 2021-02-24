@@ -102,11 +102,250 @@ warning('off', 'SPLINES:CHCKXYWP:NaNs');
 % set up naming/indexing vars based on levels of inference and ground truth
 % stat_level_map.do_overlay=1; %TODO: set as user-defined param
 
+<<<<<<< HEAD
 stat_level_map.stat_types=all_stat_types;
 stat_level_map.stat_levels_str=all_stat_types;
 for s=1:size(stats_levelstr_map,1)
     stat_level_map.stat_levels_str{contains(stat_level_map.stat_levels_str,stats_levelstr_map{s,1})}=stats_levelstr_map{s,2};
 end
+=======
+        fprintf(['Summarizing TPRs - ',task,'::',stat_type,'\n'])
+        setparams_summary;
+        
+        ground_truth_results_basename_prefix=['ground_truth__',task,'_',stat_type_gt,'_',date_time_str_ground_truth.(task)];
+        bench_results_basename_prefix=['results__',task,'_',stat_type,'_','grsize',num2str(grsize),'_',date_time_str_results.(task)];
+        
+        % set results filenames
+        ground_truth_filename=[output_dir,ground_truth_results_basename_prefix,'.mat'];
+        results_filename=[output_dir,bench_results_basename_prefix,'.mat'];
+        benchmarking_summary_filename=[output_dir,bench_results_basename_prefix,'_summary.mat'];
+        
+        % set summary prefixes
+        summary_output_dir=[output_dir,task,'_',stat_type,'_summary/'];
+        summary_prefix=[summary_output_dir,'results__',task,'_',stat_type,'_','grsize',num2str(grsize),'_',date_time_str_results.(task)];
+        
+        % make summary output dir
+        if ~exist(summary_output_dir,'dir'); mkdir(summary_output_dir); end
+        
+        % check whether to save, incl overwriting existing
+        summarize_benchmarking=1;
+        [save_settings_for_all,summarize_benchmarking] = check_whether_to_save(save_settings_for_all,summarize_benchmarking,'summarize','Summary data',benchmarking_summary_filename);
+        
+        
+        %% GROUND TRUTH EFFECT SIZES
+        
+        try
+            load(ground_truth_filename,'edge_stats','edge_stats_net','edge_stats_pool_all','cluster_stats','rep_params');
+            [warnmsg,~] = lastwarn;
+            if contains(warnmsg,'Variable ') && contains(warnmsg,'not found.')
+                error(['Unable to load all necessary variables from ',ground_truth_filename,'.\nPlease check these exist and try again.']);
+            end
+        catch
+            error('Looks like ground truth data needed for calculating TPR does not exist for %s. Try running calculate_ground_truth.m\n',task);
+        end
+        
+        % t-stat -> d-coefficient - transpose because need for fitting spline
+        n_subs_total=rep_params.n_subs_subset;
+        dcoeff=(edge_stats/sqrt(n_subs_total))';
+        dcoeff_net=(edge_stats_net/sqrt(n_subs_total))';
+        dcoeff_omnibus=(edge_stats_pool_all/sqrt(n_subs_total))';
+        
+        % get num nodes, edges, networks, and network pairs
+        n_edges=length(dcoeff);
+        n_nodes=size(cluster_stats,1);
+        n_net_pairs=length(dcoeff_net);
+        n_nets=sort(roots([1 1 -2*n_net_pairs])); % assuming n_nets x n_nets, x = n*(n+1)/2 -> n^2 + n - 2x
+        n_nets=n_nets(end);
+        
+        % make upper triangular masks
+        triu_msk=triu(true(n_nodes),1);
+        ids_triu=find(triu_msk);
+        triu_msk_net=triu(true(n_nets));
+        
+        % define num features as num edges/net pairs for histogram vis
+        pp.n_features{1}=n_edges;
+        pp.n_features{2}=n_net_pairs; % should be 55 for shen268
+        
+        % convert ground truth network results from lower to upper triangle - this sad mismatch is an unfortunate consequence of my summat scripts using the lower tri but NBS using upper tri
+        tmp=tril(true(n_nets));
+        dcoeff_net=structure_data(dcoeff_net,'mask',tmp);
+        dcoeff_net=dcoeff_net';
+        dcoeff_net=dcoeff_net(triu_msk_net);
+        
+        
+        
+        %% BENCHMARKING RESULTS - TRUE POSITIVE RATES
+        
+        % Load and summarize benchmarking results: 'edge_stats_summary','cluster_stats_summary','positives','positives_total','FWER_manual'
+        if summarize_benchmarking
+            
+            load(results_filename);
+            n_repetitions=rep_params.n_repetitions;
+                            
+            % get positives and summarize
+            positives=+(pvals_all<str2double(UI.alpha.ui));
+            positives_neg=+(pvals_all_neg<str2double(UI.alpha.ui));
+            positives_total=sum(positives,length(size(positives)));
+            positives_total_neg=sum(positives_neg,length(size(positives)));
+            
+            % summarize edge and cluster stats (saved but not currently used in visualization/log)
+            edge_stats_summary.mean=mean(edge_stats_all,length(size(edge_stats_all)));
+            edge_stats_summary.std=std(edge_stats_all,0,length(size(edge_stats_all)));
+            edge_stats_summary_neg.mean=mean(edge_stats_all_neg,length(size(edge_stats_all_neg)));
+            edge_stats_summary_neg.std=std(edge_stats_all_neg,0,length(size(edge_stats_all_neg)));
+            
+            if strcmp(UI.statistic_type.ui,'FDR')
+                cluster_stats_summary.mean=0;
+                cluster_stats_summary.std=0;
+                cluster_stats_summary_neg.mean=0;
+                cluster_stats_summary_neg.std=0;
+            else
+                cluster_stats_summary.mean=mean(cluster_stats_all,length(size(cluster_stats_all)));
+                cluster_stats_summary.std=std(cluster_stats_all,0,length(size(cluster_stats_all)));
+                cluster_stats_summary_neg.mean=mean(cluster_stats_all_neg,length(size(cluster_stats_all_neg)));
+                cluster_stats_summary_neg.std=std(cluster_stats_all_neg,0,length(size(cluster_stats_all_neg)));
+            end
+            % REMOVED for now since not used yet: get positive statistic values at every repetition
+%                 % make sure positives are in same space as cluster-level stats
+%                 size_cluster_stats_all=size(cluster_stats_all);
+%                 n_dim__cluster_stats_all=length(size_cluster_stats_all); %note that matrices may have different sizes, so we summarize over the last dimension)
+%                 if ~isequal(size(positives),size(cluster_stats_all))
+%                     if strcmp(UI.statistic_type.ui,'Constrained') || strcmp(UI.statistic_type.ui,'SEA')
+%                         error('Something went wrong - this shouldn''t happen anymore, only in old summaries created by old script.')
+%                     elseif numel(positives)==numel(cluster_stats_all)
+%                         % reshape positives to matrix to match cluster_stats_all
+%                         positives=reshape(positives,n_nodes,n_nodes,n_repetitions);
+%                         positives_neg=reshape(positives_neg,n_nodes,n_nodes,n_repetitions);
+%                     elseif strcmp(UI.statistic_type.ui,'Omnibus')
+%                         warning('This is ONLY a temporary quick fix for the new omnibus.');
+%                         cluster_stats_all=squeeze(cluster_stats_all(1,1,:))';
+%                     else; error('Cluster stats and p-value dimensions don''t match. We can only fix this in two ways and they must have failed.')
+%                     end
+%                 end 
+% 
+%                 % mask stats at every repetition by whether positivs 
+%                 cluster_stats_sig_all=cluster_stats_all.*positives;
+%                 cluster_stats_sig_summary.mean=mean(cluster_stats_sig_all,n_dim__cluster_stats_all);
+%                 cluster_stats_sig_summary.std=std(cluster_stats_sig_all,0,n_dim__cluster_stats_all);
+%                 
+%                 cluster_stats_sig_all_neg=cluster_stats_all_neg.*positives_neg;
+%                 cluster_stats_sig_summary_neg.mean=mean(cluster_stats_sig_all_neg,n_dim__cluster_stats_all);
+%                 cluster_stats_sig_summary_neg.std=std(cluster_stats_sig_all_neg,0,n_dim__cluster_stats_all);
+            
+            % double check FWER calculation
+            if strcmp(UI.statistic_type.ui,'Constrained') || strcmp(UI.statistic_type.ui,'SEA') || strcmp(UI.statistic_type.ui,'Omnibus') || strcmp(UI.statistic_type.ui,'Parametric_FDR') || strcmp(UI.statistic_type.ui,'Parametric_Bonferroni')
+                FWER_manual=sum(+any(positives))/n_repetitions;
+                FWER_manual_neg=sum(+any(positives_neg))/n_repetitions;
+            else
+                positives_reshaped=reshape(positives,n_nodes^2,n_repetitions);
+                positives_reshaped_neg=reshape(positives_neg,n_nodes^2,n_repetitions);
+                FWER_manual=sum(+any(positives_reshaped))/n_repetitions;
+                FWER_manual_neg=sum(+any(positives_reshaped_neg))/n_repetitions;
+            end
+            
+            n_subs_subset=rep_params.n_subs_subset;
+            n_perms=UI.perms.ui;
+            if exist('run_time','var')
+                run_time_h=run_time/(60*60);
+            else
+                run_time_h=NaN;
+            end
+            
+            save(benchmarking_summary_filename,'edge_stats_summary','edge_stats_summary_neg','cluster_stats_summary','cluster_stats_summary_neg','positives','positives_neg','positives_total','positives_total_neg','FWER_manual','FWER_manual_neg','n_repetitions','n_subs_subset','run_time_h','n_perms','-v7.3');
+        else
+            load(benchmarking_summary_filename,'positives_total','positives_total_neg','n_repetitions','n_subs_subset','run_time_h','n_perms')
+            [warnmsg,~] = lastwarn;
+            if contains(warnmsg,'Variable ') && contains(warnmsg,'not found.')
+                error(['Unable to load all necessary variables from ',benchmarking_summary_filename,'.\nPlease check these exist and try again. (Recently added grsize to the filename string--check that this is included.)']);
+            end
+            if strcmp(stat_type,'Constrained') || strcmp(stat_type,'SEA') % need for summary in edge_groups
+                load(results_filename,'UI');
+            end
+        end
+        
+        % calculate TPR
+        
+        ids_pos_vec=dcoeff>0;
+        ids_neg_vec=dcoeff<0;
+        
+        if strcmp(stat_type,'Constrained') || strcmp(stat_type,'SEA')
+            edge_groups_triu=UI.edge_groups.ui';
+            edge_groups_vec=edge_groups_triu(ids_triu);
+            ids_pos=edge_groups_vec(ids_pos_vec);
+            ids_neg=edge_groups_vec(ids_neg_vec);
+        elseif contains(stat_type,'Omnibus')
+            ids_pos=1;
+            ids_neg=1;
+        else
+            ids_pos=ids_triu(ids_pos_vec);
+            ids_neg=ids_triu(ids_neg_vec);
+        end
+        
+        true_positives=zeros(size(dcoeff));
+        if strcmp(stat_type,'Parametric_FDR') || strcmp(stat_type,'Parametric_Bonferroni')
+            % already upper triangle
+            true_positives(ids_pos_vec)=positives_total(ids_pos_vec);
+            true_positives(ids_neg_vec)=positives_total_neg(ids_neg_vec);
+        else
+            true_positives(ids_pos_vec)=positives_total(ids_pos);
+            true_positives(ids_neg_vec)=positives_total_neg(ids_neg);
+        end
+        tpr=true_positives*100/n_repetitions;
+        
+        
+        
+        %% VISUALIZATION
+        
+        % Setup for figures and logs
+        
+        % - get network-level summary of dcoeff and tpr
+        dcoeff_scaled{1}=dcoeff;
+        tpr_scaled{1}=tpr;
+        
+        ids_pos_summat=dcoeff_net>0;
+        ids_neg_summat=dcoeff_net<0;
+        
+        % true postive counts by networks
+        if strcmp(stat_type,'Constrained') || strcmp(stat_type,'SEA')
+            true_positives_summat(ids_pos_summat)=positives_total(ids_pos_summat);
+            true_positives_summat(ids_neg_summat)=positives_total_neg(ids_neg_summat);
+        else
+            true_positives_summat=summarize_matrix_by_atlas(true_positives,'suppressimg',1,'do_std',1)';
+            true_positives_summat=true_positives_summat(triu_msk_net)';
+            % [true_positives_summat,true_positives_summat_std]=summarize_matrix_by_atlas(true_positives,'suppressimg',1,'do_std',1)';
+            % true_positives_summat_std=true_positives_summat_std(triu_msk_summat)';
+        end
+        
+        dcoeff_scaled{2}=dcoeff_net;
+        tpr_scaled{2}=(true_positives_summat*100/n_repetitions)';
+        
+        % - set up data for log
+        log_data.n_repetitions=n_repetitions;
+        log_data.n_perms=n_perms;
+        log_data.n_subs_subset=n_subs_subset;
+        log_data.n_subs_total=n_subs_total;
+        log_data.run_time_h=run_time_h;
+        
+        % Do figures and logs for both levels of scaling (edge and network)
+        for scaling=1:2
+            
+            if make_figs || save_log
+                % Fit curves for TPR v effect size to all available task data - needed for both visualization and log
+                [tpr_fit{scaling},res_scaled{scaling},dcoeff_windowed{scaling},tpr_windowed{scaling},tpr_windowed_std{scaling},~]=...
+                fit_spline(dcoeff_scaled{scaling},tpr_scaled{scaling},pp.spline_smoothing{scaling},pp.window_sz{scaling});
+                       
+                % Make figs and log
+                if make_figs
+                    save_settings_for_all=visualize_tprs(dcoeff_scaled{scaling},tpr_scaled{scaling},dcoeff_windowed{scaling},tpr_windowed{scaling},tpr_windowed_std{scaling},tpr_fit{scaling},res_scaled{scaling},triu_msk,summary_prefix,pp,scaling,save_figs,save_settings_for_all);
+%                     save_settings_for_all=visualize_tprs(dcoeff_scaled{scaling},tpr_scaled{scaling},dcoeff_windowed{scaling},tpr_windowed{scaling},tpr_windowed_std{scaling},dcoeff_scaled{scaling},tpr_fit{scaling},res_scaled{scaling},res_mat,summary_prefix,pp,scaling,save_figs,save_settings_for_all);
+                end
+
+                if save_log
+                    save_settings_for_all=write_summary_to_log(dcoeff_windowed{scaling},tpr_windowed{scaling},log_data,summary_prefix,pp,scaling,save_log,save_settings_for_all);
+                end
+            end
+            
+>>>>>>> expanded_tests
 
 stat_level_map.stat_gt_levels=zeros(1,length(stat_level_map.stat_levels_str));
 stat_level_map.stat_gt_levels_str=cell(1,length(stat_level_map.stat_levels_str));
@@ -158,10 +397,53 @@ for t=1:length(tasks)
         stat_type=stat_types{s};
         fprintf(['Doing: ',task,'::',stat_type,'\n'])
         
+<<<<<<< HEAD
         % calculate and save tpr (checking before saving is built in)
         set_datetimestr_and_files; % set datetimestr for specified task, stat_type, data_source
         if ~exist(summary_output_dir,'dir'); mkdir(summary_output_dir); end
         save_settings=summary_tools.calculate_positives(results_filename,benchmarking_summary_filename,save_settings);
+=======
+        % set results filenames
+        date_time_str_now=datestr(now,'mmddyyyy');
+        bench_results_basename_prefix=['results__',task,'_',stat_type,'_','grsize',num2str(grsize),'_',date_time_str_now];
+%         bench_results_basename_prefix=['results__',task,'_',stat_type,omnibus_str,'_','grsize',num2str(grsize),'_',date_time_str_now];
+        benchmarking_summary_filename=[output_dir,bench_results_basename_prefix,'_summary.mat'];
+        
+        % set summary prefixes for combined tasks
+        summary_output_dir=[output_dir,task,'_',stat_type,'_summary/'];
+        summary_prefix=[summary_output_dir,'results__',task,'_',stat_type,'_','grsize',num2str(grsize),'_',date_time_str_now];
+        
+        % make summary output dir
+        if ~exist(summary_output_dir,'dir'); mkdir(summary_output_dir); end
+        
+        % save intermediate data
+        [save_settings_for_all,save_combined] = check_whether_to_save(save_settings_for_all,save_combined,'combined','Combined summary data',benchmarking_summary_filename);
+        if save_combined
+            save(benchmarking_summary_filename,'dcoeff_scaled_all','tpr_scaled_all','log_data_combined','-v7.3'); % TODO: change here and above *_all -> *_combined_tasks to match naming needed for "compare_methods"
+        end
+        
+        for scaling=1:length(dcoeff_windowed)            
+            
+%             dcoeff_scaled{scaling}=dcoeff_scaled_all{s}{scaling}(:);
+%             tpr_scaled{scaling}=tpr_scaled_all{s}{scaling}(:);
+
+            if make_figs || save_log
+                % Fit curves for TPR v effect size to all available task data - needed for both visualization and log
+                [tpr_fit{scaling},res_scaled{scaling},dcoeff_windowed{scaling},tpr_windowed{scaling},tpr_windowed_std{scaling},~]=...
+                fit_spline(dcoeff_scaled_all{s}{scaling}(:),tpr_scaled_all{s}{scaling}(:),pp.spline_smoothing{scaling},pp.window_sz{scaling});
+            end
+            
+            % Make figs and log
+             if make_figs || make_figs__only_combined
+                save_settings_for_all=visualize_tprs(dcoeff_scaled_all{s}{scaling}(:),tpr_scaled_all{s}{scaling}(:),dcoeff_windowed{scaling},tpr_windowed{scaling},tpr_windowed_std{scaling},tpr_fit{scaling},res_scaled{scaling},triu_msk,summary_prefix,pp,scaling,save_figs,save_settings_for_all);
+             end
+            
+            if save_log
+                save_settings_for_all=write_summary_to_log(dcoeff_windowed{scaling},tpr_windowed{scaling},log_data_combined,summary_prefix,pp,scaling,save_log,save_settings_for_all); 
+            end
+            
+        end
+>>>>>>> expanded_tests
         
     end
 end

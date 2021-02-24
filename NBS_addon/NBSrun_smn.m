@@ -455,6 +455,17 @@ elseif strcmp(UI.method.ui,'Run FDR')
     else
         [nbs.NBS.n,nbs.NBS.con_mat,nbs.NBS.pval]=NBSfdr(nbs.STATS);
     end
+elseif strcmp(UI.method.ui,'Run Parametric Edge-Level Correction')
+    str='Computing parametric edge-level multiple comparison correction...';
+    try tmp=get(S.OUT.ls,'string'); set(S.OUT.ls,'string',[{str};tmp]); drawnow;
+    catch;  fprintf([str,'\n']); end 
+    %Show waitbar if test statistics have not been precomputed
+    if isempty(nbs.STATS.test_stat)
+        % SMN - no waitbar for cl version
+        [nbs.NBS.n,nbs.NBS.con_mat,nbs.NBS.pval,nbs.NBS.edge_stats]=NBSedge_level_parametric_corr(nbs.STATS,1,nbs.GLM);
+    else
+        [nbs.NBS.n,nbs.NBS.con_mat,nbs.NBS.pval,nbs.NBS.edge_stats]=NBSedge_level_parametric_corr(nbs.STATS);
+    end
 end
     
 %Update the UI in the nbs structure to the UI that has just been used for

@@ -184,7 +184,7 @@ error(['can''t find ',fpr_summary_filename]) % TODO: remove
         positives_neg=+(pvals_all_neg<str2double(UI.alpha.ui));
 
         % before significance masking, make sure positives are in same space as cluster-level stats
-        if ~isequal(size(positives),size(cluster_stats_all))
+        if ~isequal(size(positives),size(cluster_stats_all)) && ~(contains(UI.statistic_type.ui,'FDR') || contains(UI.statistic_type.ui,'Bonferroni'))
             if numel(positives)==numel(cluster_stats_all)
                 % reshape positives to matrix to match cluster_stats_all
                 positives=reshape(positives,n_nodes,n_nodes,n_repetitions);
@@ -199,7 +199,7 @@ error(['can''t find ',fpr_summary_filename]) % TODO: remove
         positives_total_neg=sum(positives_neg,length(size(positives)));
         
         % double check FWER calculation
-        if strcmp(UI.statistic_type.ui,'Constrained') || strcmp(UI.statistic_type.ui,'SEA')
+        if strcmp(UI.statistic_type.ui,'Constrained') || strcmp(UI.statistic_type.ui,'SEA') || strcmp(UI.statistic_type.ui,'Parametric_FDR') || strcmp(UI.statistic_type.ui,'Parametric_Bonferroni')
             FWER_manual=sum(+any(positives))/n_repetitions;
             FWER_manual_neg=sum(+any(positives_neg))/n_repetitions;
         else
