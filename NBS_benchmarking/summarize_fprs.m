@@ -4,29 +4,35 @@ function summarize_fprs(varargin)
 % This script summarizes and visualizes true positive rates
 % Summarization: fits spline to effect size vs. mean TPR
 % Plot: d v. TPR spline, d v. TPR residual map
-% Usage: summarize_tprs('LANGUAGE','Size_Extent','02102020_1759',40);
+% Usage: summarize_fprs('LANGUAGE','Size_Extent','02102020_1759',40);
 %   Task choices: SOCIAL; WM; GAMBLING; RELATIONAL; EMOTION; MOTOR; GAMBLING
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Variables
-stat_types_default={'Size_Extent','TFCE','Constrained'};
-grsize_default=40;
-make_figs_default=1;
-save_figs_default=1;
-save_log_default=1;
+stat_types_default={'Parametric_FDR','Size_Extent','TFCE','Constrained'}; % TODO
+% grsize_default=40;
+% make_figs_default=1;
+% save_figs_default=1;
+% save_logs_default=1;
+
+summary_type='summarize_fprs';
+setparams_summary;
 
 p = inputParser;
 % addRequired(p,'date_time_str_results',@ischar);
 addOptional(p,'stat_types',stat_types_default);
 addOptional(p,'grsize',grsize_default);
+addOptional(p,'save_summarized_data',save_settings.defaults.save_summarized_data);
 addOptional(p,'make_figs',make_figs_default);
-addOptional(p,'save_figs',save_figs_default);
-addOptional(p,'save_log',save_log_default);
+addOptional(p,'save_figs',save_settings.defaults.save_figs);
+addOptional(p,'save_logs',save_settings.defaults.save_logs);
+
 parse(p,varargin{:});
 
+save_settings.do.save_summarized_data=p.Results.save_summarized_data;
 make_figs=p.Results.make_figs;
-save_figs=p.Results.save_figs;
-save_log=p.Results.save_log;
+save_settings.do.save_figs=p.Results.save_figs;
+save_settings.do.save_logs=p.Results.save_logs;
 stat_types=p.Results.stat_types;
 % date_time_str_results=p.Results.date_time_str_results;
 grsize=p.Results.grsize;
@@ -36,33 +42,32 @@ grsize=p.Results.grsize;
 [current_path,~,~]=fileparts(mfilename('fullpath')); % assuming current folder is NBS_benchmarkin
 addpath(genpath(current_path));
 setpaths;
-save_settings_for_all.asked.summarize=0;
-save_settings_for_all.asked.figs=0;
-save_settings_for_all.asked.log=0;
 
 fprintf('* Summarizing false positive benchmarking results.\n');
 
 for s=1:length(stat_types)
     
-    % stat-specific setup
+    % task- & stat-specific setup
     task='REST_v_REST2';
     stat_type=stat_types{s};
     fprintf(['Summarizing FPRs - ',task,'::',stat_type,'\n'])
-    setparams_summary;
+    set_datetimestr_and_files;
+    summary_tools; % summary functions
 
-    bench_results_basename_prefix=['results__',task,'_',stat_type,'_','grsize',num2str(grsize),'_',date_time_str_results.(task)];
+    % setup paths
+    bench_results_basename_prefix=['results__',task,'_shuffled_for_FPR_',stat_type,'_grsize',num2str(grsize),'_',date_time_str_results.(task)];
 
     % set results files
     results_filename=[output_dir,bench_results_basename_prefix,'.mat'];
-    benchmarking_summary_filename=[output_dir,bench_results_basename_prefix,'_summary.mat'];
+    fpr_summary_filename=[output_dir,bench_results_basename_prefix,'_summary.mat'];
 
     % set summary prefixes
     summary_output_dir=[output_dir,task,'_',stat_type,'_summary/'];
     summary_output_dir_gt=[output_dir,task,'_',stat_type_gt,'_summary/'];
-    summary_prefix=[summary_output_dir,'results__',task,'_',stat_type,'_',date_time_str_results.(task)];
+    summary_prefix=[summary_output_dir,'results__',task,'_shuffled_for_FPR_',stat_type,'_grsize',num2str(grsize),'_',date_time_str_results.(task)];
 
     % define a few output files to save for testing already created
-    fpr_by_edges_file=[summary_prefix,'_fpr_by_edges.png'];
+    fpr_vis_filename=[summary_prefix,'_fpr_by_edges.png'];
     logfile=[summary_prefix,'_log.txt'];
 
     % setup summary output dir
@@ -70,107 +75,81 @@ for s=1:length(stat_types)
     
     
     %% Check for needed data and existing summaries
-
-    summarize_benchmarking=1;
-    if exist(benchmarking_summary_filename, 'file') == 2
-        if ~save_settings_for_all.asked.summarize || ~save_settings_for_all.use_same.summarize
-         
-            user_response=input(sprintf('Summary data already exists. Overwrite? [yes/no]\n> '),'s');
-            if strcmp(user_response,'yes')
-                fprintf('Replacing previous summary.\n');
-            else
-                fprintf('Keeping existing summary.\n');
-                summarize_benchmarking=0;
-            end
-            
-            if ~save_settings_for_all.asked.summarize
-                user_response=input(sprintf('Repeat for all? [yes/no]\n> '),'s');
-                if strcmp(user_response,'yes')
-                    fprintf('Using this setting for all.\n');
-                    save_settings_for_all.use_same.summarize=1;
-                    save_settings_for_all.summarize=summarize_benchmarking;
-                else
-                    fprintf('Okay, will ask each time.\n');
-                    save_settings_for_all.use_same.summarize=0;
-                end
-                save_settings_for_all.asked.summarize=1;
-            end
-            
-        else
-            summarize_benchmarking=save_settings_for_all.summarize;
-        end
-        
-    end
-
+    
+    save_settings = summary_tools.check_whether_to_save(save_settings,'save_summarized_data','Combined summary data',fpr_summary_filename);
+    save_settings = summary_tools.check_whether_to_save(save_settings,'save_figs','Save figs',fpr_vis_filename);
+    save_settings = summary_tools.check_whether_to_save(save_settings,'save_logs','Save log',fpr_vis_filename);
+    
+%{
     if make_figs && save_figs
-        save_figs__results=1;
-        if exist(fpr_by_edges_file,'file')
-            if ~save_settings_for_all.asked.figs || ~save_settings_for_all.use_same.figs
-                resp=input(sprintf('Results figures already exist in %s. \nOverwrite? (Otherwise will plot without saving.) [y/n]\n> ',fpr_by_edges_file),'s');
+        save_settings.do.save_figs=1;
+        if exist(fpr_vis_filename,'file')
+            if ~save_settings.asked.figs || ~save_settings.use_same.figs
+                resp=input(sprintf('Results figures already exist in %s. \nOverwrite? (Otherwise will plot without saving.) [y/n]\n> ',fpr_vis_filename),'s');
                 if strcmp(resp,'y')
                     fprintf('Replacing results figures.\n');
                 else
-                    save_figs__results=0;
+                    save_settings.do.save_figs=0;
                     fprintf('Okay, won''t overwrite.\n');
                 end
 
-                if ~save_settings_for_all.asked.figs
+                if ~save_settings.asked.figs
                     user_response=input(sprintf('Repeat for all? [yes/no]\n> '),'s');
                     if strcmp(user_response,'yes')
                         fprintf('Using this setting for all.\n');
-                        save_settings_for_all.use_same.figs=1;
-                        save_settings_for_all.figs=save_figs__results;
+                        save_settings.use_same.figs=1;
+                        save_settings.figs=save_settings.do.save_figs;
                     else
                         fprintf('Okay, will ask each time.\n');
-                        save_settings_for_all.use_same.figs=0;
+                        save_settings.use_same.figs=0;
                     end
-                    save_settings_for_all.asked.figs=1;
+                    save_settings.asked.figs=1;
                 end
 
             else
-                save_figs__results=save_settings_for_all.figs;
+                save_settings.do.save_figs=save_settings.figs;
             end
         end
     else
-        save_figs__results=0;
+        save_settings.do.save_figs=0;
     end
 
-    if save_log
+    if save_settings.do.save_logs
         if exist(logfile,'file')
-            if ~save_settings_for_all.asked.log || ~save_settings_for_all.use_same.log
+            if ~save_settings.asked.log || ~save_settings.use_same.log
                 
                 resp=input('Log file already exists. \nOverwrite? [y/n]\n> ','s');
                 if strcmp(resp,'y')
                     fprintf('Replacing log.\n');
                 else
-                    save_log=0;
+                    save_settings.do.save_logs=0;
                     fprintf('Okay, won''t overwrite.\n');
                 end
                 
-                if ~save_settings_for_all.asked.log
+                if ~save_settings.asked.log
                     user_response=input(sprintf('Repeat for all? [yes/no]\n> '),'s');
                     if strcmp(user_response,'yes')
                         fprintf('Using this setting for all.\n');
-                        save_settings_for_all.use_same.log=1;
-                        save_settings_for_all.log=save_log;
+                        save_settings.use_same.log=1;
+                        save_settings.log=save_settings.do.save_logs;
                     else
                         fprintf('Okay, will ask each time.\n');
-                        save_settings_for_all.use_same.log=0;
+                        save_settings.use_same.log=0;
                     end
-                    save_settings_for_all.asked.log=1;
+                    save_settings.asked.log=1;
                 end
                 
             else
-                save_log=save_settings_for_all.log;
+                save_settings.do.save_logs=save_settings.log;
             end
         end
     end
-
+%}
 
     %% Summarize benchmarking results: 'edge_stats_summary','cluster_stats_summary','positives','positives_total','FWER_manual'
     
-    if summarize_benchmarking
-
+    if save_settings.do.save_summarized_data
+error(['can''t find ',fpr_summary_filename]) % TODO: remove
         load(results_filename);
         
         %% Additional setup
@@ -237,13 +216,100 @@ for s=1:length(stat_types)
         else
             run_time_h=NaN;
         end
-
-        save(benchmarking_summary_filename,'edge_stats_summary','edge_stats_summary_neg','cluster_stats_summary','cluster_stats_summary_neg','positives','positives_neg','positives_total','positives_total_neg','FWER_manual','FWER_manual_neg','n_repetitions','n_subs_subset','run_time_h','n_perms','-v7.3');
+    
+        save(fpr_summary_filename,'edge_stats_summary','edge_stats_summary_neg','cluster_stats_summary','cluster_stats_summary_neg','positives','positives_neg','positives_total','positives_total_neg','FWER_manual','FWER_manual_neg','n_repetitions','n_subs_subset','run_time_h','n_perms','-v7.3');
+        fprintf(['Saved summary data in ',fpr_summary_filename,'.\n']);
     else
-        load(benchmarking_summary_filename,'positives_total','positives_total_neg','n_repetitions','n_subs_subset','run_time_h','n_perms','FWER_manual')
+        load(fpr_summary_filename,'positives_total','positives_total_neg','n_repetitions','n_subs_subset','run_time_h','n_perms','FWER_manual')
         if strcmp(stat_type,'Constrained') || strcmp(stat_type,'SEA') % need for summary in edge_groups
             load(results_filename,'UI');
         end
+        
+        
+        
+        
+        % set up naming/indexing vars based on levels of inference and ground truth
+
+        stat_level_map.stat_types=all_stat_types;
+        stat_level_map.stat_levels_str=all_stat_types;
+        for s=1:size(stats_levelstr_map,1)
+            stat_level_map.stat_levels_str{contains(stat_level_map.stat_levels_str,stats_levelstr_map{s,1})}=stats_levelstr_map{s,2};
+        end
+
+        stat_level_map.stat_gt_levels=zeros(1,length(stat_level_map.stat_levels_str));
+        stat_level_map.stat_gt_levels_str=cell(1,length(stat_level_map.stat_levels_str));
+        for s=1:size(statlevel_gtlevel_map,1)
+            idx=contains(stat_level_map.stat_levels_str,statlevel_gtlevel_map{s,1});
+            stat_level_map.stat_gt_levels(idx)=statlevel_gtlevel_map{s,3};
+            stat_level_map.stat_gt_levels_str(idx)=statlevel_gtlevel_map(s,2);
+            % TODO: use this for ground truth categories
+        end
+        
+        % count dimensions and make upper triangular masks
+        pp.n_stat_types=length(stat_types);
+        [~,matching_stat_idx]=unique(stat_level_map.stat_gt_levels);
+        pp.n_gt_levels=length(matching_stat_idx);
+        pp.n_tasks=1;
+
+         if contains(stat_type,'Parametric') 
+             g=1;
+         elseif contains(stat_type,'Constrai')
+             g=2;
+         elseif contains(stat_type,'Size') || contains(stat_type,'TFCE')
+             g=3; % TODO: just a workaround
+         end
+             
+%         for g=1:pp.n_gt_levels
+
+            s_idx=matching_stat_idx(g);
+            gt_level_str=stat_level_map.stat_gt_levels_str{s_idx};
+
+%             pp.n_features.(gt_level_str)=length(dcoeff.(stat_types{s_idx})(:,1));
+            pp.n_features.(gt_level_str)=length(positives_total);
+            pp.n_nodes.(gt_level_str)=int16(roots([1 1 -2*pp.n_features.(gt_level_str)])); % assuming n_nets x n_nets, x = n*(n+1)/2 -> n^2 + n - 2x
+            pp.n_nodes.(gt_level_str)=pp.n_nodes.(gt_level_str)(end) + pp.remove_matrix_diag.(gt_level_str);
+            pp.triu_msk.(gt_level_str)=triu(true(pp.n_nodes.(gt_level_str)),pp.remove_matrix_diag.(gt_level_str));
+            pp.ids_triu.(gt_level_str)=find(pp.triu_msk.(gt_level_str));
+
+%         end
+        
+        
+        if contains(stat_type,'Parametric')
+            p=+pp.triu_msk.edge;
+            p(pp.triu_msk.edge)=positives_total;
+            p_neg=+pp.triu_msk.edge;
+            p_neg(pp.triu_msk.edge)=positives_total_neg;
+
+            figure()
+            draw_atlas_boundaries(p');
+            figure()
+            draw_atlas_boundaries(p_neg');
+        
+        elseif contains(stat_type,'Size') || contains(stat_type,'TFCE')
+            figure()
+            draw_atlas_boundaries(positives_total);
+            figure()
+            draw_atlas_boundaries(positives_total_neg);
+        elseif contains(stat_type,'Constrai')
+            
+%             tmp=tril(true(pp.n_nodes));
+%             positives_total=structure_data(positives_total,'mask',tmp);
+%             positives_total=positives_total';
+%             positives_total=positives_total(triu_msk);
+            
+            
+            p_mat_tmp=+pp.triu_msk.network;
+            p_mat_tmp(pp.triu_msk.network)=positives_total;
+            p_mat_tmp2=p_mat_tmp';
+            
+            map=load_atlas_mapping(pp.n_nodes.edge,'subnetwork');
+            p_net2edge=summary_to_full_matrix(p_mat_tmp2,map);
+            p_net2edge=p_net2edge{1};
+            figure()
+            summarize_matrix_by_atlas(p_net2edge);
+            
+        end
+        
     end
 %{
     %% Calculate TPR
@@ -399,8 +465,8 @@ for s=1:length(stat_types)
         rectangle('Position',[-thresh_large,ax_ymin,2*thresh_large,ax_ymax_tp],'FaceColor',[1 1 0 0.2],'EdgeColor','none')
         hold off
 
-        if save_figs__results
-            saveas(gcf,fpr_by_edges_file,'png')
+        if save_settings.do.save_figs
+            saveas(gcf,fpr_vis_filename,'png')
         end
         close(tmp);
 
@@ -417,7 +483,7 @@ for s=1:length(stat_types)
 
         hold off;
 
-        if save_figs__results
+        if save_settings.do.save_figs
             % save plot
             saveas(gcf,[summary_prefix,'_esz_v_TPR__residuals'],'png')
         end
@@ -434,7 +500,7 @@ for s=1:length(stat_types)
         colormap(bipolar([],0.1));
         caxis(clim_res_detailed);
 
-        if save_figs__results
+        if save_settings.do.save_figs
             saveas(gcf,[summary_prefix,'_residuals_by_edges'],'png')
         end
 
@@ -443,7 +509,7 @@ for s=1:length(stat_types)
         colormap(bipolar([],0.1));
         caxis(clim_res);
 
-        if save_figs__results
+        if save_settings.do.save_figs
             saveas(gcf,[summary_prefix,'_residuals_by_networks'],'png')
         end
 
@@ -453,7 +519,7 @@ for s=1:length(stat_types)
 %}
     %% Log percent esz and TP at thresholds
 
-    if save_log
+    if save_settings.do.save_logs
         fprintf('Saving log in %s.\n',logfile);
 
         fid=fopen(logfile,'w');
