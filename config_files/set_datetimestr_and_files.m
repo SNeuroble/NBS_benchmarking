@@ -20,7 +20,7 @@ date_time_str_ground_truth.WM_v_REST='02222021_1820';
 % date_time_str_ground_truth.RELATIONAL_v_REST='11112020_1345';
 % date_time_str_ground_truth.SOCIAL_v_REST='10192020_1656';
 % date_time_str_ground_truth.WM_v_REST='10192020_1714';
-% date_time_str_ground_truth.REST_v_REST2='03012020_1709';
+date_time_str_ground_truth.REST_v_REST2='03012020_1709';
 
 %% Single task summary filename info
 
@@ -123,7 +123,7 @@ otherwise
                 date_time_str_results.RELATIONAL_v_REST='02242020_1715';
                 date_time_str_results.SOCIAL_v_REST='03012020_1942';
                 date_time_str_results.WM_v_REST='02252020_1931';
-                date_time_str_results.REST_v_REST2='08062020_0932';
+                date_time_str_results.REST_v_REST2='01232021_1500';
             elseif grsize==80
                 date_time_str_results.EMOTION_v_REST='12172020_0752';
                 date_time_str_results.GAMBLING_v_REST='12182020_0617';
@@ -132,6 +132,8 @@ otherwise
                 date_time_str_results.RELATIONAL_v_REST='12202020_0356';
                 date_time_str_results.SOCIAL_v_REST='12202020_0436';
                 date_time_str_results.WM_v_REST='12202020_0436';
+                date_time_str_results.REST_v_REST2='01292021_0726';
+%                 date_time_str_results.REST_v_REST2='08062020_0932';
             elseif grsize==120
                 date_time_str_results.EMOTION_v_REST='01262021_0007';
                 date_time_str_results.GAMBLING_v_REST='01282021_0025';
@@ -151,6 +153,7 @@ otherwise
                 date_time_str_results.RELATIONAL_v_REST='02252020_0829';
                 date_time_str_results.SOCIAL_v_REST='03022020_0203';
                 date_time_str_results.WM_v_REST='02262020_0139';
+                date_time_str_results.REST_v_REST2='01232021_1834';
             elseif grsize==80
                 date_time_str_results.EMOTION_v_REST='12172020_1731';
                 date_time_str_results.GAMBLING_v_REST='12182020_1501';
@@ -159,6 +162,7 @@ otherwise
                 date_time_str_results.RELATIONAL_v_REST='12202020_1217';
                 date_time_str_results.SOCIAL_v_REST='12202020_1308';
                 date_time_str_results.WM_v_REST='12202020_1259';
+                date_time_str_results.REST_v_REST2='01292021_0739';
             elseif grsize==120
                 date_time_str_results.EMOTION_v_REST='01272021_1155';
                 date_time_str_results.GAMBLING_v_REST='01272021_1153';
@@ -178,7 +182,7 @@ otherwise
                 date_time_str_results.RELATIONAL_v_REST='02252020_1519';
                 date_time_str_results.SOCIAL_v_REST='03022020_0531';
                 date_time_str_results.WM_v_REST='02262020_0457';
-                date_time_str_results.REST_v_REST2='08052020_2143';
+                date_time_str_results.REST_v_REST2='01232021_1559';
             elseif grsize==80
                 date_time_str_results.EMOTION_v_REST='12252020_0030';
                 date_time_str_results.GAMBLING_v_REST='12182020_2202';
@@ -187,6 +191,7 @@ otherwise
                 date_time_str_results.RELATIONAL_v_REST='12202020_1845';
                 date_time_str_results.SOCIAL_v_REST='12202020_1940';
                 date_time_str_results.WM_v_REST='12202020_1928';
+                date_time_str_results.REST_v_REST2='01292021_0609';
             elseif grsize==120
                 date_time_str_results.EMOTION_v_REST='01262021_0053';
                 date_time_str_results.GAMBLING_v_REST='01272021_2332';
@@ -195,7 +200,7 @@ otherwise
                 date_time_str_results.RELATIONAL_v_REST='01282021_0055';
                 date_time_str_results.SOCIAL_v_REST='01272021_2244';
                 date_time_str_results.WM_v_REST='01272021_2310';
-                date_time_str_results.REST_v_REST2='i01282021_2135';
+                date_time_str_results.REST_v_REST2='01282021_2135';
             end
         case 'Omnibus_Multidimensional_cNBS'
             if grsize==40
@@ -206,6 +211,7 @@ otherwise
                 date_time_str_results.RELATIONAL_v_REST='01192021_0228';
                 date_time_str_results.SOCIAL_v_REST='01192021_0213';
                 date_time_str_results.WM_v_REST='01192021_0246';
+                date_time_str_results.REST_v_REST2='01232021_1506';
             elseif grsize==80
                 date_time_str_results.EMOTION_v_REST='12242020_2038';
                 date_time_str_results.GAMBLING_v_REST='12242020_2301';
@@ -214,6 +220,7 @@ otherwise
                 date_time_str_results.RELATIONAL_v_REST='12242020_2354';
                 date_time_str_results.SOCIAL_v_REST='12242020_2347';
                 date_time_str_results.WM_v_REST='12252020_0007';
+                date_time_str_results.REST_v_REST2='01292021_0653';
              elseif grsize==120
                 date_time_str_results.EMOTION_v_REST='01272021_1104';
                 date_time_str_results.GAMBLING_v_REST='01272021_1008';
@@ -232,64 +239,67 @@ end
 
 %% Set io filenames
 
-if ~contains(summary_type,'visualize') % visualizations rely on combined summary, not these individual task files
-    
-    % ground truth variables
-    ground_truth_results_basename_prefix=['ground_truth__',task,'_',stat_type_gt,'_',date_time_str_ground_truth.(task)];
-    ground_truth_filename=[output_dir,ground_truth_results_basename_prefix,'.mat'];
-    ground_truth_dcoeff_filename=[output_dir,ground_truth_results_basename_prefix,'_dcoeff.mat'];
+if ~contains(summary_type,'fpr')
+    if ~contains(summary_type,'visualize') % visualizations rely on combined summary, not these individual task files
 
-    if strcmp(summary_type,'calculate_tpr')
-        % original (un-summarized) benchmarking variables
-        benchmarking_results_basename_prefix=['results__',task,'_',stat_type,'_','grsize',num2str(grsize),'_',date_time_str_results.(task)];
-        results_filename=[output_dir,benchmarking_results_basename_prefix,'.mat'];
+        % ground truth variables
+        ground_truth_results_basename_prefix=['ground_truth__',task,'_',stat_type_gt,'_',date_time_str_ground_truth.(task)];
+        ground_truth_filename=[output_dir,ground_truth_results_basename_prefix,'.mat'];
+        ground_truth_dcoeff_filename=[output_dir,ground_truth_results_basename_prefix,'_dcoeff.mat'];
 
-        % summarized benchmarking variables (output 1)
-        benchmarking_summary_filename=[output_dir,benchmarking_results_basename_prefix,'_summary.mat'];
+        if strcmp(summary_type,'calculate_tpr')
+            % original (un-summarized) benchmarking variables
+            benchmarking_results_basename_prefix=['results__',task,'_',stat_type,'_','grsize',num2str(grsize),'_',date_time_str_results.(task)];
+            results_filename=[output_dir,benchmarking_results_basename_prefix,'.mat'];
 
-        % summary figs/logs and combined summary vars
-        summary_output_dir=[output_dir,task,'_',stat_type,'_summary/'];
+            % summarized benchmarking variables (output 1)
+            benchmarking_summary_filename=[output_dir,benchmarking_results_basename_prefix,'_summary.mat'];
 
-        % create new timestamp for a new file
-        date_time_str_combined=date_time_str_now;
+            % summary figs/logs and combined summary vars
+            summary_output_dir=[output_dir,task,'_',stat_type,'_summary/'];
+
+            % create new timestamp for a new file
+            date_time_str_combined=date_time_str_now;
+        end
+
+    % else
+        % combined_summary_prefix=[summary_output_dir,'results__',task,'_',stat_type,'_','grsize',num2str(grsize),'_',date_time_str_combined.(task)];
+        % method_comparison_basename_prefix=[summary_output_dir,'results__',task,'_',stat_type,'_','grsize',num2str(grsize),'_',date_time_str_combined.(stat_type)];
+
+        % TODO: rename as follows - lots of reps here
+        % summary_basename_prefix=summary_prefix;
+        % combined_basename_prefix=method_comparison_basename_prefix; 
+        % combined_summary_filename=[combined_basename_prefix,'_summary.mat'];
+        % TODO: consider stat_type='full_comparison' so can reuse the summary_prefix above
+
+        % use timestamp from already-created file
     end
 
-% else
-    % combined_summary_prefix=[summary_output_dir,'results__',task,'_',stat_type,'_','grsize',num2str(grsize),'_',date_time_str_combined.(task)];
-    % method_comparison_basename_prefix=[summary_output_dir,'results__',task,'_',stat_type,'_','grsize',num2str(grsize),'_',date_time_str_combined.(stat_type)];
+    % combined summary filename
+    combined_summary_dir=[output_dir,'combined_summary/'];
+    combined_basename_prefix=['combined_grsize',num2str(grsize),'_',date_time_str_combined];
+    combined_filename_prefix=[combined_summary_dir,combined_basename_prefix];
+    combined_summary_filename=[combined_filename_prefix,'_summary.mat'];
 
-    % TODO: rename as follows - lots of reps here
-    % summary_basename_prefix=summary_prefix;
-    % combined_basename_prefix=method_comparison_basename_prefix; 
-    % combined_summary_filename=[combined_basename_prefix,'_summary.mat'];
-    % TODO: consider stat_type='full_comparison' so can reuse the summary_prefix above
-    
-    % use timestamp from already-created file
+    % ground truth filename
+    % name with combined prefix bc using combined data
+    ground_truth_vis_dir=[combined_summary_dir,'ground_truth/'];
+    ground_truth_vis_filename_prefix=[ground_truth_vis_dir,'ground_truth_',date_time_str_combined];
+
+    % individual task summaries filename
+    % name with combined prefix bc using combined data
+    combined_by_task_dir=[combined_summary_dir,'individual_task_summary/'];
+    % combined_by_task_basename_prefix=['tasks_grsize',num2str(grsize),'_',date_time_str_combined];
+    combined_by_task_filename_prefix=[combined_by_task_dir,combined_basename_prefix];
+
+    % log filenames
+    % name with combined prefix bc using combined data
+    log_dir=[combined_by_task_dir,'logs/'];
+    log_filename_prefix=[log_dir,combined_basename_prefix];
+
+    % set edge groups file in case can't get from original data
+    edge_groups_filename=[output_dir,'edge_groups.mat'];
+
 end
-
-% combined summary filename
-combined_summary_dir=[output_dir,'combined_summary/'];
-combined_basename_prefix=['combined_grsize',num2str(grsize),'_',date_time_str_combined];
-combined_filename_prefix=[combined_summary_dir,combined_basename_prefix];
-combined_summary_filename=[combined_filename_prefix,'_summary.mat'];
-
-% ground truth filename
-% name with combined prefix bc using combined data
-ground_truth_vis_dir=[combined_summary_dir,'ground_truth/'];
-ground_truth_vis_filename_prefix=[ground_truth_vis_dir,'ground_truth_',date_time_str_combined];
-
-% individual task summaries filename
-% name with combined prefix bc using combined data
-combined_by_task_dir=[combined_summary_dir,'individual_task_summary/'];
-% combined_by_task_basename_prefix=['tasks_grsize',num2str(grsize),'_',date_time_str_combined];
-combined_by_task_filename_prefix=[combined_by_task_dir,combined_basename_prefix];
-
-% log filenames
-% name with combined prefix bc using combined data
-log_dir=[combined_by_task_dir,'logs/'];
-log_filename_prefix=[log_dir,combined_basename_prefix];
-
-% set edge groups file in case can't get from original data
-edge_groups_filename=[output_dir,'edge_groups.mat'];
 
 
