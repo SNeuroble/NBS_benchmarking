@@ -10,21 +10,21 @@
 % entered by the user
 
 % Scripts
-nbs_dir='/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/fmri/NBS1.2/'; % NBS toolbox
+nbs_dir='/Volumes/GoogleDrive/My Drive/Lab/Misc/Software/scripts/Matlab/fmri/NBS1.2/'; % NBS toolbox
 
 % Data - edge matrix should be organized with dimensions n_nodes x n_nodes x n_subs or n_edges x n_subs
-data_file='/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/fmri/NBS1.2/SchizophreniaExample/matrices.mat';
+data_file='/Volumes/GoogleDrive/My Drive/Lab/Misc/Software/scripts/Matlab/fmri/NBS1.2/SchizophreniaExample/matrices.mat';
 
 % Model
 % Provide a univariate design matrix - the first-level test statistic is calculated at the individual-edge level
 % This may be helpful in building design matrices: http://mumford.fmripower.org/2010_summercourse/stat_modeling_2010.pdf
-design_matrix_file='/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/fmri/NBS1.2/SchizophreniaExample/designMatrix.mat'; % 2D design matrix
+design_matrix_file='/Volumes/GoogleDrive/My Drive/Lab/Misc/Software/scripts/Matlab/fmri/NBS1.2/SchizophreniaExample/designMatrix.mat'; % 2D design matrix
 contrast=[-1,1];
 exchange=[];
 
 % Edge groups - REQUIRED FOR CNBS
-% Shen268 atlas: '/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/myscripts/NBS_benchmarking/NBS_addon/SchizophreniaExample/Shen268_map_original.mat'
-edge_groups_file='/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/myscripts/NBS_benchmarking/NBS_addon/SchizophreniaExample/Example_74node_map.mat'; % n_nodes x n_nodes edge matrix mask with nonzeros as follows: 1=subnetwork 1, 2=subnetwork 2, etc.
+% Shen268 atlas: '/Volumes/GoogleDrive/My Drive/Lab/Misc/Software/scripts/Matlab/myscripts/NBS_benchmarking/NBS_addon/SchizophreniaExample/Shen268_map_original.mat'
+edge_groups_file='/Volumes/GoogleDrive/My Drive/Lab/Misc/Software/scripts/Matlab/myscripts/NBS_benchmarking/NBS_addon/SchizophreniaExample/Example_74node_map.mat'; % n_nodes x n_nodes edge matrix mask with nonzeros as follows: 1=subnetwork 1, 2=subnetwork 2, etc.
 
 % Parameters
 nbs_method='Run NBS'; % TODO: revise to include vanilla FDR
