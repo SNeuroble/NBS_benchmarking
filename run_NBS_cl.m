@@ -41,6 +41,7 @@ sig_results=nbs.NBS.pval<pthresh_second_level;
 % Note: Requires edge_groups_file to be a numerical matrix workspace 
 % variable. cNBS results will be 1 x n subnetworks, where the first entry 
 % corresponds to edges in edge group 1, second to edges in edge group 2, etc
+
 if strcmp(cluster_stat_type,'Constrained')
     if exist('nbs','var')
         edge_groups=nbs.STATS.edge_groups.groups;
@@ -50,11 +51,8 @@ if strcmp(cluster_stat_type,'Constrained')
             sig_edge_results(edge_groups==i)=sig_results(it);
             it=it+1;
         end
-        drawmatrix_atlas(sig_edge_results);
     end
-    trimask_summat=logical(triu(ones(10)));
-    network_nbs_results=structure_data(nbs.NBS.cluster_stats,trimask_summat)';
-    image(network_nbs_results*1000);
+    % simple visualization
+    image(sig_edge_results*1000);
 end
-
 
