@@ -9,7 +9,7 @@ function summarize_tprs(summary_type,varargin)
 % 
 %       'positives':        calculate positives for each task/stat
 % 
-%       'tpr':              calculate true positive rates for each task/stat
+%       'calculate_tpr':    calculate true positive rates for each task/stat
 %                           relies on completion of 'dcoeff' & 'positives'   
 % 
 %       'visualize_gt':     visualize ground truth, comparing levels of inference (ground truth)
@@ -25,10 +25,11 @@ function summarize_tprs(summary_type,varargin)
 % Usage 2. 'visualize_tpr'
 %   summarize_tprs('visualize_tpr','grsize',120,'save_figs',0,'save_logs',0, 'do_combined',0);
 %
-% Required for 'dcoefficients': ground truth test statistics (see calculate_ground_truth)
-% Required for 'positives': benchmarking results
-% Required for 'tpr': dcoefficients and positives
-% Required for 'visualize: 'tpr' for all tasks and stat types
+% Requirements:
+%   for 'dcoefficients': ground truth test statistics (see calculate_ground_truth.m)
+%   for 'positives': benchmarking results
+%   for 'tpr': dcoefficients and positives
+%   for 'visualize: 'tpr' for all tasks and stat types
 %
 % Relies on: summary_tools.m (defined functions), setparams_summary.m (defines misc params),
 %   set_datetimestr_and_files.m (defines file parts)
@@ -42,10 +43,12 @@ function summarize_tprs(summary_type,varargin)
 %% SET PATHS/FUNCTIONS & DEFAULTS
 
 [current_path,~,~]=fileparts(mfilename('fullpath')); % assuming current folder is NBS_benchmarking
-addpath(genpath(current_path));
+addpath(genpath(['../',current_path])); % need to add the complete script dir to get the config files
+do_fpr=0;
 setpaths;
 setparams_summary;
 summary_tools; % contains summary functions
+
 
 %% PARSE PARAMETERS
 
@@ -63,10 +66,8 @@ addOptional(p,'save_benchmarking_summary',save_settings.defaults.save_benchmarki
 addOptional(p,'save_figs',save_settings.defaults.save_figs);
 addOptional(p,'save_logs',save_settings.defaults.save_logs);
 addOptional(p,'save_summarized_data',save_settings.defaults.save_summarized_data);
-% addOptional(p,'combine_all_tasks',combine_all_tasks_default);
 addOptional(p,'make_figs',make_figs_default);
 addOptional(p,'do_combined',do_combined_default);
-% addOptional(p,'plot_ground_truth_only',plot_ground_truth_only_default);
 parse(p,summary_type,varargin{:});
 
 % summary_type=p.Results.summary_type;
@@ -78,11 +79,10 @@ save_settings.do.save_benchmarking_summary=p.Results.save_benchmarking_summary;
 save_settings.do.save_figs=p.Results.save_figs;
 save_settings.do.save_logs=p.Results.save_logs;
 save_settings.do.save_summarized_data=p.Results.save_summarized_data;
-% combine_all_tasks=p.Results.combine_all_tasks;
 make_figs=p.Results.make_figs;
 pp.do_combined=p.Results.do_combined;
 if pp.do_combined; make_figs=0; else; make_figs=p.Results.make_figs; end
-% plot_ground_truth_only=p.Results.plot_ground_truth_only;
+if class(stat_types)=='char'; stat_types={stat_types}; end
 
 
 %% SETUP
@@ -99,13 +99,16 @@ end
 warning('off', 'STRUCTURE_DATA:ASSUME_LOWER_TRI');
 warning('off', 'SPLINES:CHCKXYWP:NaNs');
 
-% set up naming/indexing vars based on levels of inference and ground truth
+% set up a single mapping from statistic type to level of inference to ground truth level based on separate definitions in setparams
+% stat_level_map: stat_types to stat_levels_str to stat_gt_levels to stat_gt_levels_str
+
 % stat_level_map.do_overlay=1; %TODO: set as user-defined param
 
 stat_level_map.stat_types=all_stat_types;
 stat_level_map.stat_levels_str=all_stat_types;
 for s=1:size(stats_levelstr_map,1)
-    stat_level_map.stat_levels_str{contains(stat_level_map.stat_levels_str,stats_levelstr_map{s,1})}=stats_levelstr_map{s,2};
+%     stat_level_map.stat_levels_str{contains(stat_level_map.stat_levels_str,stats_levelstr_map{s,1})}=stats_levelstr_map{s,2};
+    stat_level_map.stat_levels_str{strcmp(stat_level_map.stat_levels_str,stats_levelstr_map{s,1})}=stats_levelstr_map{s,2};
 end
 
 stat_level_map.stat_gt_levels=zeros(1,length(stat_level_map.stat_levels_str));
@@ -160,7 +163,7 @@ for t=1:length(tasks)
         
         % calculate and save tpr (checking before saving is built in)
         set_datetimestr_and_files; % set datetimestr for specified task, stat_type, data_source
-        if ~exist(summary_output_dir,'dir'); mkdir(summary_output_dir); end
+        %if ~exist(summary_output_dir,'dir'); mkdir(summary_output_dir); end
         save_settings=summary_tools.calculate_positives(results_filename,benchmarking_summary_filename,save_settings);
        
     end
@@ -184,14 +187,16 @@ for t=1:length(tasks)
 
         task=tasks{t};
         stat_type=stat_types{s};
+        this_stat_level_str=stat_level_map.stat_levels_str{strcmp(stat_level_map.stat_types,stat_type)};
+        this_stat_gt_level_str=stat_level_map.stat_gt_levels_str{strcmp(stat_level_map.stat_types,stat_type)};
         fprintf(['Doing: ',task,'::',stat_type,'\n'])
 
         % set files for specified task, stat_type, data_source and make output
         set_datetimestr_and_files;
-        if ~exist(summary_output_dir,'dir'); mkdir(summary_output_dir); end
+        %if ~exist(summary_output_dir,'dir'); mkdir(summary_output_dir); end
 
         % need original bench results for summary in edge_groups - TODO: save edge_groups into summary matfile
-        if strcmp(stat_level_map.stat_gt_levels_str(s),'network')
+        if strcmp(this_stat_gt_level_str,'network')
             if exist(results_filename,'file')
                 load(results_filename,'UI');
                 edge_groups=UI.edge_groups.ui;
@@ -204,16 +209,22 @@ for t=1:length(tasks)
         end
         
         % calculate true positives
-        [dcoeff.(stat_types{s})(:,t),tpr.(stat_types{s})(:,t),log_data.(stat_types{s}).(tasks{t})]=summary_tools.calculate_tpr(benchmarking_summary_filename,ground_truth_dcoeff_filename,stat_type,stat_level_map.stat_gt_levels_str{s},pp.remove_matrix_diag,edge_groups);
-
+        [dcoeff.(stat_types{s})(:,t),tpr.(stat_types{s})(:,t),fpr.(stat_types{s})(:,t),fwer_strong.(stat_types{s})(t),fdr.(stat_types{s})(:,t),localizing_power.(stat_types{s})(t),num_fp.(stat_types{s})(:,t),spatial_extent_fp.(stat_types{s})(:,t),log_data.(stat_types{s}).(tasks{t})]...
+            =summary_tools.calculate_tpr(benchmarking_summary_filename,ground_truth_dcoeff_filename,this_stat_level_str,this_stat_gt_level_str,pp.remove_matrix_diag,edge_groups);
+        % TODO: remove the fwer_strong here bc it's already passed to log_data
+        
     end
 end
-    
+
+% TODO: remove
+save(sprintf('/Volumes/GoogleDrive/My Drive/Lab/Misc/Software/scripts/Matlab/myscripts/fwer_fdr_lp_indvid_files/lp_fp_gr%d',grsize),'fdr','num_fp','spatial_extent_fp','-append')
+return;
+
 % save combined-task data
 save_settings = summary_tools.check_whether_to_save(save_settings,'save_summarized_data','Combined summary data',combined_summary_filename); % TODO
 if save_settings.do.save_summarized_data
     if ~exist(combined_summary_dir,'dir'); mkdir(combined_summary_dir); end
-    save(combined_summary_filename,'dcoeff','tpr','log_data','-v7.3');
+    save(combined_summary_filename,'dcoeff','tpr','log_data','fpr','fwer_strong','fdr','localizing_power','-v7.3');
     fprintf(['Saved combined data in ',combined_summary_filename,'.\n']);
 end
     
@@ -341,13 +352,17 @@ for s=1:length(stat_types)
     end
 end
 
+% TODO: TEMPORARY FOR TESTING ONLY, APPEND TO EXISTING FILES AND REMOVE HERE
+load(sprintf('/Volumes/GoogleDrive/My Drive/Lab/Misc/Software/scripts/Matlab/myscripts/fwer_fdr_lp_indvid_files/lp_fp_gr%d.mat',grsize))
+
 pp.all_tasks=tasks; % TODO: need for individual tasks, but maybe there's a better way
-summary_tools.visualize_tprs(dcoeff,tpr,tpr_fit,dcoeff_windowed,tpr_windowed,tpr_std,res,filename_prefix,pp,stat_level_map,save_settings);
+% summary_tools.visualize_tpr(dcoeff,tpr,tpr_fit,dcoeff_windowed,tpr_windowed,tpr_std,res,filename_prefix,pp,stat_level_map,save_settings);
+summary_tools.visualize_tpr(dcoeff,tpr,tpr_fit,dcoeff_windowed,tpr_windowed,tpr_std,res,fpr,fwer_strong,fdr,localizing_power,num_fp,spatial_extent_fp,filename_prefix,pp,stat_level_map,save_settings);
 
 
 
 otherwise % catch mis-specified summary_type
-    error('Specified summary procedure doesn''t exist')
+    error('Specified summary procedure doesn''t exist. Must be one of: ''dcoeff'', ''positives'', ''calculate_tpr'', ''visualize_gt'', or ''visualize_tpr''.')
 end
 end
 
