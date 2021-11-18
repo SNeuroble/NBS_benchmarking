@@ -1,19 +1,30 @@
 function fullmat=summary_to_full_matrix(summarymat,atlas)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% This will create a full matrix where the value of summary matrix between
-% network i and network j will be filled in for all edges between those
-% networks in a full matrix.
+% This will create a n x n node full matrix based on an m x m community summary 
+% matrix and a mapping from n nodes to m communities, such that the value for 
+% community pair (i,j) will be filled in for all edges between those communities.
 %
-% Example: For ICC, can end up with four 10x10 summary matrices (categorized 
-% poor=1, fair=2, good=3, excellent=4) but want to represent as full 268x268 node matrix.
+% IMPORTANT: This was developed purely for simple visualizations of
+% cell results - not very fast, only recommended for small conversions!
 %
-% can load atlas with load_atlas_mapping
-% atlas=load('/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/myscripts/general_mri/atlas/atlas mappings/map278_lobe.mat;);
-% for i=1:4 % separate binary matrix for each category
-%     summat_separatecat{i}=zeros(size(summarymat));
-%     summat_separatecat{i}(summarymat==(i+1))=1; % poor, then fair, ... excellent
-% end
-% fullmat_separatecat=summary_to_full_matrix(summat_separatecat,atlas)
+% Input:    atlas: mapping from each of n nodes to m communities
+%           summarymat: m x m community matrix, usually an average of edges within a 
+%                       subnetwork (i.e., average connectivity between a pair of communities)
+%           fullmat: n x n node matrix with values filled in from summarymat
+%
+% Example:  For ICC, summarized by Shen atlas, can end up with four 10x10 summary matrices 
+%           but want to display as full 268x268 matrix to show relative
+%           community sizes.
+%
+% 1. Load atlas with load_atlas_mapping
+%       atlas=load('/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/myscripts/general_mri/atlas/atlas mappings/map278_lobe.mat;);
+% 2. Binarize matrices for each level of reliability
+%       for i=1:4 % separate binary matrix for each category
+%           summat_separatecat{i}=zeros(size(summarymat));
+%           summat_separatecat{i}(summarymat==(i+1))=1; % poor, then fair, ... excellent
+%       end
+% 3. Generate full matrix 
+%       fullmat_separatecat=summary_to_full_matrix(summat_separatecat,atlas)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % check input
