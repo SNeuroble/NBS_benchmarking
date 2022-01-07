@@ -336,7 +336,7 @@ end
 %% -------------------------------------------------------------------------%
 % ******** Visualize TPR ******** 
 % function ss=visualize_tpr(dcoeff,tpr,tpr_fit,dcoeff_windowed,tpr_windowed,tpr_std,res,filename_prefix,pp,stat_level_map,ss)
-function ss=visualize_tpr(dcoeff,tpr,tpr_fit,dcoeff_windowed,tpr_windowed,tpr_std,res,fpr,fwer_strong,fdr,localizing_power,num_fp,spatial_extent_fp,filename_prefix,pp,stat_level_map,ss)
+function ss=visualize_tpr(dcoeff,tpr,tpr_fit,dcoeff_windowed,tpr_windowed,tpr_std,res,fpr,fwer_strong,fdr,localizing_power,spatial_extent_fp,filename_prefix,pp,stat_level_map,ss) % potential arg: num_fp
     % this does visualization for a single grsize
     % either overlay/combined data (all tasks, all stats) or single data (one task + one stat)
     
@@ -451,8 +451,8 @@ function ss=visualize_tpr(dcoeff,tpr,tpr_fit,dcoeff_windowed,tpr_windowed,tpr_st
 %         % TODO: rename this function, not just tpr anymore
 %         figure();
 %         summary_tools.plot_bars(mean_lp,lp_sd,pp,stat_level_map,ss.do.save_figs,[filename_prefix,'_avg_locpwr'],'ax_ylim_lp');
-%         figure();
-%         summary_tools.plot_bars(mean_fwer_strong,fwer_strong_sd,pp,stat_level_map,ss.do.save_figs,[filename_prefix,'_avg_FWERstr'],'ax_ylim_FWERstrong');
+        figure();
+        summary_tools.plot_bars(mean_fwer_strong,fwer_strong_sd,pp,stat_level_map,ss.do.save_figs,[filename_prefix,'_avg_FWERstr'],'ax_ylim_FWERstrong');
 %         figure();
 %         summary_tools.plot_bars(mean_fdr,fdr_sd,pp,stat_level_map,ss.do.save_figs,[filename_prefix,'_avg_FDR'],'ax_ylim_FDR');
         figure();
@@ -1173,7 +1173,7 @@ function [fpr,fwer_strong,fdr,localizing_power,num_fp,spatial_extent_fp]=calcula
 
 
     % 3. Save an example map of positives at repetition 1
-    save_example_map=1; % TODO: temp
+    save_example_map=0; % TODO: temp
     
     if save_example_map
         example_rep=1;

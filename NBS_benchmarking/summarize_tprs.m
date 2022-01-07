@@ -217,14 +217,13 @@ for t=1:length(tasks)
 end
 
 % TODO: remove
-save(sprintf('/Volumes/GoogleDrive/My Drive/Lab/Misc/Software/scripts/Matlab/myscripts/fwer_fdr_lp_indvid_files/lp_fp_gr%d',grsize),'fdr','num_fp','spatial_extent_fp','-append')
-return;
+% save(sprintf('/Volumes/GoogleDrive/My Drive/Lab/Misc/Software/scripts/Matlab/myscripts/fwer_fdr_lp_indvid_files/lp_fp_gr%d',grsize),'fdr','num_fp','spatial_extent_fp','-append')
 
 % save combined-task data
 save_settings = summary_tools.check_whether_to_save(save_settings,'save_summarized_data','Combined summary data',combined_summary_filename); % TODO
 if save_settings.do.save_summarized_data
     if ~exist(combined_summary_dir,'dir'); mkdir(combined_summary_dir); end
-    save(combined_summary_filename,'dcoeff','tpr','log_data','fpr','fwer_strong','fdr','localizing_power','-v7.3');
+    save(combined_summary_filename,'dcoeff','tpr','log_data','fpr','fwer_strong','fdr','localizing_power','num_fp','spatial_extent_fp','-v7.3');
     fprintf(['Saved combined data in ',combined_summary_filename,'.\n']);
 end
     
@@ -296,7 +295,7 @@ else
     if ~exist(log_dir,'dir'); mkdir(log_dir); end
 end
 
-load(combined_summary_filename,'dcoeff','tpr','log_data');
+load(combined_summary_filename,'dcoeff','tpr','log_data','fpr','fwer_strong','fdr','localizing_power','spatial_extent_fp');
 
 for s=1:length(stat_types)
     
@@ -353,12 +352,12 @@ for s=1:length(stat_types)
 end
 
 % TODO: TEMPORARY FOR TESTING ONLY, APPEND TO EXISTING FILES AND REMOVE HERE
-load(sprintf('/Volumes/GoogleDrive/My Drive/Lab/Misc/Software/scripts/Matlab/myscripts/fwer_fdr_lp_indvid_files/lp_fp_gr%d.mat',grsize))
+% load(sprintf('/Volumes/GoogleDrive/My Drive/Lab/Misc/Software/scripts/Matlab/myscripts/fwer_fdr_lp_indvid_files/lp_fp_gr%d.mat',grsize))
 
 pp.all_tasks=tasks; % TODO: need for individual tasks, but maybe there's a better way
 % summary_tools.visualize_tpr(dcoeff,tpr,tpr_fit,dcoeff_windowed,tpr_windowed,tpr_std,res,filename_prefix,pp,stat_level_map,save_settings);
-summary_tools.visualize_tpr(dcoeff,tpr,tpr_fit,dcoeff_windowed,tpr_windowed,tpr_std,res,fpr,fwer_strong,fdr,localizing_power,num_fp,spatial_extent_fp,filename_prefix,pp,stat_level_map,save_settings);
-
+% summary_tools.visualize_tpr(dcoeff,tpr,tpr_fit,dcoeff_windowed,tpr_windowed,tpr_std,res,fpr,fwer_strong,fdr,localizing_power,num_fp,spatial_extent_fp,filename_prefix,pp,stat_level_map,save_settings);
+summary_tools.visualize_tpr(dcoeff,tpr,tpr_fit,dcoeff_windowed,tpr_windowed,tpr_std,res,fpr,fwer_strong,fdr,localizing_power,spatial_extent_fp,filename_prefix,pp,stat_level_map,save_settings);
 
 
 otherwise % catch mis-specified summary_type

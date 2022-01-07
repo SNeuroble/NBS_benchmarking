@@ -67,7 +67,8 @@ case {'visualize_tpr','visualize_gt','dcoeff'}
 
 %             date_time_str_combined='02222021'; 
 %             date_time_str_combined='05052021_2';
-            date_time_str_combined='05102021';
+%             date_time_str_combined='05102021';
+            date_time_str_combined='12142021';
         case 80
 %             date_time_str_combined.FDR='01152021';
 %             date_time_str_combined.Parametric_FDR='01312021';
@@ -80,7 +81,8 @@ case {'visualize_tpr','visualize_gt','dcoeff'}
 
 %             date_time_str_combined='02222021'; %'02172021'; % '02152021';'02102021'; %02112021
 %             date_time_str_combined='05052021_2';
-            date_time_str_combined='05102021';
+%             date_time_str_combined='05102021';
+            date_time_str_combined='12142021';
         case 120
 %             date_time_str_combined.Parametric_FDR='01312021';
 %             date_time_str_combined.Size_Extent='01312021';
@@ -90,7 +92,8 @@ case {'visualize_tpr','visualize_gt','dcoeff'}
 
 %             date_time_str_combined='02222021'; % '02182021';
 %             date_time_str_combined='05052021_2';
-            date_time_str_combined='05102021';
+%             date_time_str_combined='05102021';
+            date_time_str_combined='12152021';
         otherwise
             error('Group size not defined');
     end
