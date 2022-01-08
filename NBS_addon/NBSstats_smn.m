@@ -35,6 +35,8 @@ function [any_significant,con_mat,pval,edge_stats__target,cluster_stats__target]
 %       STATS.size        'extent' | 'intensity' 
 %                         Measure used to assess size of a network 
 %                         component  
+%       STATS.[other]     A number of fields have been added to support 
+%                         network- and whole brain-level inference
 %                          
 %   Outputs:
 %       N_CNT:            Number of network components satisfying alpha 
@@ -88,13 +90,15 @@ switch STATS.statistic_type
         Intensity=strcmp(STATS.size,'Intensity');
     case 'TFCE'
         STATS.statistic_type_numeric=2;
-    case 'Constrained' % cNBS
-        STATS.statistic_type_numeric=3;
-    case 'SEA' % SEA
+    case 'Constrained' % cNBS with FDR correction (Simes)
+        STATS.statistic_type_numeric=3; 
+    case 'Constrained_FWER' % cNBS with FWER correction (Bonferroni)
         STATS.statistic_type_numeric=4;
+    case 'SEA' % SEA
+        STATS.statistic_type_numeric=5;
     case 'Omnibus' % Omnibus
         
-        STATS.statistic_type_numeric=5;
+        STATS.statistic_type_numeric=6;
         switch STATS.omnibus_type
             case 'Threshold_Positive' % Threshold positive
                 STATS.omnibus_type_numeric=1;
@@ -114,7 +118,6 @@ switch STATS.statistic_type
             otherwise
                 error(sprintf('Omnibus type %s was provided - not a valid omnibus type.',STATS.statistic_type))
         end
-        
     otherwise
         error(sprintf('Statistic type %s was provided - not a valid statistic type. Only ''Size'', ''TFCE'', ''Constrained'', or ''Omnibus'' allowed.',STATS.statistic_type))
 end
@@ -130,13 +133,11 @@ else
     GLM.perms=1;
 end
 
-do_FWER_for_2nd_level=NaN;
 do_parametric_for_2nd_level=NaN;
 if STATS.use_edge_groups
     
     % special multidimensional null for cNBS, SEA, Omnibus - cNBS
     n_nulls=length(STATS.edge_groups.unique);
-    do_FWER_for_2nd_level=0; % FWER or FDR; TODO: move - should be arg from user
     do_parametric_for_2nd_level=1; % parametric or nonparametric; TODO: move - should be arg from user
     
     % check mask
@@ -183,7 +184,7 @@ end
 
 %% Perform correction
 % This gets cluster-based statistics satisfying FWER threshold
-[pval]=perform_correction(null_dist,cluster_stats__target,max_stat__target,do_FWER_for_2nd_level,do_parametric_for_2nd_level,STATS,K);
+[pval]=perform_correction(null_dist,cluster_stats__target,max_stat__target,do_parametric_for_2nd_level,STATS,K);
 any_significant=any(pval(:)<STATS.alpha);
 con_mat=0; % this is for original NBS visualization in GUI and needs to be in a specific format; instead, we'll use the stats directly
 
@@ -300,7 +301,7 @@ switch STATS.statistic_type_numeric
         
         null_stat=max(cluster_stats(:));
         
-    case 3 % do cNBS - returns a group-length vector
+    case {3,4} % do cNBS - returns a group-length vector
         
         % TODO: this should be done (here and below - see case 5) directly from the test_stat without making mat - just need network IDs 
         test_stat_mat=zeros(N,N);
@@ -311,14 +312,14 @@ switch STATS.statistic_type_numeric
         
         null_stat=cluster_stats; % TODO - this is not a max value but instead 1 val for null per group - think of how to name
         
-    case 4 % do Set Enrichment Analysis (SEA; GSEA minus the G bc not genetics)
+    case 5 % do Set Enrichment Analysis (SEA; GSEA minus the G bc not genetics)
         
         edge_groups_vec=STATS.edge_groups.groups(ind_upper); % TODO: do this during setup
         cluster_stats=get_enrichment_score(edge_groups_vec,STATS.edge_groups.unique,test_stat,1,0);
         
         null_stat=cluster_stats; % TODO - this is not a max value but instead 1 val for null per group - think of how to name
         
-    case 5 % do Omnibus
+    case 6 % do Omnibus
         switch STATS.omnibus_type_numeric
             case 1 % Threshold positive
                 cluster_stats=sum(+(test_stat>STATS.thresh));
@@ -364,7 +365,7 @@ switch STATS.statistic_type_numeric
 end
 
 
-function [pval]=perform_correction(null_dist,target_stat,max_target_stat,do_FWER_for_2nd_level,do_parametric_for_2nd_level,STATS,K)
+function [pval]=perform_correction(null_dist,target_stat,max_target_stat,do_parametric_for_2nd_level,STATS,K)
 % Returns map of FWER-corrected pvals
 %
 % For multidimensional nulls (cNBS):
@@ -383,7 +384,7 @@ switch STATS.statistic_type_numeric
         
         pval=arrayfun(@(this_stat) sum(+(this_stat<null_dist))/K, target_stat);
         
-    case {3, 4} % cNBS
+    case {3, 4, 5} % cNBS and SEA
         
         % estimate pvalue for each network
         pval_uncorr=zeros(size(STATS.edge_groups.unique));
@@ -396,12 +397,14 @@ switch STATS.statistic_type_numeric
 %         pval_uncorr=arrayfun(@(this_group) sum(+(null_dist_multiple(,:)>=test_stat(this_group)))/K, n_groups); 
         
         if do_parametric_for_2nd_level
-            if do_FWER_for_2nd_level % Bonferroni
-                pval=pval_uncorr*length(STATS.edge_groups.unique); % "adjusted p-vals"
+            if STATS.statistic_type_numeric==4 % Bonferroni
+            %if STATS.do_Constrained_FWER_second_level % Bonferroni
+                pval=pval_uncorr*length(STATS.edge_groups.unique); % FWER-corrected p-vals
+                %sprintf('Trying new Bonferroni 2nd level\n');
             else % FDR
                 
                 % TODO: think more about procedure/output into pval variable
-%                 [~,pval,~,~]=mafdr(pval_uncorr); % "adjusted p-vals"
+%                 [~,pval,~,~]=mafdr(pval_uncorr); % FDR-corrected p-vals
                 % requires bioinformatics toolbox, so we're using the Simes procedure of FDR as
                 % implemented in NBSfdr:
                 
@@ -420,7 +423,8 @@ switch STATS.statistic_type_numeric
             
         else % bootstrapping
             error('Stopping - this section is under development and not ready for use');
-            if do_FWER_for_2nd_level
+            if STATS.statistic_type_numeric==4 % Bonferroni
+            %if STATS.do_Constrained_FWER_second_level
                 maxima_sorted=sort(max(null_dist_multiple),'descend');
                 n_above_alpha=STATS.alpha*K;
                 test_stat_threshold=maxima_sorted(n_above_alpha);
@@ -436,7 +440,7 @@ switch STATS.statistic_type_numeric
             end
         end
         
-    case 5 % Omnibus
+    case 6 % Omnibus
         
         if STATS.omnibus_type_numeric==5 % Special for constrained
             % TODO: under development

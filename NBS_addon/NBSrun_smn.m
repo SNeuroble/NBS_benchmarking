@@ -221,6 +221,7 @@ UI.node_label.ok=1;
 UI.statistic_type.ok=1;
 UI.omnibus_type.ok=1;
 UI.edge_groups.ok=1;
+%UI.do_Constrained_FWER_second_level.ok=1;
 UI.perms.ok=1;
 UI.alpha.ok=1;
 UI.size.ok=1;
@@ -342,6 +343,16 @@ else
     end
 end
 
+%{
+% Correction for second level for network-level inference
+if strcmp(nbs.STATS.statistic_type,'Constrained')
+    try nbs.STATS.do_Constrained_FWER_second_level=UI.do_Constrained_FWER_second_level.ui;
+    catch UI.do_Constrained_FWER_second_level.ok=0;
+    end
+else
+    nbs.STATS.do_Constrained_FWER_second_level=NaN;
+end
+%}
 
 %Number of nodes
 nbs.STATS.N=DIMS.nodes;
