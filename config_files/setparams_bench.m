@@ -50,7 +50,7 @@ nbs_test_stat='t-test'; % alternatives are one-sample and F-test - don't change 
 n_perms='1000'; % default to: 1000, more conservative: 5000
 tthresh_first_level='3.1'; % for Size - corresponds with p=0.005-0.001 (DOF=10-1000)
 pthresh_second_level='0.05'; 
-do_Constrained_FWER_second_level=0; % for Constrained: 0->FDR, 1->Bonferroni % TODO: remove here and in setup script - no longer used (check)
+%do_Constrained_FWER_second_level=0; % for Constrained: 0->FDR, 1->Bonferroni % TODO: remove here and in setup script - no longer used (check)
 all_cluster_stat_types={'Parametric_Bonferroni'};
 %   inferential approach to use for benchmarking: {'Size', 'TFCE', 'Constrained', 'SEA', 'Omnibus', 'Parametric_FDR', 'Parametric_Bonferroni', 'FDR'} % note that FDR (Nonparametric), Parametric FDR, and Parametric_Bonferroni are all edge-level
 % TODO: rename to "stat_type"
