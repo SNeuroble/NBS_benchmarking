@@ -1,11 +1,11 @@
 function summarize_fprs(varargin)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Before starting locally, mount data dir: sshfs smn33@172.23.202.124:d3_smn33/ mnt/
-% This script summarizes and visualizes true positive rates
-% Summarization: fits spline to effect size vs. mean TPR
-% Plot: d v. TPR spline, d v. TPR residual map
-% Usage: summarize_fprs('LANGUAGE','Size_Extent','02102020_1759',40);
-%   Task choices: SOCIAL; WM; GAMBLING; RELATIONAL; EMOTION; MOTOR; GAMBLING
+% This script summarizes false positives from the "fake" task
+% This script is mainly used for FWER estimation; the rest of the features are under construction
+% Summarization: FWER calculation, comparison with "real" task effect size
+% Plot: spatial distribution of false positives
+% Usage: summarize_fprs('stat_types','Size_Extent','save_summarized_data',1);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Variables
@@ -21,7 +21,7 @@ p = inputParser;
 addOptional(p,'stat_types',stat_types_default);
 addOptional(p,'grsize',grsize_default);
 addOptional(p,'save_summarized_data',save_settings.defaults.save_summarized_data);
-addOptional(p,'make_figs',make_figs_default);
+addOptional(p,'make_figs',make_figs_default); % usage of make_figs is under construction
 addOptional(p,'save_figs',save_settings.defaults.save_figs);
 addOptional(p,'save_logs',save_settings.defaults.save_logs);
 addOptional(p,'compare_effect_size',compare_effect_size_default);
@@ -93,7 +93,8 @@ for s=1:length(stat_types)
     save_settings = summary_tools.check_whether_to_save(save_settings,'save_figs','Save figs',fpr_vis_filename);
  
     %% Summarize benchmarking results: 'edge_stats_summary','cluster_stats_summary','positives','positives_total','FWER_manual'
-    
+
+    % Option 1: Calculate and save positives and simple summaries
     if save_settings.do.save_summarized_data
         load(results_filename);
         
@@ -164,7 +165,10 @@ for s=1:length(stat_types)
     
         save(fpr_summary_filename,'edge_stats_summary','edge_stats_summary_neg','cluster_stats_summary','cluster_stats_summary_neg','positives','positives_neg','positives_total','positives_total_neg','FWER_manual','FWER_manual_neg','n_repetitions','n_subs_subset','run_time_h','n_perms','-v7.3');
         fprintf(['Saved summary data in ',fpr_summary_filename,'.\n']);
-    else
+    
+
+    else % Option 2: Use pre-calculated positives to summarize FPR, FWER, etc.
+
         load(fpr_summary_filename,'positives_total','positives_total_neg','n_repetitions','n_subs_subset','run_time_h','n_perms','FWER_manual','FWER_manual_neg')
         if strcmp(stat_type,'Constrained') || strcmp(stat_type,'SEA') % need for summary in edge_groups
             load(results_filename,'UI');
@@ -369,41 +373,42 @@ for s=1:length(stat_types)
         end
        
         
-    end
-%     colormap(bipolar([],0.1));
 
-    %% Log percent esz and TP at thresholds
-    
-%     this_log_filename_prefix=[log_filename_prefix,'_',task,'_',stat_type];
-%     logfile=[log_filename_prefix,task,fpr_str,stat_type,'_grsize',num2str(grsize),'_',date_time_str_results.(task),'_log.txt'];
+    %     colormap(bipolar([],0.1));
 
-    logfile=[log_filename_prefix,'_',task,fpr_str,'_',stat_type,'_fp_log','.txt'];    
-    save_settings = summary_tools.check_whether_to_save(save_settings,'save_logs','Save log',logfile);
-    
-    if save_settings.do.save_logs
-        fprintf('Saving log in %s.\n',logfile);
-        fid=fopen(logfile,'w');
-        fprintf(fid,'Manual FWER: %1.4f (FWER neg: %1.4f)\n',[FWER_manual, FWER_manual_neg]);
-        fprintf(fid,'%d total repetitions',n_repetitions);
-        fprintf(fid,'\n%s total permutations',n_perms);
-        fprintf(fid,'\n%d subjects sampled out of %d total subjects',n_subs_subset);
-        fprintf(fid,'\nRun time: %1.2f hours',run_time_h); % toc is in sec
-        if compare_effect_size
-            fprintf(fid,'\nCorr with mean effect size - pos tail: r=%1.4f , p=%1.4f; neg tail: r=%1.4f , p=%1.4f',r__pos_v_esz,p__pos_v_esz,r__pos_v_esz__neg,p__pos_v_esz__neg);
-            fprintf(fid,'\nCorr btw # pos and network size - pos tail: r=%1.4f , p=%1.4f; neg tail: r=%1.4f , p=%1.4f',r__sum,p__sum,r__sum__neg,p__sum__neg);
-            fprintf(fid,'\nCorr btw mean pos and network size - pos tail: r=%1.4f , p=%1.4f; neg tail: r=%1.4f , p=%1.4f',r__mean,p__mean,r__mean__neg,p__mean__neg);
+        %% Log percent esz and TP at thresholds
+        
+    %     this_log_filename_prefix=[log_filename_prefix,'_',task,'_',stat_type];
+    %     logfile=[log_filename_prefix,task,fpr_str,stat_type,'_grsize',num2str(grsize),'_',date_time_str_results.(task),'_log.txt'];
+
+        logfile=[log_filename_prefix,'_',task,fpr_str,'_',stat_type,'_fp_log','.txt'];    
+        save_settings = summary_tools.check_whether_to_save(save_settings,'save_logs','Save log',logfile);
+        
+        if save_settings.do.save_logs
+            fprintf('Saving log in %s.\n',logfile);
+            fid=fopen(logfile,'w');
+            fprintf(fid,'Manual FWER: %1.4f (FWER neg: %1.4f)\n',[FWER_manual, FWER_manual_neg]);
+            fprintf(fid,'%d total repetitions',n_repetitions);
+            fprintf(fid,'\n%s total permutations',n_perms);
+            fprintf(fid,'\n%d subjects sampled out of %d total subjects',n_subs_subset);
+            fprintf(fid,'\nRun time: %1.2f hours',run_time_h); % toc is in sec
+            if compare_effect_size
+                fprintf(fid,'\nCorr with mean effect size - pos tail: r=%1.4f , p=%1.4f; neg tail: r=%1.4f , p=%1.4f',r__pos_v_esz,p__pos_v_esz,r__pos_v_esz__neg,p__pos_v_esz__neg);
+                fprintf(fid,'\nCorr btw # pos and network size - pos tail: r=%1.4f , p=%1.4f; neg tail: r=%1.4f , p=%1.4f',r__sum,p__sum,r__sum__neg,p__sum__neg);
+                fprintf(fid,'\nCorr btw mean pos and network size - pos tail: r=%1.4f , p=%1.4f; neg tail: r=%1.4f , p=%1.4f',r__mean,p__mean,r__mean__neg,p__mean__neg);
+            end
+            fclose(fid);
         end
-        fclose(fid);
-    end
-    
+        
+
+
+        colormap(pp.cmap_fpr);
+        set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0, pp.fig_width_1plt_norm_big*1.5, pp.fig_height_1plt_norm_big*1.7])
+        if save_settings.do.save_figs
+            print(gcf,fpr_vis_filename,'-dpng','-r300'); 
+        end
+
+    end % end of "if save_settings.do.save_summarized_data"
 end
-
-colormap(pp.cmap_fpr);
-set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0, pp.fig_width_1plt_norm_big*1.5, pp.fig_height_1plt_norm_big*1.7])
-if save_settings.do.save_figs
-    print(gcf,fpr_vis_filename,'-dpng','-r300'); 
-end
-
-
 
 
