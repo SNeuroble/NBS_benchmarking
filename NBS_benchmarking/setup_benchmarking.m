@@ -23,12 +23,17 @@ if exist('do_ground_truth')
     if do_ground_truth
         task1=task_gt;
         do_TPR=1;
-        use_both_tasks=1;
-        cluster_stat_type='Size';
+        %use_both_tasks=1;
+        cluster_stat_type=stat_type_gt;
+        %cluster_stat_type='Size';
         omnibus_type=omnibus_type_gt;
-        n_perms='1';
+        n_perms=n_perms_gt;
+        %n_perms='1';
       
-        fprintf('Setting params for ground truth.\nDoing standard NBS for %s vs REST (1 perm) - will preload data.\n',task1);
+        fprintf(['Setting params for ground truth (',cluster_stat_type,' + ',n_perms,' perm (1 perm is just to estimate t-stats)).  Will preload data from ',task1,'.\n']);
+        if ~use_both_tasks % temporary check that both tasks are being used
+            warning('Not performing a contrast between two tasks. Specify ''use_both_tasks=1'' to match results from Levels of Inference study.')
+        end
     end
 else
     do_ground_truth=0;
@@ -42,13 +47,29 @@ elseif strcmp(cluster_stat_type,'Parametric_FDR') || strcmp(cluster_stat_type,'P
 end
 
 %% Check expected inclusion of resting tasks
-if do_TPR
-    if ~(strcmp(task2,'REST') || strcmp(task2,'REST2'))
-        warning('Not using REST or REST2 for contrasting with task; this is generally not advisable.');
-    end
-else
-    if ~((strcmp(task1,'REST') && strcmp(task2,'REST2')) || (strcmp(task1,'REST2') && strcmp(task2,'REST')))
-        warning('Not using REST vs. REST2 or REST2 vs. REST for estimating false positives; this is generally not advisable.');
+if use_both_tasks
+    if do_TPR
+        if ~contains(task2,'REST') 
+        %if ~(strcmp(task2,'REST') || strcmp(task2,'REST2'))
+            warning('Not using REST or REST2 for contrasting with task; this differs from the intended use of these benchmarking scripts.');
+        else
+            if use_trimmed_rest
+                task2=[task2,'_',num2str(n_frames.(task1)),'frames'];
+                if do_TPR
+                    warning('Using trimmed rest for power calculation.');
+                end
+            end
+        end
+    else
+        if ~(contains(task1,'REST') && contains(task2,'REST'))
+        %if ~((strcmp(task1,'REST') && strcmp(task2,'REST2')) || (strcmp(task1,'REST2') && strcmp(task2,'REST')))
+            error('Not using REST vs. REST2 or REST2 vs. REST for estimating false positives; this differs from the intended use of these benchmarking scripts.');
+        else
+            if use_trimmed_rest
+                task1=[task1,'_',num2str(n_frames.(task1)),'frames'];
+                task2=[task2,'_',num2str(n_frames.(task2)),'frames'];
+            end
+        end
     end
 end
     
@@ -58,6 +79,7 @@ end
 task1_IDs_file=[data_dir,task1,subIDs_suffix];
 task1_IDs=fileread(task1_IDs_file);
 task1_IDs=strsplit(task1_IDs,newline);
+task1_IDs(strcmp('',task1_IDs)) = [];
 
 % if do_TPR
 if use_both_tasks % doing a paired sample test
@@ -68,13 +90,17 @@ if use_both_tasks % doing a paired sample test
     task2_IDs_file=[data_dir,task2,subIDs_suffix];
     task2_IDs=fileread(task2_IDs_file);
     task2_IDs=strsplit(task2_IDs,newline);
+    task2_IDs(strcmp('',task2_IDs)) = [];
     
     % compare task1 w task2
-    fprintf(['Comparing subject IDs from from task1 (',task1_IDs_file,') with IDs from task2 (',task2_IDs_file,').\n']);
+    fprintf(['Comparing subject IDs from from task1:\n(',task1_IDs_file,')\nwith IDs from task2:\n(',task2_IDs_file,').\n']);
     [subIDs,~,~]=intersect(task1_IDs,task2_IDs);
-    subIDs=subIDs(2:end); % bc the first find is empty - TODO add a check here first
+    subIDs(strcmp('',subIDs)) = [];
+    %subIDs=subIDs(2:end); % in case the first find is empty - TODO add a check here first - NEW should be fine now bc checking for empty in task1_IDs and task2_IDs AND explicitly checking for empty in intersection
 
 else % doing a one-sample test
+    fprintf(['Using subject IDs from from task1 (',task1_IDs_file,').\n']);
+    task1_IDs(strcmp('',task1_IDs)) = [];
     subIDs=task1_IDs;
 end
 
@@ -89,7 +115,7 @@ end
 if do_ground_truth
     n_subs_subset=n_subs;
 end
-
+% return; %TODO: TEMPORARY
 
 % Load one example matrix to get number of nodes and nets
 
@@ -157,17 +183,18 @@ if do_ground_truth
                 error('This script hasn''t been fully updated/tested for two-sample yet.');
             end
         
-        else % for one-sample
+        else % for single task v 0
 
             m=zeros(n_nodes*(n_nodes-1)/2,n_subs);
-            m_net=zeros(10,10,n_subs);
+            m_net=zeros(n_node_nets*(n_node_nets-1)/2+n_node_nets,n_subs);
             m_pool_all=zeros(1,n_subs);
             for i = 1:n_subs
                 this_file_task1 = [data_dir,task1,'/',subIDs{i},'_',task1,data_type_suffix];
                 d=importdata(this_file_task1);
                 d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
                 m(:,i) = d(triumask);
-                m_net(:,:,i)=summarize_matrix_by_atlas(d,'suppressimg',1);
+                d_net=summarize_matrix_by_atlas(d,'suppressimg',1);
+                m_net(:,i)=d_net(trilmask_net);
                 m_pool_all(i)=mean(d(triumask));
                 % print every 100
                 if mod(i,100)==0; fprintf('%d/%d\n',i,n_subs); end
@@ -268,14 +295,14 @@ UI.method.ui=nbs_method;
 UI.design.ui=dmat;
 UI.contrast.ui=nbs_contrast;
 UI.test.ui=nbs_test_stat; % alternatives are one-sample and F-test
-UI.perms.ui=n_perms; % previously: '5000'
-UI.thresh.ui=tthresh_first_level; % p=0.01
+UI.perms.ui=n_perms;
+UI.thresh.ui=tthresh_first_level;
 UI.alpha.ui=pthresh_second_level;
-UI.statistic_type.ui=cluster_stat_type; % 'Size' | 'TFCE' | 'Constrained' | 'SEA'
-UI.size.ui=cluster_size_type; % 'Intensity' | 'Extent' - only relevant if stat type is 'Size'
-UI.omnibus_type.ui=omnibus_type;
-UI.edge_groups.ui=edge_groups; % smn
+UI.statistic_type.ui=cluster_stat_type; 
+UI.size.ui=cluster_size_type;
+UI.omnibus_type.ui=omnibus_type; 
+UI.edge_groups.ui=edge_groups;
 UI.exchange.ui=nbs_exchange;
-
+%UI.do_Constrained_FWER_second_level.ui=do_Constrained_FWER_second_level; 
 
 
