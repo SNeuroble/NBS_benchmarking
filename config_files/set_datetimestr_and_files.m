@@ -343,7 +343,7 @@ if ~contains(summary_type,'visualize') % visualizations rely on combined summary
     ground_truth_filename=[output_dir,ground_truth_results_basename_prefix,'.mat'];
     ground_truth_dcoeff_filename=[output_dir,ground_truth_results_basename_prefix,'_dcoeff.mat'];
 
-    if strcmp(summary_type,'calculate_tpr') ||  strcmp(summary_type,'summarize_fprs')
+    if any(strcmp(summary_type,{'calculate_tpr','positives'})) || strcmp(summary_type,'summarize_fprs')
         % original (un-summarized) benchmarking variables
         benchmarking_results_basename_prefix=['results__',task,fpr_str,'_',stat_type,'_','grsize',num2str(grsize),'_',date_time_str_results.(task)];
         results_filename=[output_dir,benchmarking_results_basename_prefix,'.mat'];
