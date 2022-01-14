@@ -1,20 +1,23 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Set input, output, and script directories depending on directory system
+%
+% Set input, output, and script directories depending on current workstation
 % Will only run if system_dependent_paths=1 in setparams_bench.m
 %
 % directories
-% - data_dir: data directory (mount!) containing input data assumed to be n_nodes x n_nodes x n_subjects
+% - data_dir: data directory containing input data files each n_nodes x n_nodes x n_subjects
+%   may be mounted, e.g., farnam results post-benchmarking onto local computer
 % - output_dir: results directory
 % - nbs_dir: NBS toolbox
 % - other_scripts_dir: misc scripts used for summarization (structure_data,
 % draw_atlas_boundaries, summarize_matrix_by_atlas)
+%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-data_origin='farnam'; % 'farnam' or 'mrrc' (when mounted on remote)
+data_origin='farnam'; % 'farnam' or 'mrrc'
 
 switch getenv('USER')
     
-    case 'smn33'
+    case 'smn33' % farnam or mrrc
         
         switch data_origin
                 
@@ -24,29 +27,29 @@ switch getenv('USER')
                 nbs_dir='/home/smn33/scripts/NBS1.2';
                 other_scripts_dir='/home/smn33/scripts/NBS_benchmarking/NBS_benchmarking/support_scripts/';
                 
-            case 'mrrc' % old
-                data_dir='/data15/mri_group/smn33_data/hcp_1200/matrices/'; % symlink to '/mnt/dustin/data/S1200/matrices/S1200/matrices/'
+            case 'mrrc'
+                data_dir='/data15/mri_group/smn33_data/hcp_1200/matrices/'; % symlink: '/mnt/dustin/data/S1200/matrices/S1200/matrices/'
                 output_dir='/data15/mri_group/smn33_data/NBS_benchmarking_results/';
                 nbs_dir='/mridata2/home2/smn33/scripts/NBS1.2';
                 other_scripts_dir='/mridata2/home2/smn33/scripts/matlab/myscripts/general_mri_new/general_mri';
                 
         end
-    case 'steph'
+
+    case 'steph' % input data dir is mounted as specified
         
         switch data_origin
             case 'farnam'
-                data_dir='/Users/steph/Documents/data/mnt/project/HCP_S1200/'; % mounted
+                data_dir='/Users/steph/Documents/data/mnt/project/HCP_S1200/'; 
                 output_dir='/Users/steph/Documents/data/mnt/project/benchmarking_results/';
-            case 'mrrc' % old
-                data_dir='/Users/steph/Documents/data/mnt/hcp_1200/matrices/'; % mounted smn33 dir
+            case 'mrrc'
+                data_dir='/Users/steph/Documents/data/mnt/hcp_1200/matrices/';
                 output_dir='/Users/steph/Documents/data/mnt/NBS_benchmarking_results/';
-                %output_dir='/Users/steph/Steph-Lab/NBS_benchmarking/results_benchmarking/'; % local results
         end
         
         nbs_dir='/Users/steph/Steph-Lab/Misc/Software/scripts/Matlab/fmri/NBS1.2';
         other_scripts_dir='/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts/Matlab/myscripts/NBS_benchmarking/NBS_benchmarking/support_scripts/';
         
-    case 'ubuntu' % aws
+    case 'ubuntu' % AWS
         
         data_dir='/home/ubuntu/data/matrices/';
         output_dir='/home/ubuntu/data/NBS_benchmarking_results/';

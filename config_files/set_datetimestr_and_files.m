@@ -1,10 +1,20 @@
-% set date_time_strs based on updated list
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+% Set date/time strings and resulting filenames corresponding with 
+% input/output data
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%% Now (for saving comparison across stats)
+
+
+%%%%%%%% Define now (for saving summaries) %%%%%%%%
 
 date_time_str_now=datestr(now,'mmddyyyy');
 
-%% Ground truth
+
+
+
+%%%%%%%% Ground truth %%%%%%%%
 
 % Task versus rest
 date_time_str_ground_truth.EMOTION_v_REST='02222021_1312';
@@ -14,13 +24,6 @@ date_time_str_ground_truth.MOTOR_v_REST='02222021_1705';
 date_time_str_ground_truth.RELATIONAL_v_REST='02222021_1728';
 date_time_str_ground_truth.SOCIAL_v_REST='02222021_1751';
 date_time_str_ground_truth.WM_v_REST='02222021_1820';
-% date_time_str_ground_truth.EMOTION_v_REST='10192020_1537'; % with new networks
-% date_time_str_ground_truth.GAMBLING_v_REST='10192020_1631';
-% date_time_str_ground_truth.LANGUAGE_v_REST='10192020_1642';
-% date_time_str_ground_truth.MOTOR_v_REST='10192020_1649';
-% date_time_str_ground_truth.RELATIONAL_v_REST='11112020_1345';
-% date_time_str_ground_truth.SOCIAL_v_REST='10192020_1656';
-% date_time_str_ground_truth.WM_v_REST='10192020_1714';
 date_time_str_ground_truth.REST_v_REST2='03012020_1709';
 
 % Task versus rest, using trimmed resting runs (supplementary)
@@ -46,9 +49,9 @@ date_time_str_ground_truth.WM='03222021_1219';
 
 
 
-%% Single task summary filename info
 
 
+%%%%%%%% Single task summary filename info %%%%%%%%
 
 switch data_origin
 case 'farnam'
@@ -58,41 +61,10 @@ case {'visualize_tpr','visualize_gt','dcoeff'}
     
     switch grsize
         case 40
-%             date_time_str_combined.Parametric_FDR='01312021';
-%             date_time_str_combined.Size_Extent='12022020';
-%             date_time_str_combined.TFCE='12022020';
-%             date_time_str_combined.Constrained='12022020';
-%             date_time_str_combined.Omnibus_Multidimensional_cNBS='01192021';
-%             date_time_str_combined='02182021';
-
-%             date_time_str_combined='02222021'; 
-%             date_time_str_combined='05052021_2';
-%             date_time_str_combined='05102021';
             date_time_str_combined='12142021';
         case 80
-%             date_time_str_combined.FDR='01152021';
-%             date_time_str_combined.Parametric_FDR='01312021';
-%             date_time_str_combined.Size_Extent='01072021';
-%             date_time_str_combined.TFCE='01072021';
-%             date_time_str_combined.Constrained='01072021';
-%             date_time_str_combined.Omnibus_Multidimensional_cNBS='01182021';
-%             date_time_str_combined='02102021'; %02112021
-%             date_time_str_combined='04022021_trimmed_frames_dcoeff_only'; % TEMPORARY - TODO: remove
-
-%             date_time_str_combined='02222021'; %'02172021'; % '02152021';'02102021'; %02112021
-%             date_time_str_combined='05052021_2';
-%             date_time_str_combined='05102021';
             date_time_str_combined='12142021';
         case 120
-%             date_time_str_combined.Parametric_FDR='01312021';
-%             date_time_str_combined.Size_Extent='01312021';
-%             date_time_str_combined.TFCE='01312021';
-%             date_time_str_combined.Constrained='01312021';
-%             date_time_str_combined.Omnibus_Multidimensional_cNBS='01312021';
-
-%             date_time_str_combined='02222021'; % '02182021';
-%             date_time_str_combined='05052021_2';
-%             date_time_str_combined='05102021';
             date_time_str_combined='12152021';
         otherwise
             error('Group size not defined');
@@ -160,7 +132,7 @@ otherwise
                 date_time_str_results.WM_v_REST='01312021_0240';
                 date_time_str_results.REST_v_REST2='01312021_0120';
             end
-        case 'FDR' % this refers to the nonparametric FDR procedure - not using anymore bc invalid FWER control
+        case 'FDR' % nonparametric FDR procedure - not using due to feasibility in completing req'd perms
             if grsize==40
                 date_time_str_results.EMOTION_v_REST='01082021_1335';
                 date_time_str_results.GAMBLING_v_REST='01062021_1402';
@@ -181,10 +153,8 @@ otherwise
         case 'Size_Extent'
             if grsize==40
                 date_time_str_results.EMOTION_v_REST='02182021_1726';
-%                 date_time_str_results.EMOTION_v_REST='03032020_1816'; % differences in edges too, plus sub nums
                 date_time_str_results.GAMBLING_v_REST='03022020_1739';
                 date_time_str_results.LANGUAGE_v_REST='02182021_1752';
-%                 date_time_str_results.LANGUAGE_v_REST='02232020_0317';
                 date_time_str_results.MOTOR_v_REST='02292020_1853';
                 date_time_str_results.RELATIONAL_v_REST='02242020_1715';
                 date_time_str_results.SOCIAL_v_REST='03012020_1942';
@@ -199,7 +169,6 @@ otherwise
                 date_time_str_results.SOCIAL_v_REST='12202020_0436';
                 date_time_str_results.WM_v_REST='12202020_0436';
                 date_time_str_results.REST_v_REST2='01292021_0726';
-%                 date_time_str_results.REST_v_REST2='08062020_0932';
             elseif grsize==120
                 date_time_str_results.EMOTION_v_REST='01262021_0007';
                 date_time_str_results.GAMBLING_v_REST='01282021_0025';
@@ -250,7 +219,6 @@ otherwise
                 date_time_str_results.WM_v_REST='05042021_0251';
                 date_time_str_results.REST_v_REST2='05042021_1805';
             elseif grsize==80
-                % IN PROGRESS
                 date_time_str_results.EMOTION_v_REST='05042021_1814';
                 date_time_str_results.GAMBLING_v_REST='05042021_1801';
                 date_time_str_results.LANGUAGE_v_REST='05042021_1740';
@@ -260,7 +228,6 @@ otherwise
                 date_time_str_results.WM_v_REST='05042021_2106';
                 date_time_str_results.REST_v_REST2='05042021_1929';
             elseif grsize==120
-                % IN PROGRESS
                 date_time_str_results.EMOTION_v_REST='05042021_2334';
                 date_time_str_results.GAMBLING_v_REST='05052021_0013';
                 date_time_str_results.LANGUAGE_v_REST='05052021_0252';
@@ -334,7 +301,11 @@ otherwise
 otherwise; error('Data source does not exist or is not specified. Right now, only one source is permitted (farnam).')
 end
 
-%% Set io filenames
+
+
+
+
+%%%%%%%% Set io filenames %%%%%%%%
 
 if ~contains(summary_type,'visualize') % visualizations rely on combined summary, not these individual task files
 
@@ -344,6 +315,7 @@ if ~contains(summary_type,'visualize') % visualizations rely on combined summary
     ground_truth_dcoeff_filename=[output_dir,ground_truth_results_basename_prefix,'_dcoeff.mat'];
 
     if any(strcmp(summary_type,{'calculate_tpr','positives'})) || strcmp(summary_type,'summarize_fprs')
+        
         % original (un-summarized) benchmarking variables
         benchmarking_results_basename_prefix=['results__',task,fpr_str,'_',stat_type,'_','grsize',num2str(grsize),'_',date_time_str_results.(task)];
         results_filename=[output_dir,benchmarking_results_basename_prefix,'.mat'];
@@ -351,53 +323,35 @@ if ~contains(summary_type,'visualize') % visualizations rely on combined summary
         % summarized benchmarking variables (output 1)
         benchmarking_summary_filename=[output_dir,benchmarking_results_basename_prefix,'_summary.mat'];
 
-        % summary figs/logs and combined summary vars - shouldn't be
-        % necessary anymore - TODO: remove
-        %summary_output_dir=[output_dir,task,'_',stat_type,'_summary/'];
-
         % create new timestamp for a new file
         date_time_str_combined=date_time_str_now;
     end
 
-% else
-    % combined_summary_prefix=[summary_output_dir,'results__',task,'_',stat_type,'_','grsize',num2str(grsize),'_',date_time_str_combined.(task)];
-    % method_comparison_basename_prefix=[summary_output_dir,'results__',task,'_',stat_type,'_','grsize',num2str(grsize),'_',date_time_str_combined.(stat_type)];
-
-    % TODO: rename as follows - lots of reps here
-    % summary_basename_prefix=summary_prefix;
-    % combined_basename_prefix=method_comparison_basename_prefix; 
-    % combined_summary_filename=[combined_basename_prefix,'_summary.mat'];
-    % TODO: consider stat_type='full_comparison' so can reuse the summary_prefix above
-
-    % use timestamp from already-created file
 end
 
-%if ~(contains(summary_type,'fpr') && make_figs==0 && save_settings.do.save_logs==0) %combined_summary_dir needed for fig and log creation (see local file) but combined dirs not available when first calculating fprs
-    
-    % combined summary filename
-    combined_summary_dir=[output_dir,'combined_summary/'];
-    combined_basename_prefix=['combined_grsize',num2str(grsize),'_',date_time_str_combined];
-    combined_filename_prefix=[combined_summary_dir,combined_basename_prefix];
-    combined_summary_filename=[combined_filename_prefix,'_summary.mat'];
 
-    % ground truth filename
-    % name with combined prefix bc using combined data
-    ground_truth_vis_dir=[combined_summary_dir,'ground_truth/'];
-    ground_truth_vis_filename_prefix=[ground_truth_vis_dir,'ground_truth_',date_time_str_combined];
+% combined summary filename
+combined_summary_dir=[output_dir,'combined_summary/'];
+combined_basename_prefix=['combined_grsize',num2str(grsize),'_',date_time_str_combined];
+combined_filename_prefix=[combined_summary_dir,combined_basename_prefix];
+combined_summary_filename=[combined_filename_prefix,'_summary.mat'];
 
-    % individual task summaries filename
-    % name with combined prefix bc using combined data
-    combined_by_task_dir=[combined_summary_dir,'individual_task_summary/'];
-    % combined_by_task_basename_prefix=['tasks_grsize',num2str(grsize),'_',date_time_str_combined];
-    combined_by_task_filename_prefix=[combined_by_task_dir,combined_basename_prefix];
+% ground truth filename
+% name with combined prefix bc using combined data
+ground_truth_vis_dir=[combined_summary_dir,'ground_truth/'];
+ground_truth_vis_filename_prefix=[ground_truth_vis_dir,'ground_truth_',date_time_str_combined];
 
-    % log filenames
-    % name with combined prefix bc using combined data
-    log_dir=[combined_by_task_dir,'logs/'];
-    log_filename_prefix=[log_dir,combined_basename_prefix];
+% individual task summaries filename
+% name with combined prefix bc using combined data
+combined_by_task_dir=[combined_summary_dir,'individual_task_summary/'];
+combined_by_task_filename_prefix=[combined_by_task_dir,combined_basename_prefix];
 
-    % set edge groups file in case can't get from original data
-    edge_groups_filename=[output_dir,'edge_groups.mat'];
-%end
+% log filenames
+% name with combined prefix since using combined data
+log_dir=[combined_by_task_dir,'logs/'];
+log_filename_prefix=[log_dir,combined_basename_prefix];
+
+% set Shen edge groups file (default for benchmarking) in case can't get from original data
+edge_groups_filename=[output_dir,'edge_groups.mat'];
 
 

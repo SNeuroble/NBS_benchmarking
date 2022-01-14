@@ -1,43 +1,47 @@
-% set params for summarization - comparing all methods, with each method
-% representing a combination of all tasks
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+% User-defined parameters for summarization & comparing all methods
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-%% Defaults
 
-%default summary type
-% summary_type_default='compare_all';
+%%%%%%%%% Defaults %%%%%%%%%
 
-% default tasks, stats, and grsize
+% Default: tasks, stats, and grsize
 all_tasks={'EMOTION_v_REST','GAMBLING_v_REST','LANGUAGE_v_REST','MOTOR_v_REST','RELATIONAL_v_REST','SOCIAL_v_REST','WM_v_REST'};
 all_stat_types={'Parametric_Bonferroni','Parametric_FDR','Size_Extent','TFCE','Constrained_FWER','Constrained','Omnibus_Multidimensional_cNBS'};
 grsize_default=80;
 
-% saving defaults
+% Default: saving settings
 save_settings.defaults.save_benchmarking_summary=1;
 save_settings.defaults.save_dcoeff=1; % ground truth-specific
 save_settings.defaults.save_figs=1;
 save_settings.defaults.save_logs=1;
-save_settings.defaults.save_summarized_data=1; % combined-specific % TODO: may have to partition for saving combined summary v combined visualization
+save_settings.defaults.save_summarized_data=1; % combined-specific 
 
-% plotting defaults
-% combine_all_tasks_default=0;
+% Default: plotting params
 make_figs_default=1;
-do_combined_default=0; % combined-specific
+do_combined_default=0; % combined versus task-specific summaries
 
-% combined-specific strings
-task_combined='all_tasks'; % TODO: gotta rename for combined
-stat_type_combined='all_stats'; % TODO: gotta rename
+% Default: combined summary strings
+task_combined='all_tasks'; % TODO: may rename for combined
+stat_type_combined='all_stats'; % TODO: may rename
 
-% fpr-specific strings
+% Default: FPR-specific strings
 if do_fpr
     fpr_str='_shuffled_for_FPR_';
 else
     fpr_str='';
 end
 
-%% Mapping from stats to level of inference to ground truth level of pooling
 
-% For combined: stat-to-level mapping for plots (first column can be partial strings - using pattern matching for first column)
+
+
+%%%%%% Mapping: stats -> level of inference -> ground truth level %%%%%%%%
+
+% For combined: stat -> level mapping for plots 
+% first column can be partial strings - using pattern matching for that col
 stats_levelstr_map =    {'Parametric_Bonferroni','edge';
                         'Parametric_FDR','edge (fdr)';
                         'Size_Extent','cluster size';
@@ -46,18 +50,24 @@ stats_levelstr_map =    {'Parametric_Bonferroni','edge';
                         'Constrained','network (fdr)';
                         'Omnibus_Multidimensional_cNBS','whole brain'};
                     
-% For combined: stat-to-ground truth level (first column can be partial strings - using pattern matching for first column)
+% For combined: stat -> ground truth level
+% first column can be partial strings - using pattern matching for that col
 statlevel_gtlevel_map =  {'edge', 'edge', 1;
                         'cluster', 'edge', 1;
                         'network', 'network', 2;
                         'whole', 'whole_brain', 3};
 
-% ground truth "stat_type" for filename (although it actually contains edge, network, and wb results)
+% Ground truth "stat_type" for filename
+% although it actually contains edge, network, and wb results
 stat_type_gt='Size_Extent';
 
 
-%% Plot parameters (pp)
-% indices correspond with ground truth levels (e.g., 1 = edge, 2=network, 3=whole_brain, often undefined)
+
+
+
+%%%%%%%%%%%%%%% Plot parameters (pp) %%%%%%%%%%%%%%%
+
+% indices correspond with ground truth levels (e.g., 1 = edge, 2=network, 3=whole_brain, often undef)
 
 % whether to combine all tasks to compare across stats
 pp.do_combined=0;
@@ -74,9 +84,9 @@ pp.dcoeff_hist_nbins.whole_brain=2;
 
 % for spline
 pp.window_sz{1}=0.01;
-pp.window_sz{2}=0.08; % pp.window_sz{2}=0.17; % 0.5 % 0.2
-pp.spline_smoothing{1}=0.9999; %0.995;
-pp.spline_smoothing{2}=0.99999; % 0.99995
+pp.window_sz{2}=0.08; 
+pp.spline_smoothing{1}=0.9999; 
+pp.spline_smoothing{2}=0.99999; 
 
 % axis limits (used for histogram counting too)
 pp.ax_ylim_tpr=[0,100];
@@ -107,16 +117,51 @@ pp.clim_res.edge_bynet=[-.15,.15];
 pp.clim_res.network=[-.6,.6];
 pp.clim_res.whole_brain=[-.15,.15];
 
-% Color order for subsequent statistic types
-% pp.stat_color_order =   [ 0       0.4470    0.7410
-%                         0.8500    0.3250    0.0980
-%                         0.9290    0.6940    0.1250
-%                         0.4940    0.1840    0.5560
-%                         0.4660    0.6740    0.1880
-%                         0.3010    0.7450    0.9330
-%                         0.6350    0.0780    0.1840];
 
+% Color palette for each statistic type
+% colorful nested
+pp.stat_color_order =   [235, 215, 28
+                        254, 167, 0
+                        31, 192, 198
+                        26, 99, 102
+                        254, 88, 118
+                        188, 78, 144
+                        30, 60, 110];
+                    
+
+                   
+% Alternative color palettes
 %{
+pp.stat_color_order =   [ 0       0.4470    0.7410
+                         0.8500    0.3250    0.0980
+                         0.9290    0.6940    0.1250
+                         0.4940    0.1840    0.5560
+                         0.4660    0.6740    0.1880
+                         0.3010    0.7450    0.9330
+                         0.6350    0.0780    0.1840];
+
+
+% colorful nested
+pp.stat_color_order =   [235, 215, 28
+                        254, 167, 0
+                        31, 192, 198
+                        26, 99, 102
+                        254, 88, 118
+                        188, 78, 144
+                        30, 60, 110];
+                    
+
+
+% colorful nested
+pp.stat_color_order =   [235, 215, 28
+                        254, 167, 0
+                        31, 192, 198
+                        26, 99, 102
+                        254, 88, 118
+                        188, 78, 144
+                        30, 60, 110];
+                    
+
 % orig
 pp.stat_color_order =   [235, 215, 28
                         255, 166, 0
@@ -160,21 +205,7 @@ pp.stat_color_order =   [186, 245, 245
                         252, 223, 188
                         242, 170, 60
                         116, 84, 145];
-
 %}
-
-% colorful nested
-pp.stat_color_order =   [235, 215, 28
-                        254, 167, 0
-                        31, 192, 198
-                        26, 99, 102
-                        254, 88, 118
-                        188, 78, 144
-                        30, 60, 110];
-                    
-
-% 255, 99, 97 original nice color
-% 255, 151, 146 watermelon color
 
 pp.stat_color_order=pp.stat_color_order/255;
 
@@ -196,7 +227,6 @@ pp.atlas_line_width_single_tasks=0.4;
 pp.fontsz_sm=5;
 pp.fontsz_lg=18;
 pp.fontsz=pp.fontsz_lg; % set default to the larger
-% pp.fontsz_single_task_scaling=0.2;
 
 % figure sizes for saving (single tasks)
 pp.margins=[0.015,0.015];
@@ -239,7 +269,7 @@ pp.bin_width_at_summary_thresh{1}=0.1;
 pp.bin_width_at_summary_thresh{2}=1;
 pp.bin_width_at_summary_thresh{3}=1.5;
 pp.tpr_bin_width.edge=0.2;
-pp.tpr_bin_width.network=3; % TODO: 2
+pp.tpr_bin_width.network=3;
 pp.tpr_bin_width.whole_brain=3;
 pp.thresh_small=0.2; pp.thresh_med=0.5; pp.thresh_large=0.8; % effect size thresholds for summarizing tpr
 
