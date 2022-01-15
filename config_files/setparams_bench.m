@@ -66,7 +66,7 @@ n_perms='1000';             % default = 1000, more conservative = 5000
 tthresh_first_level=3.1;    % t=3.1 corresponds with p=0.005-0.001 (DOF=10-1000)
                             % Only used if cluster_stat_type='Size'
 pthresh_second_level=0.05;  % FWER or FDR rate
-all_cluster_stat_types='Constrained'; % 'Parametric_Bonferroni' | 'Parametric_FDR' | 'Size' | 'TFCE' | 'Constrained' | 'Constrained_FDR' | 'Omnibus' | 'SEA' (under construction)
+all_cluster_stat_types={'Size'}; % 'Parametric_Bonferroni' | 'Parametric_FDR' | 'Size' | 'TFCE' | 'Constrained' | 'Constrained_FDR' | 'Omnibus' | 'SEA' (under construction)
                             % misnomer - "cluster_stat_types" -> "stat_types"
                             % edge: 'Parametric_Bonferroni', 'Parametric_FDR', 'FDR' (nonparametric)
                             % can specify multiple, e.g.,: {'Size', 'TFCE'}
