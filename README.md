@@ -13,9 +13,12 @@ NBS toolbox: https://sites.google.com/site/bctnet/comparison/nbs
 
 #### 1. Minimal command line usage
 
-1. Set files and parameters in setparams.m
-2. Run run_NBS_cl.m
-3. Results are all in the nbs variable (e.g., p-values are in nbs.NBS.pval). A sample visualization of the results is provided for cNBS.
+1. Set paths and parameters in setparams.m
+    - Example material for testing can be found in the NBS toolbox and NBS_benchmarking toolbox (this toolbox):
+        - NBS toolbox "SchizophreniaExample" directory: example data and design matrix for schizophrenia study
+        - NBS_benchmarking toolbox "NBS_addon" directory: simple and Shen edge groups
+2. Run run_NBS_cl.m (must be on your path or in the working directory)
+3. View results are all in the nbs variable (e.g., p-values are in nbs.NBS.pval). A sample visualization of the results is provided for cNBS.
 
 #### 2. Benchmarking
 
