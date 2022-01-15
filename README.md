@@ -22,11 +22,19 @@ NBS toolbox: https://sites.google.com/site/bctnet/comparison/nbs
 
 #### 2. Benchmarking
 
-1. Set parameters in setparams_bench.m (e.g., do_TPR, use_both_tasks, etc.)
-2. Optional: If want system-dependent paths, set script and data paths for each system in setpaths.m. Must also define system_dependent_paths=1 in setparams_bench.m to use.
-3. Run run_benchmarking.m
-4. Set params for results to be summarized in setparams_summary.m
-4. Run summarize_tprs.m or summarize_fprs.m
+1. Set paths and parameters
+    - Set script and data paths in setparams_bench.m
+        - Optional: If want system-dependent paths, set paths for each system in setpaths.m. Must set system_dependent_paths=1 in setparams_bench.m to use. This will overwrite paths in setparams_bench.m, so no need to set paths in setparams_bench.m.
+    - Set parameters and script/data paths in setparams_bench.m (e.g., do_TPR, use_both_tasks, etc.)
+2. Run resampling procedure
+    - Run run_benchmarking.m
+3. Calculate ground truth
+    - Set task_gt in setparams_bench.m
+    - Run calculate_ground_truth.m 
+3. Summarize accuracy & other results
+    - Set parameters for resampling results to be summarized in setparams_summary.m
+    - Set date/time info for resampling results to be summarized in set_datetimestr_and_files.m
+    - Run summarize_tprs.m or summarize_fprs.m
 
 ### References
 
@@ -35,3 +43,4 @@ NBS toolbox: https://sites.google.com/site/bctnet/comparison/nbs
 - Smith, S.M. and Nichols, T.E., 2009. Threshold-free cluster enhancement: addressing problems of smoothing, threshold dependence and localisation in cluster inference. Neuroimage, 44(1), pp.83-98.
 
 - Noble, S. and Scheinost, D., 2020. The Constrained Network-Based Statistic: A New Level of Inference for Neuroimaging. In International Conference on Medical Image Computing and Computer-Assisted Intervention (pp. 458-468). Springer, Cham.
+
