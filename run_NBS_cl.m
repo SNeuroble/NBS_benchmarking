@@ -9,7 +9,11 @@
 [current_path,~,~]=fileparts(mfilename('fullpath')); % assuming NBS_benchmarking is current folder
 addpath(genpath(current_path));
 setparams;
-addpath(genpath(nbs_dir));
+if exist(nbs_dir,'dir')
+    addpath(genpath(nbs_dir));
+else
+    error(['NBS toolbox path does not exist (see setparams.m): ',nbs_dir]);
+end
 
 % Developer parameter changes
 if testing 
