@@ -25,9 +25,10 @@ other_scripts_dir='/Volumes/GoogleDrive/My Drive/Steph-Lab/Misc/Software/scripts
 %     naming convention: [data_dir, task1, subIDs_suffix]; 
 data_dir='/Users/steph/Documents/data/mnt/hcp_1200/matrices/';
 output_dir='/Users/steph/Documents/data/mnt/NBS_benchmarking_results/';
-task1='WM';         % for TPR: 'EMOTION' | 'GAMBLING' | 'LANGUAGE' | 'MOTOR' | 'RELATIONAL' | 'SOCIAL' | 'WM'
+task1='WM';         % 'EMOTION' | 'GAMBLING' | 'LANGUAGE' | 'MOTOR' | 'RELATIONAL' | 'SOCIAL' | 'WM' | 'REST'
+                    % use any for TPR and 'REST' for FPR
 task_gt='GAMBLING'; % for ground truth (can use truncated, e.g., 'REST_176frames')
-task2='REST';       % for FPR or TPR contrast ('REST2' for FPR)
+task2='REST';       % 2nd task for FPR or TPR contrast (set 'REST2' for FPR)
 subIDs_suffix='_subIDs.txt';        % see naming convention
 data_type_suffix='_GSR_matrix.txt'; % see naming convention 
 
@@ -37,8 +38,7 @@ use_both_tasks=1; % for a paired-sample test
 paired_design=1; % currently required if using a paired design
 
 %%% Trimmed Scans %%%
-% FOR GROUND TRUTH CALCULATION ONLY
-% Specify whether to use resting runs which have been trimmed to match each task's scan duration (in no. frames for single encoding direction; cf. https://protocols.humanconnectome.org/HCP/3T/imaging-protocols.html)
+% Specify whether to use resting runs for task2 which have been trimmed to match each task's scan duration (in no. frames for single encoding direction; cf. https://protocols.humanconnectome.org/HCP/3T/imaging-protocols.html)
 % Note: all scans were acquired with the same TR
 use_trimmed_rest=0; % default = 0
 n_frames.EMOTION=176;
