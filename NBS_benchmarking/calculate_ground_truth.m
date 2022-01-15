@@ -5,16 +5,17 @@
 % make sure config files in NBS_benchmarking are correct
 clear all;
 
-% only set these if you have a good amount of time
-calc_significant_clusters=0;
-stat_type_gt__clust='Size'; % 'Size' or 'TFCE'
-
 [current_path,~,~]=fileparts(mfilename('fullpath')); % assuming NBS_benchmarking is current folder
 addpath(genpath(current_path));
 do_ground_truth=1;
-stat_type_gt='NBS';
+stat_type_gt='Size';
 n_perms_gt='1';
 setup_benchmarking; 
+
+% Calculate significant clusters? Uses full permutations, thus takes time --  only set if you have a good amount of times
+calc_significant_clusters=0;
+stat_type_gt__clust='Size'; % 'Size' or 'TFCE'
+
 
 %% Estimate statistics
 % Really just using NBS to solve GLM, except in the first case where we're also interested in recording any clusters
