@@ -1,6 +1,21 @@
-# Expanded NBS tools for new statistics and benchmarking
+# Network-Based Inferential Procedures & Empirical Benchmarking
 
-Purpose: 1. Perform command-line inference with new NBS statistics (cNBS, TFCE); 2. Evaluate performance across statistics
+**NOTE:** The main repository has been updated to reflect recent benchmarking and summarization procedures of 01/01/2022. For previous version, see branch "old-master".
+
+Purpose:
+1. Perform inference in networks at various scales and from the Matlab command line
+2. Empirically benchmark and compare performance of inferential procedures
+
+Inferential procedures currently include:
+- edge-level: Bonferroni (FWER)
+- edge-level: Storey (FDR)
+- component/cluster-level: Network-Based Statistic (NBS; FWER; Options: Size or Intensity; Zalesky, Fornito, & Bullmore, 2010)
+- component/cluster-level: Threshold-Free Cluster Enhancement (TFCE; FWER; Smith & Nichols, 2009)
+- network-level: Constrained NBS (cNBS; FWER)
+- network-level: Constrained NBS (FDR)
+- whole brain-level/omnibus: Options: Threshold_Positive, Threshold_Both_Dir, Average_Positive, Average_Both_Dir, Multidimensional_cNBS, Multidimensional_all_edges
+
+Note: All procedures besides NBS are implemented here (so any mistakes are mine!), relying in part on underlying functionality in the NBS toolbox (see NBS_addon). cNBS and multidimensional cNBS are introduced here (Noble & Scheinost, 2020).
 
 ## Getting Started
 
@@ -11,7 +26,7 @@ NBS toolbox: https://sites.google.com/site/bctnet/comparison/nbs
 
 ### Usage
 
-#### 1. Minimal command line usage
+#### Network-Based Inference
 
 1. Set paths and parameters in setparams.m
     - Example material for testing can be found in the NBS toolbox and NBS_benchmarking toolbox (this toolbox):
@@ -20,7 +35,7 @@ NBS toolbox: https://sites.google.com/site/bctnet/comparison/nbs
 2. Run run_NBS_cl.m (must be on your path or in the working directory)
 3. View results are all in the nbs variable (e.g., p-values are in nbs.NBS.pval). A sample visualization of the results is provided for cNBS.
 
-#### 2. Benchmarking
+#### Empirical Benchmarking of Accuracy Metrics
 
 1. Set paths and parameters
     - Set script and data paths in setparams_bench.m
