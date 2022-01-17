@@ -33,6 +33,7 @@ NBS toolbox: https://sites.google.com/site/bctnet/comparison/nbs
     - Run calculate_ground_truth.m 
 3. Summarize accuracy & other results
     - Set parameters for resampling results to be summarized in setparams_summary.m
+    - If doing summary from another workstation, mount these directories and re-define paths for resampling results and ground truth data paths. This is where system_dependent_paths will come in handy (see Step 1.)
     - Set date/time info for resampling results to be summarized in set_datetimestr_and_files.m
     - Run summarize_tprs.m or summarize_fprs.m
 
