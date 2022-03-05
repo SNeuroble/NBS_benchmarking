@@ -45,7 +45,7 @@ Note: All procedures besides *NBS* and *edge-level (nonparametric FDR)* are impl
 
 1. Set paths and parameters
     - Set script and data paths in `setparams_bench.m`
-        - Optional: If want system-dependent paths, set paths for each system in `setpaths.m`. Must set system_dependent_paths=1 in `setparams_bench.m` to use. This will overwrite paths in ``setparams_bench.m`, so no need to set paths in `setparams_bench.m`.
+        - Optional: If want system-dependent paths, set paths for each system in `setpaths.m`. Must set system_dependent_paths=1 in `setparams_bench.m` to use. This will overwrite paths in `setparams_bench.m`, so no need to set paths in `setparams_bench.m`.
     - Set parameters and script/data paths in `setparams_bench.m` (e.g., do_TPR, use_both_tasks, etc.)
 2. Run resampling procedure
     - Run `run_benchmarking.m`
