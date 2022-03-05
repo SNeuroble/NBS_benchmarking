@@ -71,7 +71,7 @@ Note: All procedures besides NBS are implemented here (so any mistakes are mine!
     - contrasts: [0, 1]
     - exchangeability: None
 - All functions are designed to perform one-sided tests. To perform a two-sided test, set the alpha parameters to your desired alpha value divided by two, run tests for the original contrast and the opposite, and combine results.
-    -For example, for desired alpha=0.05, set alpha=0.025 and run two contrasts: [1, -1] and [-1, 1]).
+    - For example, for desired alpha=0.05, set alpha=0.025 and run two contrasts: [1, -1] and [-1, 1]).
 - For reference, some excellent guides for constructing models can be found here:
     - [FSL GLM page](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/GLM)
     - [Freesurfer GLM tutorial](http://ftp.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_packages/centos6/fsl_507/doc/wiki/attachments/GLM/JMglm.pdf)
