@@ -1,6 +1,6 @@
-# Network-Based Inferential Procedures & Empirical Benchmarking
+# Inferential Procedures for Networks & Empirical Benchmarking
 
-**NOTE:** The main repository has been updated to reflect recent benchmarking and summarization procedures of 01/01/2022. For previous version, see branch "old-master".
+**NOTE:** The main repository has been updated to reflect recent benchmarking and summarization procedures as of 01/01/2022. For previous version, see branch "old-master".
 
 Purpose:
 1. Perform inference in networks at various scales and from the Matlab command line
@@ -17,17 +17,16 @@ Inferential procedures currently include:
 
 Note: All procedures besides NBS are implemented here (so any mistakes are mine!), relying in part on underlying functionality in the NBS toolbox (see NBS_addon). cNBS and multidimensional cNBS are introduced here (Noble & Scheinost, 2020).
 
-## Getting Started
 
-### Prerequisites
+## Prerequisites
 
 [Matlab](https://www.mathworks.com/products/matlab.html)
 
 [NBS toolbox](https://sites.google.com/site/bctnet/comparison/nbs)
 
-### Usage
+## Usage
 
-#### Network-Based Inference
+### Network-Based Inference
 
 1. Set paths and parameters in setparams.m
     - Example material for testing can be found in the NBS toolbox and NBS_benchmarking toolbox (this toolbox):
@@ -37,7 +36,8 @@ Note: All procedures besides NBS are implemented here (so any mistakes are mine!
 2. Run run_NBS_cl.m (must be on your path or in the working directory)
 3. View results are all in the nbs variable (e.g., p-values are in nbs.NBS.pval). A sample visualization of the results is provided for cNBS.
 
-#### Empirical Benchmarking of Accuracy Metrics
+
+### Empirical Benchmarking of Accuracy Metrics
 
 1. Set paths and parameters
     - Set script and data paths in setparams_bench.m
@@ -54,7 +54,9 @@ Note: All procedures besides NBS are implemented here (so any mistakes are mine!
     - Set date/time info for resampling results to be summarized in set_datetimestr_and_files.m
     - Run summarize_tprs.m or summarize_fprs.m
 
-#### Tips for constructing design matrices, contrasts, exchangeability, and two-sided tests
+
+### Tips for constructing design matrices, contrasts, exchangeability, and two-sided tests
+
 - Example 1. Two-sample test for 6 subjects split into 2 groups (S1G1 S2G1 S3G1 S4G2 S5G2S6G2)
     - design matrix: [1 0; 1 0; 1 0; 0 1; 0 1; 0 1];
     - contrasts: [1,-1]
@@ -74,7 +76,8 @@ Note: All procedures besides NBS are implemented here (so any mistakes are mine!
     - [FSL GLM page](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/GLM)
     - [Freesurfer GLM tutorial](http://ftp.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_packages/centos6/fsl_507/doc/wiki/attachments/GLM/JMglm.pdf)
 
-### References
+
+## References
 
 - Zalesky, A., Fornito, A. and Bullmore, E.T., 2010. Network-based statistic: identifying differences in brain networks. Neuroimage, 53(4), pp.1197-1207.
 
