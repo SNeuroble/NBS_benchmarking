@@ -2,11 +2,11 @@
 
 **NOTE:** The main repository has been updated to reflect recent benchmarking and summarization procedures as of 01/01/2022. For previous version, see branch "old-master".
 
-Purpose:
+## Purpose:
 1. Perform inference in networks at various scales and from the Matlab command line
 2. Empirically benchmark and compare performance of inferential procedures
 
-Inferential procedures currently include (nonparametric estimation of corrected p-values unless noted otherwise):
+### Inferential procedures currently include:
 - edge-level: (FWER, parametric)
 - edge-level: (FDR, parametric)
 - edge-level: (FDR)
@@ -16,7 +16,9 @@ Inferential procedures currently include (nonparametric estimation of corrected 
 - network-level: Constrained NBS (FDR)
 - whole brain-level/omnibus: Options: Threshold_Positive, Threshold_Both_Dir, Average_Positive, Average_Both_Dir, Multidimensional_cNBS, Multidimensional_all_edges
 
-Note: All procedures besides *NBS* and *edge-level (nonparametric FDR)* are implemented here (so any mistakes are mine!), relying in part on underlying functionality in the NBS toolbox (see NBS_addon for extending scripts). cNBS and multidimensional cNBS are introduced here (Noble & Scheinost, 2020). Empirical benchmarking in the functional connectome is introduced here (Noble & Scheinost, 2020).
+(P-values obtained nonparametrically unless noted otherwise.)
+
+Note: All procedures besides *NBS* and *edge-level (nonparametric FDR)* are implemented here (so any mistakes are mine!), relying in part on underlying functionality in the NBS toolbox (see NBS_addon for extending scripts). cNBS and multidimensional cNBS are introduced here (Noble & Scheinost, 2020). Connectome-based empirical benchmarking is introduced here (Noble & Scheinost, 2020).
 
 
 
