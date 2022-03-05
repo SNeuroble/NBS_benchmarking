@@ -77,6 +77,7 @@ Note: All procedures besides *NBS* and *edge-level (nonparametric FDR)* are impl
 - For reference, some excellent guides for constructing models can be found here:
     - [FSL GLM page](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/GLM)
     - [Freesurfer GLM tutorial](http://ftp.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_packages/centos6/fsl_507/doc/wiki/attachments/GLM/JMglm.pdf)
+
 (H/t Raimundo Rodriguez for pointing out areas to clarify motivating this section.)
 
 ## References
