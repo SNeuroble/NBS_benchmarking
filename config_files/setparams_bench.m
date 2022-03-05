@@ -59,22 +59,28 @@ n_subs_subset=40;   % 40 | 80 | 120
                     % size of subset is full group size (N=n*2 for two sample t-test or N=n for one-sample)
 
 %%% NBS parameters %%%
-nbs_method='Run NBS'; 
+nbs_method='Run NBS';       % 'Run NBS' (all procedures except edge-level) | 'Run Parametric Edge-Level Correction' | 'Run FDR' (nonparametric edge-level FDR correction)
 nbs_test_stat='t-test';     % 't-test' | 'one-sample' | 'F-test' 
                             % Current model (see design matrix in setup_benchmarking.m) only designed for t-test
 n_perms='1000';             % default = 1000, more conservative = 5000
 tthresh_first_level=3.1;    % t=3.1 corresponds with p=0.005-0.001 (DOF=10-1000)
                             % Only used if cluster_stat_type='Size'
 pthresh_second_level=0.05;  % FWER or FDR rate
-all_cluster_stat_types={'Size'}; % 'Parametric_Bonferroni' | 'Parametric_FDR' | 'Size' | 'TFCE' | 'Constrained' | 'Constrained_FDR' | 'Omnibus' | 'SEA' (under construction)
-                            % misnomer - "cluster_stat_types" -> "stat_types"
-                            % edge: 'Parametric_Bonferroni', 'Parametric_FDR', 'FDR' (nonparametric)
-                            % can specify multiple, e.g.,: {'Size', 'TFCE'}
-                            % Constrained uses Shen atlas imported in setup_benchmarking.m
+all_cluster_stat_types='Size';   % cluster_stat_type (should be renamed stat_type) is required for all inference procedures except nonparametric edge-level
+                            % 'Parametric_Bonferroni' (edge-level + FWER correction; must set nbs_method=Run Parametric Edge-Level Correction)
+                            % 'Parametric_FDR' (edge+FDR; nbs_method=Run Parametric Edge-Level Correction)
+                            % 'Size' (cluster+FWER; nbs_method='Run NBS')
+                            % 'TFCE' (cluster+FWER; nbs_method='Run NBS')
+                            % 'Constrained' (predefined network+FDR; nbs_method='Run NBS')
+                            % 'Constrained_FWER' (predefined network+FWER; nbs_method='Run NBS')
+                            % 'Omnibus' (whole-brain; nbs_method='Run NBS')
+                            % 'SEA' (under construction) (predefined network; nbs_method='Run NBS')
+                            % NOTE 1: can specify multiple, e.g.,: {'Size', 'TFCE'}
+                            % NOTE 2: Constrained/_FWER uses Shen atlas imported in setup_benchmarking.m
 cluster_size_type='Extent'; % 'Intensity' | 'Extent'
                             % Only used if cluster_stat_type='Size'
 omnibus_type='Multidimensional_cNBS';  % 'Threshold_Positive' | 'Threshold_Both_Dir' | 'Average_Positive' | 'Average_Both_Dir' | 'Multidimensional_cNBS' | 'Multidimensional_all_edges' 
-                                    % Only used if cluster_stat_type='Omnibus'
+                            % Only used if cluster_stat_type='Omnibus'
 omnibus_type_gt='Multidimensional_all_edges';
 
 
