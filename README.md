@@ -30,13 +30,15 @@ Note: All procedures besides *NBS* and *edge-level (nonparametric FDR)* are impl
 
 ### Network-Based Inference
 
+0. Open Matlab
 1. Set paths and parameters in setparams.m
     - Example material for testing can be found in the NBS toolbox and NBS_benchmarking toolbox (this toolbox):
         - NBS toolbox "SchizophreniaExample" directory: example data and design matrix for schizophrenia study
         - NBS_benchmarking toolbox "NBS_addon" directory: simple and Shen edge groups
     - See below for tips for the construction of design matrices, contrasts, exchangeability, and two-sided tests
-2. Run run_NBS_cl.m (must be on your path or in the working directory)
-3. View results are all in the nbs variable (e.g., p-values are in nbs.NBS.pval). A sample visualization of the results is provided for cNBS.
+2. Add main `NBS_benchmarking` folder and subfolders (e.g., `addpath(genpath('~/NBS_benchmarking'))`)
+3. Run `run_NBS_cl.m`
+4. View results are all in the nbs variable (e.g., p-values are in nbs.NBS.pval). A sample visualization of the results is provided for cNBS.
 
 
 ### Empirical Benchmarking of Accuracy Metrics
