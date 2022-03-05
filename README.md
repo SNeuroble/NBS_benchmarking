@@ -31,12 +31,12 @@ Note: All procedures besides *NBS* and *edge-level (nonparametric FDR)* are impl
 ### Network-Based Inference
 
 0. Open Matlab
-1. Set paths and parameters in setparams.m
+1. Set paths and parameters in `setparams.m`
     - Example material for testing can be found in the NBS toolbox and NBS_benchmarking toolbox (this toolbox):
         - NBS toolbox "SchizophreniaExample" directory: example data and design matrix for schizophrenia study
         - NBS_benchmarking toolbox "NBS_addon" directory: simple and Shen edge groups
     - See below for tips for the construction of design matrices, contrasts, exchangeability, and two-sided tests
-2. Add main `NBS_benchmarking` folder and subfolders (e.g., `addpath(genpath('~/NBS_benchmarking'))`)
+2. Add main NBS_benchmarking folder and subfolders (e.g., `addpath(genpath('~/NBS_benchmarking'))`)
 3. Run `run_NBS_cl.m`
 4. View results are all in the nbs variable (e.g., p-values are in nbs.NBS.pval). A sample visualization of the results is provided for cNBS.
 
@@ -44,19 +44,19 @@ Note: All procedures besides *NBS* and *edge-level (nonparametric FDR)* are impl
 ### Empirical Benchmarking of Accuracy Metrics
 
 1. Set paths and parameters
-    - Set script and data paths in setparams_bench.m
-        - Optional: If want system-dependent paths, set paths for each system in setpaths.m. Must set system_dependent_paths=1 in setparams_bench.m to use. This will overwrite paths in setparams_bench.m, so no need to set paths in setparams_bench.m.
-    - Set parameters and script/data paths in setparams_bench.m (e.g., do_TPR, use_both_tasks, etc.)
+    - Set script and data paths in `setparams_bench.m`
+        - Optional: If want system-dependent paths, set paths for each system in `setpaths.m`. Must set system_dependent_paths=1 in `setparams_bench.m` to use. This will overwrite paths in ``setparams_bench.m`, so no need to set paths in `setparams_bench.m`.
+    - Set parameters and script/data paths in `setparams_bench.m` (e.g., do_TPR, use_both_tasks, etc.)
 2. Run resampling procedure
-    - Run run_benchmarking.m
+    - Run `run_benchmarking.m`
 3. Calculate ground truth
-    - Set task_gt in setparams_bench.m
-    - Run calculate_ground_truth.m 
+    - Set `task_gt` in `setparams_bench.m`
+    - Run `calculate_ground_truth.m`
 3. Summarize accuracy & other results
-    - Set parameters for resampling results to be summarized in setparams_summary.m
-    - If doing summary from another workstation, mount these directories and re-define paths for resampling results and ground truth data paths. This is where system_dependent_paths will come in handy (see Step 1.)
-    - Set date/time info for resampling results to be summarized in set_datetimestr_and_files.m
-    - Run summarize_tprs.m or summarize_fprs.m
+    - Set parameters for resampling results to be summarized in `setparams_summary.m`
+    - If doing summary from another workstation, mount these directories and re-define paths for resampling results and ground truth data paths. This is where `system_dependent_paths` will come in handy (see Step 1.)
+    - Set date/time info for resampling results to be summarized in `set_datetimestr_and_files.m`
+    - Run `summarize_tprs.m` or `summarize_fprs.m`
 
 
 ### Tips for constructing design matrices, contrasts, exchangeability, and two-sided tests
