@@ -6,16 +6,18 @@ Purpose:
 1. Perform inference in networks at various scales and from the Matlab command line
 2. Empirically benchmark and compare performance of inferential procedures
 
-Inferential procedures currently include:
-- edge-level: Bonferroni (FWER)
-- edge-level: Storey (FDR)
+Inferential procedures currently include (nonparametric estimation of corrected p-values unless noted otherwise):
+- edge-level: (FWER, parametric)
+- edge-level: (FDR, parametric)
+- edge-level: (FDR)
 - component/cluster-level: Network-Based Statistic (NBS; FWER; Options: Size or Intensity; Zalesky, Fornito, & Bullmore, 2010)
 - component/cluster-level: Threshold-Free Cluster Enhancement (TFCE; FWER; Smith & Nichols, 2009)
 - network-level: Constrained NBS (cNBS; FWER)
 - network-level: Constrained NBS (FDR)
 - whole brain-level/omnibus: Options: Threshold_Positive, Threshold_Both_Dir, Average_Positive, Average_Both_Dir, Multidimensional_cNBS, Multidimensional_all_edges
 
-Note: All procedures besides NBS are implemented here (so any mistakes are mine!), relying in part on underlying functionality in the NBS toolbox (see NBS_addon). cNBS and multidimensional cNBS are introduced here (Noble & Scheinost, 2020).
+Note: All procedures besides *NBS* and *edge-level (nonparametric FDR)* are implemented here (so any mistakes are mine!), relying in part on underlying functionality in the NBS toolbox (see NBS_addon for extending scripts). cNBS and multidimensional cNBS are introduced here (Noble & Scheinost, 2020). Empirical benchmarking in the functional connectome is introduced here (Noble & Scheinost, 2020).
+
 
 
 ## Prerequisites
@@ -75,7 +77,7 @@ Note: All procedures besides NBS are implemented here (so any mistakes are mine!
 - For reference, some excellent guides for constructing models can be found here:
     - [FSL GLM page](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/GLM)
     - [Freesurfer GLM tutorial](http://ftp.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_packages/centos6/fsl_507/doc/wiki/attachments/GLM/JMglm.pdf)
-
+(H/t Raimundo Rodriguez for pointing out areas to clarify motivating this section.)
 
 ## References
 
