@@ -66,7 +66,7 @@ n_perms='1000';             % default = 1000, more conservative = 5000
 tthresh_first_level=3.1;    % t=3.1 corresponds with p=0.005-0.001 (DOF=10-1000)
                             % Only used if cluster_stat_type='Size'
 pthresh_second_level=0.05;  % FWER or FDR rate
-all_cluster_stat_types='Size';   % cluster_stat_type (should be renamed stat_type) is required for all inference procedures except nonparametric edge-level
+all_cluster_stat_types={'Size'};   % cluster_stat_type (should be renamed stat_type) is required for all inference procedures except nonparametric edge-level
                             % 'Parametric_Bonferroni' (edge-level + FWER correction; must set nbs_method=Run Parametric Edge-Level Correction)
                             % 'Parametric_FDR' (edge+FDR; nbs_method=Run Parametric Edge-Level Correction)
                             % 'Size' (cluster+FWER; nbs_method='Run NBS')
@@ -82,6 +82,9 @@ cluster_size_type='Extent'; % 'Intensity' | 'Extent'
 omnibus_type='Multidimensional_cNBS';  % 'Threshold_Positive' | 'Threshold_Both_Dir' | 'Average_Positive' | 'Average_Both_Dir' | 'Multidimensional_cNBS' | 'Multidimensional_all_edges' 
                             % Only used if cluster_stat_type='Omnibus'
 omnibus_type_gt='Multidimensional_all_edges';
+use_preaveraged_constrained=0; % 1 | 0
+                            % Only used for cNBS and Omnibus cNBS
+
 
 
 %%%%% DEVELOPERS ONLY %%%%%

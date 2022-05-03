@@ -20,7 +20,7 @@ design_matrix_file='/home/smn33/scripts/NBS1.2/SchizophreniaExample/designMatrix
 contrast=[-1,1];
 exchange=[];
 
-% Edge groups -- required for cNBS
+% Edge groups -- required for cNBS and Omnibus cNBS
 % file contains n_nodes x n_nodes edge matrix mask with nonzeros as follows: 1=subnetwork 1, 2=subnetwork 2, etc.
 % for testing, get a map from this NBS_benchmarking toolbox "NBS_addon" dir
 edge_groups_file='/home/smn33/scripts/NBS_benchmarking/NBS_addon/SchizophreniaExample/Example_74node_map.mat'; 
@@ -46,6 +46,8 @@ cluster_size_type='Extent'; % 'Intensity' | 'Extent'
                             % Only used if cluster_stat_type='Size'
 omnibus_type='Threshold_Positive';  % 'Threshold_Positive' | 'Threshold_Both_Dir' | 'Average_Positive' | 'Average_Both_Dir' | 'Multidimensional_cNBS' | 'Multidimensional_all_edges' 
                             % Only used if cluster_stat_type='Omnibus'
+use_preaveraged_constrained=0; % 1 | 0
+                            % Only used for cNBS and Omnibus cNBS
 
 %%%%% DEVELOPERS ONLY %%%%%
 % Use a small subset of permutations for faster development -- inappropriate for inference
