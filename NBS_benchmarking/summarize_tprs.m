@@ -178,8 +178,10 @@ end
 
 case 'calculate_tpr'
 fprintf('**** Aggregating true positives ****\n');
+if ~use_preaveraged_constrained
 if length(tasks)<length(all_tasks)
     error('Not enough tasks specified to combine all.')
+end
 end
 
 for t=1:length(tasks)
@@ -194,6 +196,11 @@ for t=1:length(tasks)
         % set files for specified task, stat_type, data_source and make output
         set_datetimestr_and_files;
         %if ~exist(summary_output_dir,'dir'); mkdir(summary_output_dir); end
+
+        if use_preaveraged_constrained
+            this_stat_level_str='edge';
+            this_stat_gt_level_str='edge';
+        end
 
         % need original bench results for summary in edge_groups - TODO: save edge_groups into summary matfile
         if strcmp(this_stat_gt_level_str,'network')

@@ -67,7 +67,14 @@ function ss=calculate_dcoefficients(tstat_filename,stat_level_map,dcoeff_filenam
 
     try % try to load ground truth
       lastwarn('');
-      load(tstat_filename,'edge_stats','edge_stats_net','edge_stats_pool_all','rep_params','UI_light');
+      if isempty(who('-file', tstat_filename, 'edge_stats_net'))
+          use_preaveraged_constrained=1;
+          load(tstat_filename,'edge_stats','UI_light','rep_params_copy');
+          rep_params=rep_params_copy; % TODO: why isn't saving as rep_params?
+      else
+          use_preaveraged_constrained=0;
+        load(tstat_filename,'edge_stats','edge_stats_net','edge_stats_pool_all','rep_params','UI_light');
+      end
       [warnmsg,~] = lastwarn;
       if contains(warnmsg,'Variable ') && contains(warnmsg,'not found.')
           error(['Unable to load all necessary variables from ',tstat_filename,'.\nPlease check these exist and try again.']);
@@ -78,22 +85,28 @@ function ss=calculate_dcoefficients(tstat_filename,stat_level_map,dcoeff_filenam
 
     % create new variables to match stat_gt_levels 
     tstat.edge=edge_stats;
-    tstat.network=edge_stats_net;
-    tstat.whole_brain=edge_stats_pool_all;
+    if ~use_preaveraged_constrained
+        tstat.network=edge_stats_net;
+        tstat.whole_brain=edge_stats_pool_all;
+    end
 
     [~,idx] = unique(stat_level_map.stat_gt_levels);
     %       stat_gt_levels_str_new=stat_level_map.stat_gt_levels_str(idx);
+    if use_preaveraged_constrained
+        idx=1; %edge standing in for network
+    end
 
     % Convert t-stat -> d-coefficient - transpose because need for fitting spline
     warning('Assuming input is t-statistic from paired-sample t-test.')
     n_subs_total=rep_params.n_subs_subset;
     for g=idx'
-    gt_level_str=stat_level_map.stat_gt_levels_str{g};
-    dcoeff.(gt_level_str)=(tstat.(gt_level_str)/sqrt(n_subs_total))';
+        gt_level_str=stat_level_map.stat_gt_levels_str{g};
+        dcoeff.(gt_level_str)=(tstat.(gt_level_str)/sqrt(n_subs_total))';
     end
+    
 
     n_subs_total=length(UI_light.contrast.ui)-1;
-      
+    
     ss = summary_tools.check_whether_to_save(ss,'save_dcoeff','Ground truth d-coefficient',dcoeff_filename);
     if ss.do.save_dcoeff
           save(dcoeff_filename,'dcoeff','n_subs_total','-v7.3');
@@ -131,8 +144,11 @@ function ss=calculate_positives(results_filename,benchmarking_summary_filename,s
           n_perms=UI.perms.ui;
 
           % get positives and summarize
-          positives=+(pvals_all<str2double(UI.alpha.ui));
-          positives_neg=+(pvals_all_neg<str2double(UI.alpha.ui));
+          if isstring(UI.alpha.ui)
+              UI.alpha.ui=str2double(UI.alpha.ui);
+          end
+          positives=+(pvals_all<UI.alpha.ui);
+          positives_neg=+(pvals_all_neg<UI.alpha.ui);
           positives_total=sum(positives,length(size(positives)));
           positives_total_neg=sum(positives_neg,length(size(positives)));
 

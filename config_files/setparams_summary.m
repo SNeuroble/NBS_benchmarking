@@ -12,6 +12,7 @@
 all_tasks={'EMOTION_v_REST','GAMBLING_v_REST','LANGUAGE_v_REST','MOTOR_v_REST','RELATIONAL_v_REST','SOCIAL_v_REST','WM_v_REST'};
 all_stat_types={'Parametric_Bonferroni','Parametric_FDR','Size_Extent','TFCE','Constrained_FWER','Constrained','Omnibus_Multidimensional_cNBS'};
 grsize_default=80;
+use_preaveraged_constrained=0;
 
 % Default: saving settings
 save_settings.defaults.save_benchmarking_summary=1;
