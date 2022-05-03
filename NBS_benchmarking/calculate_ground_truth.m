@@ -28,15 +28,16 @@ rep_params_copy=rep_params;
 UI.matrices.ui=m;
 nbs=NBSrun_smn(UI);
 
-% Estimate network-level t-stat
-% note that NBS will transform this vector to a matrix while assuming no entries on diagonal. Thus the edge_stats are correct but nothing beyond that (cluster stats, pvals) 
-UI.matrices.ui=m_net;
-nbs_net=NBSrun_smn(UI);
+if ~use_preaveraged_constrained
+    % Estimate network-level t-stat
+    % note that NBS will transform this vector to a matrix while assuming no entries on diagonal. Thus the edge_stats are correct but nothing beyond that (cluster stats, pvals) 
+    UI.matrices.ui=m_net;
+    nbs_net=NBSrun_smn(UI);
 
-% Estimate whole brain-level t-stat (simple single statistic pooled over connectome) 
-UI.matrices.ui=m_pool_all;
-nbs_pool_all=NBSrun_smn(UI);
-
+    % Estimate whole brain-level t-stat (simple single statistic pooled over connectome) 
+    UI.matrices.ui=m_pool_all;
+    nbs_pool_all=NBSrun_smn(UI);
+end
 
 % Optional: estimate significant clusters
 if calc_significant_clusters
@@ -72,8 +73,10 @@ end
 
 edge_stats=nbs.NBS.edge_stats;
 %cluster_stats=full(nbs.NBS.cluster_stats);
-edge_stats_net=nbs_net.NBS.edge_stats;
-edge_stats_pool_all=nbs_pool_all.NBS.edge_stats;
+if ~use_preaveraged_constrained
+    edge_stats_net=nbs_net.NBS.edge_stats;
+    edge_stats_pool_all=nbs_pool_all.NBS.edge_stats;
+end
 
 if strcmp(UI.statistic_type.ui,'Size'); size_str=['_',UI.size.ui];
 else; size_str='';
@@ -83,8 +86,11 @@ if use_both_tasks; condition_str=[rep_params.task1,'_v_',rep_params.task2]; else
 
 output_filename=[output_dir,'ground_truth__',condition_str,'_',UI.statistic_type.ui,size_str,test_str,'_',datestr(now,'mmddyyyy_HHMM'),'.mat'];
 fprintf('Saving results in %s\n',output_filename)
-save(output_filename,'edge_stats','edge_stats_net','edge_stats_pool_all','UI_light','rep_params_copy');
-
+if use_preaveraged_constrained
+    save(output_filename,'edge_stats','UI_light','rep_params_copy');
+else
+    save(output_filename,'edge_stats','edge_stats_net','edge_stats_pool_all','UI_light','rep_params_copy');
+end
 % also save matrices
 output_matrices_filename=[output_dir,'ground_truth_matrices_ONLY__',condition_str,'_',UI.statistic_type.ui,size_str,test_str,'_',datestr(now,'mmddyyyy_HHMM'),'.mat'];
 save(output_matrices_filename,'m','UI_light','subIDs');

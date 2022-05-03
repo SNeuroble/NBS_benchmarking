@@ -44,9 +44,14 @@ setup_benchmarking;
     %reps_completed_previously=0;
 FWER=0;
 FWER_neg=0;
-edge_stats_all=zeros(n_nodes*(n_nodes-1)/2,rep_params.n_repetitions);
-edge_stats_all_neg=zeros(n_nodes*(n_nodes-1)/2,rep_params.n_repetitions);
-if strcmp(UI.statistic_type.ui,'Constrained') || strcmp(UI.statistic_type.ui,'SEA')
+if use_preaveraged_constrained % not square matrix
+    edge_stats_all=zeros(n_var,rep_params.n_repetitions);
+    edge_stats_all_neg=zeros(n_var,rep_params.n_repetitions);
+else
+    edge_stats_all=zeros(n_nodes*(n_nodes-1)/2,rep_params.n_repetitions);
+    edge_stats_all_neg=zeros(n_nodes*(n_nodes-1)/2,rep_params.n_repetitions);
+end
+if contains(UI.statistic_type.ui,'Constrained') || strcmp(UI.statistic_type.ui,'SEA')
     cluster_stats_all=zeros(length(unique(edge_groups))-1,1,rep_params.n_repetitions); % minus 1 to not count "zero"
     cluster_stats_all_neg=zeros(length(unique(edge_groups))-1,1,rep_params.n_repetitions); % minus 1 to not count "zero"
     pvals_all=zeros(length(unique(UI.edge_groups.ui))-1,rep_params.n_repetitions); % minus 1 to not count "zero"
@@ -122,9 +127,14 @@ parfor (this_repetition=1:rep_params.n_repetitions)
     fprintf('* Repetition %d - positive contrast\n',this_repetition)
 
     ids_thisrep=ids_sampled(:,this_repetition);
-    m_test=zeros(n_nodes*(n_nodes-1)/2,n_subs_subset*2);
-    
+       
     if use_both_tasks
+        
+        if use_preaveraged_constrained % not square matrix 
+            m_test=zeros(n_var,n_subs_subset*2);
+        else
+            m_test=zeros(n_nodes*(n_nodes-1)/2,n_subs_subset*2);
+        end
         
         if paired_design
             
@@ -179,8 +189,15 @@ parfor (this_repetition=1:rep_params.n_repetitions)
         end
     else
         
+        if use_preaveraged_constrained % not square matrix 
+            m_test=zeros(n_var,n_subs_subset);
+        else
+            m_test=zeros(n_nodes*(n_nodes-1)/2,n_subs_subset);
+        end
+        
         %if FPR, use the predefined task order
-        if ~do_TPR
+       
+         if ~do_TPR
             if switch_task_order(i,this_repetition); task_flipper=-1;
             else; task_flipper=1;
             end
@@ -188,11 +205,18 @@ parfor (this_repetition=1:rep_params.n_repetitions)
             task_flipper=1;
         end
         
-        for i = 1:n_subs_subset
-            this_file_task1 = [data_dir,task1,'/',subIDs{ids_thisrep(i)},'_',task1,data_type_suffix];
-            d=importdata(this_file_task1);
-            d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
-            m_test(:,i) = task_flipper * d(triumask);
+        if use_preaveraged_constrained % no reordering TODO: add above as well
+             for i = 1:n_subs_subset
+                this_file_task1 = [data_dir,task1,'/',subIDs{ids_thisrep(i)},'_',task1,data_type_suffix];
+                m_test(:,i)=task_flipper * importdata(this_file_task1);
+            end
+        else
+            for i = 1:n_subs_subset
+                this_file_task1 = [data_dir,task1,'/',subIDs{ids_thisrep(i)},'_',task1,data_type_suffix];
+                d=importdata(this_file_task1);
+                d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
+                m_test(:,i) = task_flipper * d(triumask);
+            end
         end
     end
     %m_test=m(:,ids_sampled(:,this_repetition)); % TEST
@@ -259,7 +283,7 @@ parfor (this_repetition=1:rep_params.n_repetitions)
 
 end
 
-if strcmp(UI.statistic_type.ui,'Constrained') || strcmp(UI.statistic_type.ui,'SEA') || strcmp(UI.statistic_type.ui,'Omnibus')
+if contains(UI.statistic_type.ui,'Constrained') || strcmp(UI.statistic_type.ui,'SEA') || strcmp(UI.statistic_type.ui,'Omnibus')
    cluster_stats_all=squeeze(cluster_stats_all);
    cluster_stats_all_neg=squeeze(cluster_stats_all_neg);
 end

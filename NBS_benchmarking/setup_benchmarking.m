@@ -118,17 +118,19 @@ end
 % return; %TODO: TEMPORARY
 
 % Load one example matrix to get number of nodes and nets
-
 template_file=[data_dir,task1,'/',subIDs{1},'_',task1,data_type_suffix];
 fprintf('Template file is: %s.\n',template_file);
 template=importdata(template_file);
-n_nodes=size(template,1); % assuming square
-triumask=triu(true(size(template)),1);
 
-template_net=summarize_matrix_by_atlas(template(:,:,1),'suppressimg',1);
-n_node_nets=size(template_net,1); % square
-trilmask_net=tril(true(n_node_nets)); % I know it's annoying to switch to tril here instead of triu, but summarize_matrix_by_atlas gives results in lower triangle (tril is my habit) while NBS uses triu...
+n_var=size(template,1);
+if ~use_preaveraged_constrained
+    n_nodes=n_var; % assuming square
+    triumask=triu(true(size(template)),1);
 
+    template_net=summarize_matrix_by_atlas(template(:,:,1),'suppressimg',1);
+    n_node_nets=size(template_net,1); % square
+    trilmask_net=tril(true(n_node_nets)); % I know it's annoying to switch to tril here instead of triu, but summarize_matrix_by_atlas gives results in lower triangle (tril is my habit) while NBS uses triu...
+end
 
 %% GROUND TRUTH ONLY: Pre-load and reorder data unless already specified to be loaded
 % note that for benchmarking (not ground truth), we load/reorder data during each repetition
@@ -148,36 +150,50 @@ if do_ground_truth
         if use_both_tasks % for paired
             
             if paired_design
-                
-                m=zeros(n_nodes*(n_nodes-1)/2,n_subs*2);
-                m_net=zeros(n_node_nets*(n_node_nets-1)/2+n_node_nets,n_subs*2);
-                m_pool_all=zeros(1,n_subs*2);
-                for i = 1:n_subs
-                    
-                    % task 1
-                    this_file_task1 = [data_dir,task1,'/',subIDs{i},'_',task1,data_type_suffix];
-                    d=importdata(this_file_task1);
-                    d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
-                    m(:,i) = d(triumask);
+                if use_preaveraged_constrained % no need to reorder/pool
+                    m=zeros(n_var,n_subs*2);
+                    for i = 1:n_subs
+                        % task 1
+                        this_file_task1 = [data_dir,task1,'/',subIDs{i},'_',task1,data_type_suffix];
+                        m(:,i)=importdata(this_file_task1);
+                        % task 2
+                        this_file_task2 = [data_dir,task2,'/',subIDs{i},'_',task2,data_type_suffix];
+                        m(:,n_subs+i)=importdata(this_file_task2);
+                        
+                        % print every 50 subs x 2 tasks
+                        if mod(i,50)==0; fprintf('%d/%d  (x2 tasks)\n',i,n_subs); end
+                    end
+                else % go ahead and reorder by atlas and pool by nets/all for ground truth
+                    m=zeros(n_nodes*(n_nodes-1)/2,n_subs*2);
+                    m_net=zeros(n_node_nets*(n_node_nets-1)/2+n_node_nets,n_subs*2);
+                    m_pool_all=zeros(1,n_subs*2);
+                    for i = 1:n_subs
+                        
+                        % task 1
+                        this_file_task1 = [data_dir,task1,'/',subIDs{i},'_',task1,data_type_suffix];
+                        d=importdata(this_file_task1);
+                        d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
+                        m(:,i) = d(triumask);
 
-                    d_net=summarize_matrix_by_atlas(d,'suppressimg',1);
-                    m_net(:,i)=d_net(trilmask_net);
-                  
-                    m_pool_all(i)=mean(d(triumask));
+                        d_net=summarize_matrix_by_atlas(d,'suppressimg',1);
+                        m_net(:,i)=d_net(trilmask_net);
+                      
+                        m_pool_all(i)=mean(d(triumask));
 
-                    % task 2
-                    this_file_task2 = [data_dir,task2,'/',subIDs{i},'_',task2,data_type_suffix];
-                    d=importdata(this_file_task2);
-                    d=reorder_matrix_by_atlas(d,mapping_category);
-                    m(:,n_subs+i) = d(triumask);
-                    
-                    d_net=summarize_matrix_by_atlas(d,'suppressimg',1);
-                    m_net(:,n_subs+i)=d_net(trilmask_net);
-                    
-                    m_pool_all(n_subs+i)=mean(d(triumask));
+                        % task 2
+                        this_file_task2 = [data_dir,task2,'/',subIDs{i},'_',task2,data_type_suffix];
+                        d=importdata(this_file_task2);
+                        d=reorder_matrix_by_atlas(d,mapping_category);
+                        m(:,n_subs+i) = d(triumask);
+                        
+                        d_net=summarize_matrix_by_atlas(d,'suppressimg',1);
+                        m_net(:,n_subs+i)=d_net(trilmask_net);
+                        
+                        m_pool_all(n_subs+i)=mean(d(triumask));
 
-                    % print every 50 subs x 2 tasks
-                    if mod(i,50)==0; fprintf('%d/%d  (x2 tasks)\n',i,n_subs); end
+                        % print every 50 subs x 2 tasks
+                        if mod(i,50)==0; fprintf('%d/%d  (x2 tasks)\n',i,n_subs); end
+                    end
                 end
             else
                 error('This script hasn''t been fully updated/tested for two-sample yet.');
@@ -185,21 +201,30 @@ if do_ground_truth
         
         else % for single task v 0
 
-            m=zeros(n_nodes*(n_nodes-1)/2,n_subs);
-            m_net=zeros(n_node_nets*(n_node_nets-1)/2+n_node_nets,n_subs);
-            m_pool_all=zeros(1,n_subs);
-            for i = 1:n_subs
-                this_file_task1 = [data_dir,task1,'/',subIDs{i},'_',task1,data_type_suffix];
-                d=importdata(this_file_task1);
-                d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
-                m(:,i) = d(triumask);
-                d_net=summarize_matrix_by_atlas(d,'suppressimg',1);
-                m_net(:,i)=d_net(trilmask_net);
-                m_pool_all(i)=mean(d(triumask));
-                % print every 100
-                if mod(i,100)==0; fprintf('%d/%d\n',i,n_subs); end
-            end
-        
+            if use_preaveraged_constrained % no need to reorder/pool
+                m=zeros(n_var,n_subs);
+                for i = 1:n_subs
+                    this_file_task1 = [data_dir,task1,'/',subIDs{i},'_',task1,data_type_suffix];
+                    m(:,i)=importdata(this_file_task1);
+                    % print every 100
+                    if mod(i,100)==0; fprintf('%d/%d\n',i,n_subs); end
+                end
+            else % go ahead and reorder by atlas and pool by nets/all for ground truth
+                m=zeros(n_nodes*(n_nodes-1)/2,n_subs);
+                m_net=zeros(n_node_nets*(n_node_nets-1)/2+n_node_nets,n_subs);
+                m_pool_all=zeros(1,n_subs);
+                for i = 1:n_subs
+                    this_file_task1 = [data_dir,task1,'/',subIDs{i},'_',task1,data_type_suffix];
+                    d=importdata(this_file_task1);
+                    d=reorder_matrix_by_atlas(d,mapping_category); % reorder bc proximity matters for SEA and cNBS
+                    m(:,i) = d(triumask);
+                    d_net=summarize_matrix_by_atlas(d,'suppressimg',1);
+                    m_net(:,i)=d_net(trilmask_net);
+                    m_pool_all(i)=mean(d(triumask));
+                    % print every 100
+                    if mod(i,100)==0; fprintf('%d/%d\n',i,n_subs); end
+                end
+            end 
         end
 
     else
@@ -256,7 +281,7 @@ else
     
     % set up design matrix for one-sample t-test
     % data should be organized: s1, ..., sn
-    dmat=ones(n_subs,1);
+    dmat=ones(n_subs_subset,1);
 
     % set up contrasts - positive and negative
     nbs_contrast=[1];
@@ -268,9 +293,13 @@ end
 
 
 % make edge groupings (for cNBS/SEA)
-edge_groups=load_atlas_edge_groups(n_nodes,mapping_category);
-edge_groups=tril(edge_groups,-1);
-% TODO: in NBS function, should we require zero diag? Automatically clear diag? Something else?
+if ~use_preaveraged_constrained % no need to reorder/pool
+    edge_groups=load_atlas_edge_groups(n_nodes,mapping_category);
+    edge_groups=tril(edge_groups,-1);
+    % TODO: in NBS function, should we require zero diag? Automatically clear diag? Something else?
+else
+    edge_groups=1:length(template)+1; % plus 1 because the script expects there to be a "0" (and will subsequently ignore..."
+end
 
 
 %% Assign params to structures
@@ -302,6 +331,7 @@ UI.statistic_type.ui=cluster_stat_type;
 UI.size.ui=cluster_size_type;
 UI.omnibus_type.ui=omnibus_type; 
 UI.edge_groups.ui=edge_groups;
+UI.use_preaveraged_constrained.ui=edge_groups;
 UI.exchange.ui=nbs_exchange;
 %UI.do_Constrained_FWER_second_level.ui=do_Constrained_FWER_second_level; 
 

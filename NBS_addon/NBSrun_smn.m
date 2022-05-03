@@ -28,6 +28,10 @@ function nbs=NBSrun_smn(varargin)
 %                       [optional if UI.method.ui=='Run FDR']
 %                       See also NBSstats
 %
+%   UI.use_preaveraged_constrained.ui 1 | 0
+%                       Input data has already been averaged within edge groups
+%                       so skip constraining step for Constrained and c-Omnibus
+%
 %   UI.omnibus_type.ui: 'Threshold_Positive' | 'Threshold_Both_Dir' | 'Average_Positive' | 'Average_Both_Dir' | 'Multidimensional_cNBS'
 %                       Calculate statistic by combining values across all edges
 %                         'Threshold_Positive' : Threshold positive
@@ -134,6 +138,7 @@ function nbs=NBSrun_smn(varargin)
 %         UI.test.ui='t-test';
 %         UI.statistic_type.ui='Size';
 %         UI.size.ui='Extent';
+%         UI.use_preaveraged_constrained.ui=0;
 %         UI.omnibus_type.ui='Threshold';
 %         UI.thresh.ui='3.1';
 %         UI.perms.ui='5000';
@@ -144,7 +149,6 @@ function nbs=NBSrun_smn(varargin)
 %         UI.matrices.ui='SchizophreniaExample\matrices\subject01.txt';
 %         UI.node_coor.ui='SchizophreniaExample\COG.txt';                         
 %         UI.node_label.ui='SchizophreniaExample\nodeLabels.txt';
-
 %         UI.edge_groups.ui='edge_groups.txt'; % TBD
 %
 %   Remarks:
@@ -219,12 +223,13 @@ UI.matrices.ok=1;
 UI.node_coor.ok=1;
 UI.node_label.ok=1;
 UI.statistic_type.ok=1;
+UI.size.ok=1;
 UI.omnibus_type.ok=1;
+UI.use_preaveraged_constrained.ok=1;
 UI.edge_groups.ok=1;
 %UI.do_Constrained_FWER_second_level.ok=1;
 UI.perms.ok=1;
 UI.alpha.ok=1;
-UI.size.ok=1;
 UI.exchange.ok=1;
     
 %Read UI and assign to appropriate structure
@@ -319,20 +324,34 @@ catch; UI.alpha.ok=0; end
 try if ~isnumeric(nbs.STATS.alpha) || ~(nbs.STATS.alpha>0)
     UI.alpha.ok=0; end
 catch; UI.alpha.ok=0; end
-%Component size 
-try nbs.STATS.size=UI.size.ui; catch; UI.ok=0; end 
 %Statistic type [required to specify for now, but all should be optional w 'Size' as default]
 % if isfield(UI.statistic_type,'ui') ... ; elseif isfield(nbs,'NBS') ...; end
 try nbs.STATS.statistic_type=UI.statistic_type.ui; catch; UI.statistic_type.ok=0; end 
+%Component size [required if statistic_type is Size or TFCE]
+if strcmp(nbs.STATS.statistic_type,'Size') | strcmp(nbs.STATS.statistic_type,'TFCE') 
+    try nbs.STATS.size=UI.size.ui; catch; UI.size.ok=0; end
+end
 %Omnibus type [required if statistic_type is Omnibus]
 if strcmp(nbs.STATS.statistic_type,'Omnibus')
     try nbs.STATS.omnibus_type=UI.omnibus_type.ui; catch; UI.omnibus_type.ok=0; end 
 end
-% Edge groups
-if strcmp(nbs.STATS.statistic_type,'Constrained') || strcmp(nbs.STATS.statistic_type,'SEA') || (strcmp(nbs.STATS.statistic_type,'Omnibus') && strcmp(nbs.STATS.omnibus_type,'Multidimensional_cNBS'))
-    nbs.STATS.use_edge_groups=1;
-    try [nbs.STATS.edge_groups,UI.edge_groups.ok]=read_edge_groups(UI.edge_groups.ui,DIMS);
-    catch UI.edge_groups.ok=0;
+%Using preaveraged input data flag
+if contains(nbs.STATS.statistic_type,'Constrained') || strcmp(nbs.STATS.statistic_type,'SEA') || (strcmp(nbs.STATS.statistic_type,'Omnibus') && strcmp(nbs.STATS.omnibus_type,'Multidimensional_cNBS'))
+    try nbs.STATS.use_preaveraged_constrained=UI.use_preaveraged_constrained.ui; catch; UI.use_preaveraged_constrained.ok=0; end 
+end
+%Edge groups [required if using Constrained or Multidimensional_cNBS
+% if preaveraging, n_groups will be taken from data and no grouping file is required]
+if contains(nbs.STATS.statistic_type,'Constrained') || strcmp(nbs.STATS.statistic_type,'SEA') || (strcmp(nbs.STATS.statistic_type,'Omnibus') && strcmp(nbs.STATS.omnibus_type,'Multidimensional_cNBS'))
+    nbs.STATS.use_edge_groups=1; % used in NBSstats_smn to preallocate null based on number of edge groups
+    if nbs.STATS.use_preaveraged_constrained
+        % if using preaveraged, don't bother with edge groups and just use the dimensions of the input data
+        nbs.STATS.edge_groups.unique=1:size(nbs.GLM.y,2)'; % input data must be n_groups x n_subs (note that read_matrices will flip this)
+        nbs.STATS.edge_groups.groups=0;
+    else
+        % if not using preaveraged, load groups as usual
+        try [nbs.STATS.edge_groups,UI.edge_groups.ok]=read_edge_groups(UI.edge_groups.ui,DIMS);
+        catch UI.edge_groups.ok=0;
+        end
     end
 else
     nbs.STATS.use_edge_groups=0;
@@ -342,7 +361,6 @@ else
         end
     end
 end
-
 %{
 % Correction for second level for network-level inference
 if strcmp(nbs.STATS.statistic_type,'Constrained')
@@ -785,21 +803,27 @@ function [msg,stop]=errorcheck(UI,DIMS,S)
         catch; end
         return;
     end
-    if ~UI.size.ok
-        msg={'Stop: Component Size not found or inconsistent'};
-        try set(S.ADV.size.text,'ForegroundColor','red');
-        catch; end
-        return;
-    end
     if ~UI.statistic_type.ok
         msg={'Stop: Statistic type not found or inconsistent'};
         try set(S.ADV.statistic_type.text,'ForegroundColor','red');
         catch; end
         return;
     end
+    if ~UI.size.ok
+        msg={'Stop: Component Size not found or inconsistent'};
+        try set(S.ADV.size.text,'ForegroundColor','red');
+        catch; end
+        return;
+    end
     if ~UI.omnibus_type.ok
         msg={'Stop: Omnibus type not found or inconsistent'};
         try set(S.ADV.statistic_type.text,'ForegroundColor','red');
+        catch; end
+        return;
+    end
+    if ~UI.use_preaveraged_constrained.ok
+        msg={'Stop: Preaveraging flag not found or inconsistent'};
+        try set(S.ADV.size.text,'ForegroundColor','red');
         catch; end
         return;
     end

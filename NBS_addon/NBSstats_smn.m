@@ -205,7 +205,7 @@ function [edge_groups,was_mask_flipped]=check_cNBS_mask(edge_groups)
 
     %  Force mask to be upper triangular only
     t=tril(edge_groups.groups,-1);
-    was_mask_changed=0;
+    was_mask_flipped=0;
     if any(t(:))
         edge_groups.groups=triu(edge_groups.groups');
         was_mask_flipped=1;
@@ -304,12 +304,16 @@ switch STATS.statistic_type_numeric
     case {3,4} % do cNBS - returns a group-length vector
         
         % TODO: this should be done (here and below - see case 5) directly from the test_stat without making mat - just need network IDs 
-        test_stat_mat=zeros(N,N);
-        test_stat_mat(ind_upper)=test_stat;
-        test_stat_mat=(test_stat_mat+test_stat_mat');
-         
-        cluster_stats=get_constrained_stats(test_stat_mat,STATS.edge_groups);
-        
+        if STATS.use_preaveraged_constrained
+            cluster_stats=test_stat;
+        else
+            test_stat_mat=zeros(N,N);
+            test_stat_mat(ind_upper)=test_stat;
+            test_stat_mat=(test_stat_mat+test_stat_mat');
+            
+            cluster_stats=get_constrained_stats(test_stat_mat,STATS.edge_groups);
+        end
+
         null_stat=cluster_stats; % TODO - this is not a max value but instead 1 val for null per group - think of how to name
         
     case 5 % do Set Enrichment Analysis (SEA; GSEA minus the G bc not genetics)
@@ -339,7 +343,11 @@ switch STATS.statistic_type_numeric
                 test_stat_mat(ind_upper)=test_stat;
                 test_stat_mat=(test_stat_mat+test_stat_mat');
 
-                cluster_stats=get_constrained_stats(test_stat_mat,STATS.edge_groups);
+                if STATS.use_preaveraged_constrained
+                    cluster_stats=test_stat_mat;
+                else
+                    cluster_stats=get_constrained_stats(test_stat_mat,STATS.edge_groups);
+                end
 
                 null_stat=cluster_stats; % TODO - this is not a max value but instead 1 val for null per group - think of how to name
             case 6 % Multidimensional null
