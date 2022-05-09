@@ -47,7 +47,8 @@ date_time_str_ground_truth.RELATIONAL='03222021_1201';
 date_time_str_ground_truth.SOCIAL='03222021_1212';
 date_time_str_ground_truth.WM='03222021_1219';
 
-
+date_time_str_ground_truth.EMOTION_v_GAMBLING='05032022_1425'; % task v task
+ 
 
 
 
@@ -63,7 +64,8 @@ case {'visualize_tpr','visualize_gt','dcoeff'}
         case 40
             date_time_str_combined='12142021';
         case 80
-            date_time_str_combined='12142021';
+%             date_time_str_combined='12142021'; % tmp - tvt
+            date_time_str_combined='05062022'; % tvt
         case 120
             date_time_str_combined='12152021';
         otherwise
@@ -122,6 +124,7 @@ otherwise
                 date_time_str_results.SOCIAL_v_REST='01312021_0151';
                 date_time_str_results.WM_v_REST='01312021_0153';
                 date_time_str_results.REST_v_REST2='01312021_0057';
+                date_time_str_results.EMOTION_v_GAMBLING='05022022_1822'; % tvt
             elseif grsize==120
                 date_time_str_results.EMOTION_v_REST='01312021_0205';
                 date_time_str_results.GAMBLING_v_REST='01312021_0216';
@@ -169,6 +172,7 @@ otherwise
                 date_time_str_results.SOCIAL_v_REST='12202020_0436';
                 date_time_str_results.WM_v_REST='12202020_0436';
                 date_time_str_results.REST_v_REST2='01292021_0726';
+                date_time_str_results.EMOTION_v_GAMBLING='05022022_2059'; % tvt
             elseif grsize==120
                 date_time_str_results.EMOTION_v_REST='01262021_0007';
                 date_time_str_results.GAMBLING_v_REST='01282021_0025';
@@ -256,6 +260,7 @@ otherwise
                 date_time_str_results.SOCIAL_v_REST='12202020_1940';
                 date_time_str_results.WM_v_REST='12202020_1928';
                 date_time_str_results.REST_v_REST2='01292021_0609';
+                date_time_str_results.EMOTION_v_GAMBLING='05032022_0110'; % tvt
             elseif grsize==120
                 date_time_str_results.EMOTION_v_REST='01262021_0053';
                 date_time_str_results.GAMBLING_v_REST='01272021_2332';
@@ -329,10 +334,12 @@ if ~contains(summary_type,'visualize') % visualizations rely on combined summary
 
 end
 
+% special prefix, for special cases like tvt
+if prepend_special_prefix; combined_prefix=special_prefix; else; combined_prefix=''; end
 
 % combined summary filename
 combined_summary_dir=[output_dir,'combined_summary/'];
-combined_basename_prefix=['combined_grsize',num2str(grsize),'_',date_time_str_combined];
+combined_basename_prefix=[combined_prefix,'combined_grsize',num2str(grsize),'_',date_time_str_combined];
 combined_filename_prefix=[combined_summary_dir,combined_basename_prefix];
 combined_summary_filename=[combined_filename_prefix,'_summary.mat'];
 
