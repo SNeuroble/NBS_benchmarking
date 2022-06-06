@@ -68,6 +68,8 @@ addOptional(p,'save_logs',save_settings.defaults.save_logs);
 addOptional(p,'save_summarized_data',save_settings.defaults.save_summarized_data);
 addOptional(p,'make_figs',make_figs_default);
 addOptional(p,'do_combined',do_combined_default);
+addOptional(p,'special_prefix',special_prefix_default);
+addOptional(p,'tpr_dthresh',tpr_dthresh_default);
 parse(p,summary_type,varargin{:});
 
 % summary_type=p.Results.summary_type;
@@ -81,6 +83,8 @@ save_settings.do.save_logs=p.Results.save_logs;
 save_settings.do.save_summarized_data=p.Results.save_summarized_data;
 make_figs=p.Results.make_figs;
 pp.do_combined=p.Results.do_combined;
+special_prefix=p.Results.special_prefix;
+tpr_dthresh=p.Results.tpr_dthresh;
 if pp.do_combined; make_figs=0; else; make_figs=p.Results.make_figs; end
 if class(stat_types)=='char'; stat_types={stat_types}; end
 
@@ -122,6 +126,11 @@ end
 
 % TODO: double-check saving for combined tasks
 
+if tpr_dthresh~=0
+    tpr_dthresh_suffix=['_tpr_dthresh_',num2str(tpr_dthresh*100)];
+else
+    tpr_dthresh_suffix='';
+end
 
 %% MAIN
 
@@ -195,7 +204,6 @@ for t=1:length(tasks)
 
         % set files for specified task, stat_type, data_source and make output
         set_datetimestr_and_files;
-        %if ~exist(summary_output_dir,'dir'); mkdir(summary_output_dir); end
 
         if use_preaveraged_constrained
             this_stat_level_str='edge';
@@ -217,9 +225,8 @@ for t=1:length(tasks)
         
         % calculate true positives
         [dcoeff.(stat_types{s})(:,t),tpr.(stat_types{s})(:,t),fpr.(stat_types{s})(:,t),fwer_strong.(stat_types{s})(t),fdr.(stat_types{s})(:,t),localizing_power.(stat_types{s})(t),num_fp.(stat_types{s})(:,t),spatial_extent_fp.(stat_types{s})(:,t),log_data.(stat_types{s}).(tasks{t})]...
-            =summary_tools.calculate_tpr(benchmarking_summary_filename,ground_truth_dcoeff_filename,this_stat_level_str,this_stat_gt_level_str,pp.remove_matrix_diag,edge_groups);
+            =summary_tools.calculate_tpr(benchmarking_summary_filename,ground_truth_dcoeff_filename,this_stat_level_str,this_stat_gt_level_str,pp.remove_matrix_diag,edge_groups,tpr_dthresh);
         % TODO: remove the fwer_strong here bc it's already passed to log_data
-        
     end
 end
 
@@ -274,7 +281,7 @@ for g=1:pp.n_gt_levels
         
 end
 
-summary_tools.visualize_ground_truth(dcoeff,ground_truth_vis_filename_prefix,pp,stat_level_map,save_settings);
+summary_tools.visualize_ground_truth(dcoeff,tpr_dthresh,ground_truth_vis_filename_prefix,pp,stat_level_map,save_settings);
 
 
 
@@ -296,10 +303,11 @@ set_datetimestr_and_files;
 
 if pp.do_combined
     filename_prefix=combined_filename_prefix;
+    if ~exist(log_dir__combined,'dir'); mkdir(log_dir__combined); end
 else
     filename_prefix=combined_by_task_filename_prefix;
     if ~exist(combined_by_task_dir,'dir'); mkdir(combined_by_task_dir); end
-    if ~exist(log_dir,'dir'); mkdir(log_dir); end
+    if ~exist(log_dir__task,'dir'); mkdir(log_dir__task); end
 end
 
 load(combined_summary_filename,'dcoeff','tpr','log_data','fpr','fwer_strong','fdr','localizing_power','spatial_extent_fp');
@@ -314,15 +322,18 @@ for s=1:length(stat_types)
             % fit spline
             [tpr_fit.(stat_types{s}),res.(stat_types{s}),dcoeff_windowed.(stat_types{s}),tpr_windowed.(stat_types{s}),tpr_std.(stat_types{s}),~]=...
                 fit_spline(dcoeff.(stat_types{s})(:),tpr.(stat_types{s})(:),pp.spline_smoothing{stat_level_map.stat_gt_levels(s)},pp.window_sz{stat_level_map.stat_gt_levels(s)});
+            
+            this_log_filename_prefix=[log_filename_prefix__combined,'_all_tasks_',stat_types{s}];
+            save_settings=summary_tools.write_summary_log(dcoeff_windowed.(stat_types{s}),tpr_windowed.(stat_types{s}),fdr.(stat_types{s}),fwer_strong.(stat_types{s}),localizing_power.(stat_types{s}),spatial_extent_fp.(stat_types{s}),log_data.(stat_types{s}),stat_level_map,pp,save_settings,this_log_filename_prefix,1);
+
         else
             for t=1:length(tasks)
                 [tpr_fit.(stat_types{s})(:,t),res.(stat_types{s})(:,t),dcoeff_windowed.(stat_types{s}).(tasks{t}),tpr_windowed.(stat_types{s}).(tasks{t}),tpr_std.(stat_types{s}).(tasks{t}),~]=...
                     fit_spline(dcoeff.(stat_types{s})(:,t),tpr.(stat_types{s})(:,t),pp.spline_smoothing{stat_level_map.stat_gt_levels(s)},pp.window_sz{stat_level_map.stat_gt_levels(s)});
             
-                %log - TODO: consider a single combined log
-                this_log_filename_prefix=[log_filename_prefix,'_',tasks{t},'_',stat_types{s}];
-                save_settings=summary_tools.write_summary_log(dcoeff_windowed.(stat_types{s}).(tasks{t}),tpr_windowed.(stat_types{s}).(tasks{t}),log_data.(stat_types{s}).(tasks{t}),stat_level_map,pp,save_settings,this_log_filename_prefix);
-                
+                this_log_filename_prefix=[log_filename_prefix__task,'_',tasks{t},'_',stat_types{s}];
+                save_settings=summary_tools.write_summary_log(dcoeff_windowed.(stat_types{s}).(tasks{t}),tpr_windowed.(stat_types{s}).(tasks{t}),fdr.(stat_types{s})(:,t),fwer_strong.(stat_types{s})(t),localizing_power.(stat_types{s})(t),spatial_extent_fp.(stat_types{s})(:,t),log_data.(stat_types{s}).(tasks{t}),stat_level_map,pp,save_settings,this_log_filename_prefix,0);
+
             end
         end
         
@@ -349,11 +360,13 @@ for s=1:length(stat_types)
         res.(stat_types{s})=reshape(res.(stat_types{s}),pp.n_features.(stat_level_map.stat_gt_levels_str{s}),pp.n_tasks);
        
     else % whole-brain
-        for t=1:length(tasks)
-            %log - TODO: consider a single combined log
-            this_log_filename_prefix=[log_filename_prefix,'_',tasks{t},'_',stat_types{s}];
-            save_settings=summary_tools.write_summary_log(dcoeff.(stat_types{s})(:,t),tpr.(stat_types{s})(:,t),log_data.(stat_types{s}).(all_tasks{t}),stat_level_map,pp,save_settings,this_log_filename_prefix);
-
+        if ~pp.do_combined
+            for t=1:length(tasks)
+                % pass specificity measures to log since they are saved independently - % TODO: save directly to log_data in summary_tools
+                % TODO: may want to save a combined log for whole-brain
+                this_log_filename_prefix=[log_filename_prefix,'_',tasks{t},'_',stat_types{s}];
+                save_settings=summary_tools.write_summary_log(dcoeff.(stat_types{s})(:,t),tpr.(stat_types{s})(:,t),fdr.(stat_types{s})(:,t),fwer_strong.(stat_types{s})(t),localizing_power.(stat_types{s})(t),spatial_extent_fp.(stat_types{s})(:,t),log_data.(stat_types{s}).(all_tasks{t}),stat_level_map,pp,save_settings,this_log_filename_prefix,0);
+            end
         end
     end
 end
