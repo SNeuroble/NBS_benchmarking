@@ -47,7 +47,8 @@ date_time_str_ground_truth.RELATIONAL='03222021_1201';
 date_time_str_ground_truth.SOCIAL='03222021_1212';
 date_time_str_ground_truth.WM='03222021_1219';
 
-date_time_str_ground_truth.EMOTION_v_GAMBLING='05032022_1425'; % task v task
+% Task vs. task (tvt)
+date_time_str_ground_truth.EMOTION_v_GAMBLING='05032022_1425';
  
 
 
@@ -62,12 +63,24 @@ case {'visualize_tpr','visualize_gt','dcoeff'}
     
     switch grsize
         case 40
-            date_time_str_combined='12142021';
+            date_time_str_combined='05292022';
         case 80
-%             date_time_str_combined='12142021'; % tmp - tvt
-            date_time_str_combined='05062022'; % tvt
+            date_time_str_combined='05292022';
+            if strcmp(special_prefix,'tvt_') % special for tvt - requires d-threshold argument
+                if tpr_dthresh==0
+                    date_time_str_combined='05292022';
+                elseif tpr_dthresh==0.1
+                    date_time_str_combined='05292022';
+                elseif tpr_dthresh==0.2
+                    date_time_str_combined='05292022';
+                elseif tpr_dthresh==0.5
+                    date_time_str_combined='05292022'; % this actually hasn't been made yet, but the previous one is wrong bc based on code that wasn't finished
+                else
+                    error('Date_time_str for d threshold=%1.1f has not been specified.',tpr_dthresh)
+                end
+            end
         case 120
-            date_time_str_combined='12152021';
+            date_time_str_combined='05292022';
         otherwise
             error('Group size not defined');
     end
@@ -95,6 +108,7 @@ otherwise
                 date_time_str_results.SOCIAL_v_REST='05082021_1100';
                 date_time_str_results.WM_v_REST='05082021_1123';
                 date_time_str_results.REST_v_REST2='05062021_2157';
+                date_time_str_results.EMOTION_v_GAMBLING='05062022_1423'; % tvt
             elseif grsize==120
                 date_time_str_results.EMOTION_v_REST='05062021_0041';
                 date_time_str_results.GAMBLING_v_REST='05062021_1614';
@@ -202,6 +216,7 @@ otherwise
                 date_time_str_results.SOCIAL_v_REST='12202020_1308';
                 date_time_str_results.WM_v_REST='12202020_1259';
                 date_time_str_results.REST_v_REST2='01292021_0739';
+                date_time_str_results.EMOTION_v_GAMBLING='05062022_0656'; % tvt
             elseif grsize==120
                 date_time_str_results.EMOTION_v_REST='01272021_1155';
                 date_time_str_results.GAMBLING_v_REST='01272021_1153';
@@ -231,6 +246,7 @@ otherwise
                 date_time_str_results.SOCIAL_v_REST='05042021_2007';
                 date_time_str_results.WM_v_REST='05042021_2106';
                 date_time_str_results.REST_v_REST2='05042021_1929';
+                date_time_str_results.EMOTION_v_GAMBLING='05062022_0556'; % tvt
             elseif grsize==120
                 date_time_str_results.EMOTION_v_REST='05042021_2334';
                 date_time_str_results.GAMBLING_v_REST='05052021_0013';
@@ -290,6 +306,7 @@ otherwise
                 date_time_str_results.SOCIAL_v_REST='12242020_2347';
                 date_time_str_results.WM_v_REST='12252020_0007';
                 date_time_str_results.REST_v_REST2='01292021_0653';
+                date_time_str_results.EMOTION_v_GAMBLING='05062022_1858'; % tvt
              elseif grsize==120
                 date_time_str_results.EMOTION_v_REST='01272021_1104';
                 date_time_str_results.GAMBLING_v_REST='01272021_1008';
@@ -334,19 +351,16 @@ if ~contains(summary_type,'visualize') % visualizations rely on combined summary
 
 end
 
-% special prefix, for special cases like tvt
-if prepend_special_prefix; combined_prefix=special_prefix; else; combined_prefix=''; end
-
 % combined summary filename
 combined_summary_dir=[output_dir,'combined_summary/'];
-combined_basename_prefix=[combined_prefix,'combined_grsize',num2str(grsize),'_',date_time_str_combined];
+combined_basename_prefix=[special_prefix,'combined_grsize',num2str(grsize),'_',date_time_str_combined,tpr_dthresh_suffix];
 combined_filename_prefix=[combined_summary_dir,combined_basename_prefix];
 combined_summary_filename=[combined_filename_prefix,'_summary.mat'];
 
 % ground truth filename
 % name with combined prefix bc using combined data
 ground_truth_vis_dir=[combined_summary_dir,'ground_truth/'];
-ground_truth_vis_filename_prefix=[ground_truth_vis_dir,'ground_truth_',date_time_str_combined];
+ground_truth_vis_filename_prefix=[ground_truth_vis_dir,special_prefix,'ground_truth_',date_time_str_combined,tpr_dthresh_suffix];
 
 % individual task summaries filename
 % name with combined prefix bc using combined data
@@ -355,8 +369,10 @@ combined_by_task_filename_prefix=[combined_by_task_dir,combined_basename_prefix]
 
 % log filenames
 % name with combined prefix since using combined data
-log_dir=[combined_by_task_dir,'logs/'];
-log_filename_prefix=[log_dir,combined_basename_prefix];
+log_dir__task=[combined_by_task_dir,'logs/'];
+log_filename_prefix__task=[log_dir__task,combined_basename_prefix];
+log_dir__combined=[combined_summary_dir,'logs/'];
+log_filename_prefix__combined=[log_dir__combined,combined_basename_prefix];
 
 % set Shen edge groups file (default for benchmarking) in case can't get from original data
 edge_groups_filename=[output_dir,'edge_groups.mat'];
