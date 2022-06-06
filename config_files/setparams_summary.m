@@ -9,14 +9,12 @@
 %%%%%%%%% Defaults %%%%%%%%%
 
 % Default: tasks, stats, and grsize
-all_tasks={'EMOTION_v_GAMBLING'};
-%all_tasks={'EMOTION_v_REST','GAMBLING_v_REST','LANGUAGE_v_REST','MOTOR_v_REST','RELATIONAL_v_REST','SOCIAL_v_REST','WM_v_REST'};
-% all_stat_types={'Parametric_FDR','Size_Extent','Constrained'};
+all_tasks={'EMOTION_v_REST','GAMBLING_v_REST','LANGUAGE_v_REST','MOTOR_v_REST','RELATIONAL_v_REST','SOCIAL_v_REST','WM_v_REST'}; % for tvt, pass 'tasks' = {'EMOTION_v_GAMBLING'}
 all_stat_types={'Parametric_Bonferroni','Parametric_FDR','Size_Extent','TFCE','Constrained_FWER','Constrained','Omnibus_Multidimensional_cNBS'};
 grsize_default=80;
 use_preaveraged_constrained=0;
-prepend_special_prefix=1; % purely for naming purposes
-special_prefix='tvt_'; % purely for naming purposes
+special_prefix_default=''; % purely for reading/naming files - the task-versus-task option is 'tvt_'
+tpr_dthresh_default=0;
 
 % Default: saving settings
 save_settings.defaults.save_benchmarking_summary=1;
