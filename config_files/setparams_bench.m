@@ -79,7 +79,7 @@ all_cluster_stat_types={'Size'};   % cluster_stat_type (should be renamed stat_t
                             % NOTE 2: Constrained/_FWER uses Shen atlas imported in setup_benchmarking.m
 cluster_size_type='Extent'; % 'Intensity' | 'Extent'
                             % Only used if cluster_stat_type='Size'
-omnibus_type='Multidimensional_cNBS';  % 'Threshold_Positive' | 'Threshold_Both_Dir' | 'Average_Positive' | 'Average_Both_Dir' | 'Multidimensional_cNBS' | 'Multidimensional_all_edges' 
+all_omnibus_types={'Multidimensional_cNBS'};  % 'Threshold_Positive' | 'Threshold_Both_Dir' | 'Average_Positive' | 'Average_Both_Dir' | 'Multidimensional_cNBS' | 'Multidimensional_all_edges' 
                             % Only used if cluster_stat_type='Omnibus'
 omnibus_type_gt='Multidimensional_all_edges';
 use_preaveraged_constrained=0; % 1 | 0
