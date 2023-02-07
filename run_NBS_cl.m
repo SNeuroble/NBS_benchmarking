@@ -33,6 +33,7 @@ UI.size.ui=cluster_size_type;
 UI.edge_groups.ui=edge_groups_file;
 UI.exchange.ui=exchange;
 UI.matrices.ui=data_file;
+UI.use_preaveraged_constrained.ui=use_preaveraged_constrained;
 
 % Run command line NBS (TODO: maybe rename NBSrun_cl)
 nbs=NBSrun_smn(UI);
